@@ -203,34 +203,15 @@ private:
 
     void createWindow()
     {
-        int workPosX, workPosY, workWidth, workHeight;
-        glfwGetMonitorWorkarea(this->primaryMonitor, &workPosX, &workPosY, &workWidth, &workHeight);
-
-        this->windowWidth = std::min(this->canvas->width * (int)this->pixelSize, workWidth);
-        this->windowHeight = std::min(this->canvas->height * (int)this->pixelSize, workHeight);
+        this->windowWidth = this->canvas->width * (int)this->pixelSize;
+        this->windowHeight = this->canvas->height * (int)this->pixelSize;
 
         this->window = glfwCreateWindow(this->windowWidth, this->windowHeight, this->title, nullptr, nullptr);
 
-
-
-        // // remove frame size from window size (not working)
-        // int left, top, right, bottom;
-        // glfwGetWindowFrameSize(this->window, &left, &top, &right, &bottom);
-
-        // int maxContentWidth = workWidth - (left + right);
-        // int maxContentHeight = workHeight - (top + bottom);
-
-        // this->windowWidth = (this->windowWidth <= maxContentWidth) ? this->windowWidth : maxContentWidth;
-        // this->windowHeight = (this->windowHeight <= maxContentHeight) ? this->windowHeight : maxContentHeight;
-
-        // glfwSetWindowSize(this->window, this->windowWidth, this->windowHeight);
-
-
-
-        // // // centering window
-        // // int posX = workPosX + ((workWidth - (this->windowWidth + left + right)) >> 1);
-        // // int posY = workPosY + ((workHeight - (this->windowHeight + top + bottom)) >> 1);
-        // // glfwSetWindowPos(this->window, posX, posY);
+        glfwSetWindowPos(this->window,
+            (this->videoMode->width - this->windowWidth) >> 1,
+            (this->videoMode->height - this->windowHeight) >> 1
+        );
     }
 
     void createFullScreen_quadToResolution()
