@@ -1,15 +1,16 @@
 #include "canvas.h"
 #include "open_gl.h"
 #include "line.h"
+#include "rectangle.h"
 #include "circle.h"
 #include "fill.h"
 
 #include <iostream>
 #include <vector>
 
-const unsigned int WIDTH = 320;
-const unsigned int HEIGHT = 240;
-const unsigned int PIXEL_SIZE = 4;
+const unsigned int WIDTH = 160;
+const unsigned int HEIGHT = 120;
+const unsigned int PIXEL_SIZE = 6;
 
 const char* FILE_NAME = "resources/img/161.png";
 
@@ -43,9 +44,11 @@ int main()
 
 
 
-        Circle::draw_filled(&canvas, canvas.width >> 1, canvas.height >> 1, 100, DARK_BLUE);
+        Rectangle::draw_filled(&canvas, 10, 10, 16 * 4, 5 * 6, BROWN);
 
-        canvas.drawText(10, 10, "Hello", YELLOW);
+        canvas.drawChar(18, 28, 'F', YELLOW, Color(0, 0, 0, 63));
+
+        canvas.drawText(18, 16, "Hello megint", YELLOW, Color(0, 0, 0, 63), DARK_GREEN);
 
         for (std::pair<int, int> p : points) {
             canvas.setPixel(p.first, p.second, Color(255, 255, 255, 31));

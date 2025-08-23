@@ -40,11 +40,11 @@
                 true: pixels getted from the canvas (even also partially)
                 false: the area is out canvas
 
-        drawChar(x, y, asciiCode, charColor, backgroundColor)
-            - draw a simple 4x6 pixel charater to the passed coords, backgroundColor color is optional
+        drawChar(x, y, asciiCode, charColor, shadowColor, backgroundColor)
+            - draw a simple 4x6 pixel charater to the passed coords, shadowColor and backgroundColor are optional
 
-        drawText(x, y, text, charColor, backgroundColor)
-            - write the given text with simple 4x6 pixel charaters to the passed coords, backgroundColor color is optional
+        drawText(x, y, text, textColor, shadowColor, backgroundColor)
+            - write the given text with simple 4x6 pixel charaters to the passed coords, shadowColor and backgroundColor are optional
 
         loadImage_PNG(fileName)
             - load a .PNG image named as fileName, it will resize the canvas
@@ -88,7 +88,7 @@ struct Canvas
 
         if (color.getAlpha() < 255) {
             if (color.getAlpha() == 0) return false;
-            color = Color(this->pixelBuffer[x + y * width]).add(color);
+            color = Color(this->pixelBuffer[x + y * width]).blend(color);
         }
 
         this->pixelBuffer[x + y * this->width] = color.value;
@@ -136,9 +136,17 @@ struct Canvas
         return true;
     }
 
-    bool drawChar(int x, int y, unsigned char asciiCode, Color color, Color background = CLEAR)
+    bool drawChar(int x, int y, unsigned char asciiCode, Color charColor, Color shadowColor = CLEAR, Color backgroundColor = CLEAR)
     {
         if (x + 4 < 0 || x >= this->width || y + 6 < 0 || y >= this->height) return false;
+
+        if (backgroundColor.getAlpha() > 0) {
+            for (int j = 0; j < 6; j++) {
+                for (int i = 0; i < 4; i++) {
+                    setPixel(x + i,  y + j, backgroundColor);
+                }
+            }
+        }
 
         int charIndex = asciiCode - 32;
         for (int j = 0; j < 6; j++) {
@@ -151,20 +159,28 @@ struct Canvas
                 case 4: pixel = (this->font4x6[charIndex] >> 1) & 0xe; break;
             }
 
+            bool setted = false;
             for (int i = 0; i < 4; i++) {
-                setPixel(x + 3 - i,  y + 5 - j, (pixel >> i) & 1 ? color : background);
+                if ((pixel >> i) & 1) {
+                    setPixel(x + 3 - i,  y + 5 - j, charColor);
+                    if (shadowColor.getAlpha() > 0) {
+                        setPixel(x + 2 - i, y + 4 - j, shadowColor);
+                        if (!setted) setPixel(x + 3 - i, y + 4 - j, shadowColor);
+                        setted = true;
+                    }
+                } else setted = false;
             }
         }
         return true;
     }
 
-    bool drawText(int x, int y, const char* text, Color color, Color background = CLEAR)
+    bool drawText(int x, int y, const char* text, Color textColor, Color shadowColor = CLEAR, Color backgroundColor = CLEAR)
     {
         if (x + 4 * strlen(text) < 0 || x >= this->width || y + 6 < 0 || y >= this->height) return false;
 
         int index = 0;
         while (text[index] != '\0') {
-            drawChar(x + index * 4, y, text[index], color, background);
+            drawChar(x + index * 4, y, text[index], textColor, shadowColor, backgroundColor);
             index++;
         }
         return true;

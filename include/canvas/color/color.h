@@ -47,24 +47,23 @@ struct Color {
 
     Color blend(Color color)
     {
-        float r1 = color.getRed() / 255.0f;
-        float g1 = color.getGreen() / 255.0f;
-        float b1 = color.getBlue() / 255.0f;
-        float a1 = color.getAlpha() / 255.0f;
+        int r1 = color.getRed();
+        int g1 = color.getGreen();
+        int b1 = color.getBlue();
+        int a1 = color.getAlpha();
 
-        float r2 = getRed() / 255.0f;
-        float g2 = getGreen() / 255.0f;
-        float b2 = getBlue() / 255.0f;
-        float a2 = getAlpha() / 255.0f;
+        int r2 = getRed();
+        int g2 = getGreen();
+        int b2 = getBlue();
+        int a2 = getAlpha();
 
-        float outA = a1 + a2 * (1.0f - a1);
-        if (outA == 0.0f) return Color(0, 0, 0, 0);
+        int outA = a1 + (a2 * (255 - a1) >> 8);
+        if (outA == 0) return Color(0, 0, 0, 0);
 
         return Color(
-            (r1 * a1 + r2 * a2 * (1.0f - a1)) / outA * 255.0f,
-            (g1 * a1 + g2 * a2 * (1.0f - a1)) / outA * 255.0f,
-            (b1 * a1 + b2 * a2 * (1.0f - a1)) / outA * 255.0f,
-            outA * 255.0f
+            (r1 * a1 + (r2 * a2 * (255 - a1) >> 8) + (outA >> 1)) / outA,
+            (g1 * a1 + (g2 * a2 * (255 - a1) >> 8) + (outA >> 1)) / outA,
+            (b1 * a1 + (b2 * a2 * (255 - a1) >> 8) + (outA >> 1)) / outA
         );
     }
 };
