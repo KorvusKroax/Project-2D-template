@@ -7,12 +7,12 @@
 
 struct Fill
 {
-    static void flood(Canvas* canvas, int x, int y, Color color)
+    static bool flood(Canvas* canvas, int x, int y, Color color)
     {
-        if (x < 0 || x >= canvas->width || y < 0 || y >= canvas->height) return;
+        if (x < 0 || x >= canvas->width || y < 0 || y >= canvas->height) return false;
 
         Color targetColor, currPixel;
-        if (!canvas->getPixel(x, y, &targetColor) || targetColor.value == color.value) return;
+        if (!canvas->getPixel(x, y, &targetColor) || targetColor.value == color.value) return false;
         canvas->setPixel(x, y, color);
 
         int dir[] = {0,1, 1,0, 0,-1, -1,0};
@@ -31,15 +31,16 @@ struct Fill
             y = last.second;
             next.pop_back();
         }
+        return true;
     }
 
     // deprecated ('vector' not used)
-    static void span(Canvas* canvas, int x, int y, Color color)
+    static bool span(Canvas* canvas, int x, int y, Color color)
     {
-        if (x < 0 || x >= canvas->width || y < 0 || y >= canvas->height) return;
+        if (x < 0 || x >= canvas->width || y < 0 || y >= canvas->height) return false;
 
         Color targetColor, currPixel;
-        if (!canvas->getPixel(x, y, &targetColor) || targetColor.value == color.value) return;
+        if (!canvas->getPixel(x, y, &targetColor) || targetColor.value == color.value) return false;
 
         int *next = new int[canvas->width * canvas->height * 2];
         int index = 0;
@@ -103,5 +104,7 @@ struct Fill
         }
 
         delete[] next;
+
+        return true;
     }
 };

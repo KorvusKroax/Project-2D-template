@@ -5,24 +5,38 @@
 
 struct Rectangle
 {
-    static void draw(Canvas* canvas, int x, int y, int width, int height, Color color)
+    static bool draw(Canvas* canvas, int x, int y, int width, int height, Color color)
     {
+        if (x + width < 0 || x >= canvas->width || y + height < 0 || y >= canvas->height) return false;
+
         for (int i = 0; i < width; i++) {
-            canvas->setPixel(x + i, y, color);
-            canvas->setPixel(x + i, y + height - 1, color);
+            if (x + i < 0) continue;
+            if (x + i >= canvas->width) break;
+            if (y >= 0) canvas->setPixel(x + i, y, color);
+            if (y + height < canvas->height) canvas->setPixel(x + i, y + height - 1, color);
         }
         for (int j = 1; j < height - 1; j++) {
-            canvas->setPixel(x, y + j, color);
-            canvas->setPixel(x + width - 1, y + j, color);
+            if (y + j < 0) continue;
+            if (y + j >= canvas->height) break;
+            if (x >= 0) canvas->setPixel(x, y + j, color);
+            if (x + width < canvas->width) canvas->setPixel(x + width - 1, y + j, color);
         }
+        return true;
     }
 
-    static void draw_filled(Canvas* canvas, int x, int y, int width, int height, Color color)
+    static bool draw_filled(Canvas* canvas, int x, int y, int width, int height, Color color)
     {
+        if (x + width < 0 || x >= canvas->width || y + height < 0 || y >= canvas->height) return false;
+
         for (int j = 0; j < height; j++)  {
+            if (y + j < 0) continue;
+            if (y + j >= canvas->height) break;
             for (int i = 0; i < width; i++) {
+                if (x + i < 0) continue;
+                if (x + i >= canvas->width) break;
                 canvas->setPixel(x + i, y + j, color);
             }
         }
+        return true;
     }
 };

@@ -142,15 +142,15 @@ struct Line
         return true;
     }
 
-    static void boundIntersection_ray(float x1, float y1, float dir_x, float dir_y, float min_x, float min_y, float max_x, float max_y, float* ix, float* iy)
+    static void boundIntersection_ray(float start_x, float start_y, float dir_x, float dir_y, float min_x, float min_y, float max_x, float max_y, float* ix, float* iy)
     {
         float tMin = INFINITY;
 
         if (dir_x != 0) {
             float x = (dir_x < 0 ? min_x : max_x);
-            float t = (x - x1) / dir_x;
+            float t = (x - start_x) / dir_x;
             if (t > 0) {
-                float y = y1 + t * dir_y;
+                float y = start_y + t * dir_y;
                 if (y >= min_y && y < max_y) {
                     tMin = t;
                     *ix = x;
@@ -161,9 +161,9 @@ struct Line
 
         if (dir_y != 0) {
             float y = (dir_y < 0 ? min_y : max_y);
-            float t = (y - y1) / dir_y;
+            float t = (y - start_y) / dir_y;
             if (t > 0 && t < tMin) {
-                float x = x1 + t * dir_x;
+                float x = start_x + t * dir_x;
                 if (x >= min_x && x < max_x) {
                     tMin = t;
                     *ix = x;

@@ -56,18 +56,18 @@
 
 struct Canvas
 {
-    size_t width, height;
+    int width, height;
     unsigned int* pixelBuffer;
 
     Canvas() { }
 
-    Canvas(size_t width, size_t height) { init(width, height); }
+    Canvas(int width, int height) { init(width, height); }
 
     Canvas(const char* fileName) { loadImage_PNG(fileName); }
 
     ~Canvas() { delete[] this->pixelBuffer; }
 
-    void init(size_t width, size_t height)
+    void init(int width, int height)
     {
         this->width = width;
         this->height = height;

@@ -5,11 +5,15 @@
 
 struct Circle
 {
-    static void draw(Canvas* canvas, int cx, int cy, int r, Color color)
+    static bool draw(Canvas* canvas, int cx, int cy, int r, Color color)
     {
         r--;
-        if (r == 0) canvas->setPixel(cx, cy, color);
-        if (r < 1) return;
+        if (r < 0 || cx + r < 0 || cx - r >= canvas->width || cy + r < 0 || cy - r >= canvas->height) return false;
+
+        if (r == 0) {
+            canvas->setPixel(cx, cy, color);
+            return true;
+        }
 
         int x = 0;
         int y = -r;
@@ -23,13 +27,18 @@ struct Circle
             if (r <= x) p += ++x * 2 + 1;
             if (r > y || p > x) p += ++y * 2 + 1;
         }
+        return true;
     }
 
-    static void draw_midpoint(Canvas* canvas, int cx, int cy, int r, Color color)
+    static bool draw_midpoint(Canvas* canvas, int cx, int cy, int r, Color color)
     {
         r--;
-        if (r == 0) canvas->setPixel(cx, cy, color);
-        if (r < 1) return;
+        if (r < 0 || cx + r < 0 || cx - r >= canvas->width || cy + r < 0 || cy - r >= canvas->height) return false;
+
+        if (r == 0) {
+            canvas->setPixel(cx, cy, color);
+            return true;
+        }
 
         int x = 0;
         int y = -r;
@@ -47,13 +56,18 @@ struct Circle
             canvas->setPixel(cx - y, cy - x, color);
             x++;
         }
+        return true;
     }
 
-    static void draw_filled(Canvas* canvas, int cx, int cy, int r, Color color)
+    static bool draw_filled(Canvas* canvas, int cx, int cy, int r, Color color)
     {
         r--;
-        if (r == 0) canvas->setPixel(cx, cy, color);
-        if (r < 1) return;
+        if (r < 0 || cx + r < 0 || cx - r >= canvas->width || cy + r < 0 || cy - r >= canvas->height) return false;
+
+        if (r == 0) {
+            canvas->setPixel(cx, cy, color);
+            return true;
+        }
 
         int rr = r;
         int x = -r;
@@ -70,6 +84,7 @@ struct Circle
                 canvas->setPixel(i, cy - y, color);
             }
         }
+        return true;
     }
 
 

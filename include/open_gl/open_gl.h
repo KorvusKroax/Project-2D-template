@@ -47,7 +47,7 @@ struct OpenGL
     int xPixelOffset, yPixelOffset;
 
     GLFWwindow* window;
-    size_t windowWidth, windowHeight;
+    int windowWidth, windowHeight;
     const char* title;
 
     OpenGL(Canvas* canvas, unsigned int pixelSize = 1, WindowMode windowMode = WINDOWED, const char* title = "OpenGL 2D canvas - scrollable")
@@ -206,8 +206,8 @@ private:
         int workPosX, workPosY, workWidth, workHeight;
         glfwGetMonitorWorkarea(this->primaryMonitor, &workPosX, &workPosY, &workWidth, &workHeight);
 
-        this->windowWidth = std::min(this->canvas->width * this->pixelSize, (size_t)workWidth);
-        this->windowHeight = std::min(this->canvas->height * this->pixelSize, (size_t)workHeight);
+        this->windowWidth = std::min(this->canvas->width * (int)this->pixelSize, workWidth);
+        this->windowHeight = std::min(this->canvas->height * (int)this->pixelSize, workHeight);
 
         this->window = glfwCreateWindow(this->windowWidth, this->windowHeight, this->title, nullptr, nullptr);
 
