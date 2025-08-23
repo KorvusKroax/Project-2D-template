@@ -1,10 +1,12 @@
 /*
     USAGE:
-        OpenGL(&canvas, pixelSize, windowMode, title)
+        OpenGL(&canvas, pixelSize, windowMode, title, voidColor_r, voidColor_g, voidColor_b, voidColor_a)
             - canvas: window will be setted to this dimensions
             - pixelSize: size of pixel in real screen pixel
             - windowMode: can fullscreen or windowed
             - title: window header title text
+            - voidColor_r, voidColor_g, voidColor_b, voidColor_a:
+                the color of the screen around the canvas' plane in fullscreen modes
 
         window modes:
             - FULLSCREEN_SCREEN: set view to fullscreen mode and the passed canvas size will be setted according to screen size and passed pixelSize
@@ -49,12 +51,17 @@ struct OpenGL
     GLFWwindow* window;
     int windowWidth, windowHeight;
     const char* title;
+    float voidColor_r, voidColor_g, voidColor_b, voidColor_a;
 
-    OpenGL(Canvas* canvas, unsigned int pixelSize = 1, WindowMode windowMode = WINDOWED, const char* title = "OpenGL 2D canvas - scrollable")
+    OpenGL(Canvas* canvas, unsigned int pixelSize = 1, WindowMode windowMode = WINDOWED, const char* title = "OpenGL 2D canvas - scrollable", float voidColor_r = .1f, float voidColor_g = .2f, float voidColor_b = .2f, float voidColor_a = 1.0f)
     {
         this->canvas = canvas;
         this->pixelSize = pixelSize;
         this->title = title;
+        this->voidColor_r = voidColor_r;
+        this->voidColor_g = voidColor_g;
+        this->voidColor_b = voidColor_b;
+        this->voidColor_a = voidColor_a;
 
         glfwInit();
         glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
@@ -135,7 +142,7 @@ struct OpenGL
         glBindTexture(GL_TEXTURE_2D, this->texColorBuffer);
         glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, this->canvas->width, this->canvas->height, GL_RGBA, GL_UNSIGNED_BYTE, this->canvas->pixelBuffer);
 
-        glClearColor(.1f, .2f, .2f, 1);
+        glClearColor(this->voidColor_r, this->voidColor_g, this->voidColor_b, this->voidColor_a);
         glClear(GL_COLOR_BUFFER_BIT);
         glBindVertexArray(this->VAO);
         glDrawArrays(GL_TRIANGLES, 0, 6);

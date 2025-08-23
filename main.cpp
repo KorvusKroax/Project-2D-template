@@ -15,7 +15,7 @@ const unsigned int PIXEL_SIZE = 6;
 const char* FILE_NAME = "resources/img/161.png";
 
 Canvas canvas(WIDTH, HEIGHT);
-OpenGL openGL(&canvas, PIXEL_SIZE);//, FULLSCREEN_RESOLUTION);
+OpenGL openGL(&canvas, PIXEL_SIZE, FULLSCREEN_RESOLUTION);
 std::vector<std::pair<int, int>> points;
 
 int main()

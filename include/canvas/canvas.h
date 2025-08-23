@@ -166,8 +166,8 @@ struct Canvas
                     if (shadowColor.getAlpha() > 0) {
                         setPixel(x + 2 - i, y + 4 - j, shadowColor);
                         if (!setted) setPixel(x + 3 - i, y + 4 - j, shadowColor);
-                        setted = true;
                     }
+                    setted = true;
                 } else setted = false;
             }
         }
