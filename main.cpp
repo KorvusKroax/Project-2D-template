@@ -11,7 +11,7 @@ const unsigned int WIDTH = 320;
 const unsigned int HEIGHT = 240;
 const unsigned int PIXEL_SIZE = 4;
 
-const char* FILE_NAME = "161.png";
+const char* FILE_NAME = "resources/img/161.png";
 
 Canvas canvas(WIDTH, HEIGHT);
 OpenGL openGL(&canvas, PIXEL_SIZE);//, FULLSCREEN_RESOLUTION);

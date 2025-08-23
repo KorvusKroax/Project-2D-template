@@ -49,7 +49,7 @@
 #pragma once
 
 #include "color.h"
-#include "lodepng/lodepng.h"
+#include "lodepng.h"
 
 #include <iostream> // cout
 #include <cstring> // memset
