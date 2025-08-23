@@ -43,6 +43,10 @@ int main()
 
 
 
+        Circle::draw_filled(&canvas, canvas.width >> 1, canvas.height >> 1, 100, DARK_BLUE);
+
+        canvas.drawText(10, 10, "Hello", YELLOW);
+
         for (std::pair<int, int> p : points) {
             canvas.setPixel(p.first, p.second, Color(255, 255, 255, 31));
         }

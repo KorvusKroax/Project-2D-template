@@ -1,5 +1,6 @@
 #pragma once
 
+#include "palette_base.h"
 #include "palette_ega.h"
 #include "palette_c64.h"
 
