@@ -1,3 +1,51 @@
+/*
+    USAGE:
+        Canvas(width, height)
+            - width: width in pixels
+            - height: height in pixels
+
+        Canvas(fileName)
+            - fileName of a .PNG file that will be loaded, the canvas will be sized by the picture size
+
+    FUNCTIONS:
+        init(width, height)
+            - create or resize the canvas
+
+        clearPixelBuffer()
+            - fill all bytes of pixelBuffer with 0 (means all pixel will be Color(0, 0, 0, 0))
+
+        setPixel(x, y, color)
+            - sets a pixel as the passed color, if the color's alpha is not 255, this color will be added to the pixel's current color below
+            - returns
+                true: the pixel is created
+                false: the coords are out of canvas or the color is full transparent
+
+        setPixels(x, y, &canvas)
+            - replace pixels with the pixels of the given canvas from passed coords which will be start (0,0) of the given canvas,
+                alpha has no effect
+            - returns
+                true: pixels replaced by the given canvas (even partially)
+                false: the area is out canvas
+
+        getPixel(x, y, &color)
+            - it sets the given color with the pixel's color at the passed coords
+            - returns
+                true: has pixel at the given coords
+                false has no pixel at the given coords
+
+        getPixels(x, y, width, height, &canvas)
+            - it inits the given canvas as passed width and height, and sets its pixels with the pixels from the coords to passed width and height,
+                where the area is offscreen, there will be garbage on the given canvas
+            - returns
+                true: pixels getted from the canvas (even also partially)
+                false: the area is out canvas
+
+        loadImage_PNG(fileName)
+            - load a .PNG image named as fileName, it will resize the canvas
+            -return
+                true: canvas resized and image loaded succesfully
+                false: error occoured while trying to load .PNG image, canvas not changed
+*/
 #pragma once
 
 #include "color.h"
@@ -26,7 +74,7 @@ struct Canvas
         this->pixelBuffer = new unsigned int[this->width * this->height];
     }
 
-    void clearPixelBuffer() { memset(this->pixelBuffer, 0, this->width * this->height * sizeof(int)); }
+    void clearPixelBuffer() { memset(this->pixelBuffer, 0, this->width * this->height * sizeof(unsigned int)); }
 
     bool setPixel(int x, int y, Color color)
     {
@@ -38,7 +86,6 @@ struct Canvas
         }
 
         this->pixelBuffer[x + y * this->width] = color.value;
-
         return true;
     }
 
@@ -55,7 +102,6 @@ struct Canvas
                 this->pixelBuffer[(x + i) + (y + j) * this->width] = canvas->pixelBuffer[i + j * canvas->width];
             }
         }
-
         return true;
     }
 
@@ -64,7 +110,6 @@ struct Canvas
         if (x < 0 || x >= this->width || y < 0 || y >= this->height) return false;
 
         *color = Color(this->pixelBuffer[x + y * width]);
-
         return true;
     }
 
@@ -82,7 +127,6 @@ struct Canvas
                 canvas->pixelBuffer[i + j * canvas->width] = this->pixelBuffer[(x + i) + (y + j) * this->width];
             }
         }
-
         return true;
     }
 
@@ -106,7 +150,6 @@ struct Canvas
                     image[(i * channelCount + 3) + (this->height - 1 - j) * (this->width * channelCount)] << 24;
             }
         }
-
         return true;
     }
 };

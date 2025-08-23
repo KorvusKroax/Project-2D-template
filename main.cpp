@@ -26,11 +26,11 @@ int main()
     );
 
     // // click
-    // glfwSetMouseButtonCallback(canvas.window,
+    // glfwSetMouseButtonCallback(openGL.window,
     //     [](GLFWwindow* window, int button, int action, int mods) {
     //         if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_PRESS) {
     //             int px, py;
-    //             canvas.getMousePos(&px, &py);
+    //             openGL.getMousePosition(&px, &py);
     //             points.push_back({px, py});
     //         }
     //     }
@@ -57,7 +57,7 @@ int main()
         }
 
         int mx, my;
-        openGL.getMousePos(&mx, &my);
+        openGL.getMousePosition(&mx, &my);
 
         // drag
         if (glfwGetMouseButton(openGL.window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS) {

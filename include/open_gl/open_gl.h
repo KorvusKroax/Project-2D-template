@@ -1,3 +1,28 @@
+/*
+    USAGE:
+        OpenGL(&canvas, pixelSize, windowMode, title)
+            - canvas: window will be setted to this dimensions
+            - pixelSize: size of pixel in real screen pixel
+            - windowMode: can fullscreen or windowed
+            - title: window header title text
+
+        window modes:
+            - FULLSCREEN_SCREEN: set view to fullscreen mode and the passed canvas size will be setted according to screen size and passed pixelSize
+            - FULLSCREEN_RESOLUTION: set view to fullscreen mode and create a plane for the canvas, bigger canvas is scrollable
+            - WINDOWED: create a window sized by the canvas resalution and pixelSize with borders and header (and its buttons), not resizable
+            - WINDOWED_BORDERLESS: create a window sized by the canvas resalution and pixelSize without borders and header, not resizable
+            - WINDOWED_RESIZABLE: not implemented
+
+    FUNCTIONS:
+        update()
+            - refresh the window content and process all openGL pending events
+
+        updateScroll()
+            - if canvas is bigger than the screen it will control the position of the canvas by dragging it with the middle mouse button
+
+        getMousePosition(&x, &y)
+            - it sets the given coords with the pixel coord on the canvas pointed by the mouse
+*/
 #pragma once
 
 #include "glad/glad.h"
@@ -25,7 +50,7 @@ struct OpenGL
     size_t windowWidth, windowHeight;
     const char* title;
 
-    OpenGL(Canvas* canvas, unsigned int pixelSize, WindowMode windowMode = WINDOWED, const char* title = "OpenGL 2D canvas - scrollable")
+    OpenGL(Canvas* canvas, unsigned int pixelSize = 1, WindowMode windowMode = WINDOWED, const char* title = "OpenGL 2D canvas - scrollable")
     {
         this->canvas = canvas;
         this->pixelSize = pixelSize;
@@ -80,8 +105,8 @@ struct OpenGL
         this->shader = createShader();
         glUseProgram(this->shader);
         glUniform1i(glGetUniformLocation(this->shader, "screenTexture"), 0);
-        glUniform1f(glGetUniformLocation(this->shader, "textureWidth"), this->canvas->width * this->pixelSize);
-        glUniform1f(glGetUniformLocation(this->shader, "textureHeight"), this->canvas->height * this->pixelSize);
+        glUniform1f(glGetUniformLocation(this->shader, "canvasWidth"), this->canvas->width * this->pixelSize);
+        glUniform1f(glGetUniformLocation(this->shader, "canvasHeight"), this->canvas->height * this->pixelSize);
         glUniform1f(glGetUniformLocation(this->shader, "windowWidth"), this->windowWidth);
         glUniform1f(glGetUniformLocation(this->shader, "windowHeight"), this->windowHeight);
     }
@@ -104,8 +129,8 @@ struct OpenGL
 
         glUseProgram(this->shader);
 
-        glUniform1f(glGetUniformLocation(this->shader, "scrollX"), this->xPixelOffset);
-        glUniform1f(glGetUniformLocation(this->shader, "scrollY"), this->yPixelOffset);
+        glUniform1f(glGetUniformLocation(this->shader, "xPixelOffset"), this->xPixelOffset);
+        glUniform1f(glGetUniformLocation(this->shader, "yPixelOffset"), this->yPixelOffset);
 
         glBindTexture(GL_TEXTURE_2D, this->texColorBuffer);
         glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, this->canvas->width, this->canvas->height, GL_RGBA, GL_UNSIGNED_BYTE, this->canvas->pixelBuffer);
@@ -144,12 +169,12 @@ struct OpenGL
         }
     }
 
-    void getMousePos(int* x, int* y)
+    void getMousePosition(int* x, int* y)
     {
         double mouseX, mouseY;
         glfwGetCursorPos(this->window, &mouseX, &mouseY);
-        *x = float(                         mouseX + this->xPixelOffset + this->xMouseOffset) / this->pixelSize;
-        *y = float(this->windowHeight - 1 - mouseY + this->yPixelOffset - this->yMouseOffset) / this->pixelSize;
+        *x = (                         mouseX + this->xPixelOffset + this->xMouseOffset) / this->pixelSize;
+        *y = (this->windowHeight - 1 - mouseY + this->yPixelOffset - this->yMouseOffset) / this->pixelSize;
     }
 
 
@@ -245,17 +270,17 @@ private:
             layout (location = 0) in vec2 pos;
             layout (location = 1) in vec2 texCoord;
             out vec2 TexCoord;
-            uniform float textureWidth;
-            uniform float textureHeight;
+            uniform float canvasWidth;
+            uniform float canvasHeight;
             uniform float windowWidth;
             uniform float windowHeight;
-            uniform float scrollX;
-            uniform float scrollY;
+            uniform float xPixelOffset;
+            uniform float yPixelOffset;
             void main() {
                 gl_Position = vec4(pos, 0.0, 1.0);
                 TexCoord = texCoord;
-                TexCoord.x = texCoord.x * (windowWidth / textureWidth) + (scrollX / textureWidth);
-                TexCoord.y = texCoord.y * (windowHeight / textureHeight) + (scrollY / textureHeight);
+                TexCoord.x = texCoord.x * (windowWidth / canvasWidth) + (xPixelOffset / canvasWidth);
+                TexCoord.y = texCoord.y * (windowHeight / canvasHeight) + (yPixelOffset / canvasHeight);
             }
         )";
         GLuint vs = glCreateShader(GL_VERTEX_SHADER);
