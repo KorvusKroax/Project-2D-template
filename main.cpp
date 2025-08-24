@@ -4,18 +4,19 @@
 #include "rectangle.h"
 #include "circle.h"
 #include "fill.h"
+#include "text.h"
 
 #include <iostream>
 #include <vector>
 
-const unsigned int WIDTH = 160;
-const unsigned int HEIGHT = 120;
-const unsigned int PIXEL_SIZE = 6;
+const unsigned int WIDTH = 320;
+const unsigned int HEIGHT = 240;
+const unsigned int PIXEL_SIZE = 4;
 
-const char* FILE_NAME = "resources/img/161.png";
+const char* FONT_FILE_NAME = "resources/font/c64_font.png";
 
 Canvas canvas(WIDTH, HEIGHT);
-OpenGL openGL(&canvas, PIXEL_SIZE, FULLSCREEN_RESOLUTION);
+OpenGL openGL(&canvas, PIXEL_SIZE);//, FULLSCREEN_RESOLUTION);
 std::vector<std::pair<int, int>> points;
 
 int main()
@@ -45,10 +46,17 @@ int main()
 
 
         Rectangle::draw_filled(&canvas, 10, 10, 16 * 4, 5 * 6, BROWN);
+        Text::draw_char(&canvas, 18, 28, 'F', YELLOW);
+        Text::draw_char(&canvas, 30, 28, 'G', YELLOW, Color(0, 0, 0, 63));
+        Text::draw_text(&canvas, 18, 16, "Hello megint", YELLOW, Color(0, 0, 0, 63), DARK_GREEN);
 
-        canvas.drawChar(18, 28, 'F', YELLOW, Color(0, 0, 0, 63));
+        Rectangle::draw_filled(&canvas, 5, canvas.height - 5 - 40, 140, 40, C64_VICE_LIGHT_BLUE);
+        Font font(FONT_FILE_NAME, 32, 3, 8, 8);
+        Text::draw_char(&canvas, 15, canvas.height - 16, 'F', &font, C64_VICE_WHITE);
+        Text::draw_char(&canvas, 35, canvas.height - 16, 'G', &font, C64_VICE_WHITE, Color(0, 0, 0, 63));
+        Text::draw_text(&canvas, 15, canvas.height - 32, "Hello megint", &font, C64_VICE_WHITE, Color(0, 0, 0, 63), C64_VICE_BLUE);
 
-        canvas.drawText(18, 16, "Hello megint", YELLOW, Color(0, 0, 0, 63), DARK_GREEN);
+
 
         for (std::pair<int, int> p : points) {
             canvas.setPixel(p.first, p.second, Color(255, 255, 255, 31));
