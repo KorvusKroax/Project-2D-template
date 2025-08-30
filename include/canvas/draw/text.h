@@ -167,8 +167,6 @@ struct Text
         return true;
     }
 
-
-
     static bool draw_char(Canvas* canvas, int x, int y, unsigned char asciiCode, Font* font, Color charColor, Color shadowColor = CLEAR, Color backgroundColor = CLEAR)
     {
         if (font->charCount == 0) {

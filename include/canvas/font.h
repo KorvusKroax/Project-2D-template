@@ -6,7 +6,7 @@
 
 struct Font
 {
-    unsigned int charWidth, charHeight, charCount = 0;
+    int charWidth, charHeight, charCount = 0;
     int **charset = nullptr;
 
     Font() { }
