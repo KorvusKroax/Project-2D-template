@@ -171,21 +171,25 @@ struct Text
 
     static bool draw_char(Canvas* canvas, int x, int y, unsigned char asciiCode, Font* font, Color charColor, Color shadowColor = CLEAR, Color backgroundColor = CLEAR)
     {
+        if (font->charCount == 0) {
+            draw_char(canvas, x, y, asciiCode, charColor, shadowColor, backgroundColor);
+        }
+
         if (x + 4 < 0 || x >= canvas->width || y + 6 < 0 || y >= canvas->height) return false;
 
         if (backgroundColor.getAlpha() > 0) {
-            for (int j = 0; j < font->height; j++) {
-                for (int i = 0; i < font->width; i++) {
+            for (int j = 0; j < font->charHeight; j++) {
+                for (int i = 0; i < font->charWidth; i++) {
                     canvas->setPixel(x + i,  y + j, backgroundColor);
                 }
             }
         }
 
         int charIndex = asciiCode - 32;
-        for (int j = font->height - 1; j >= 0; j--) {
+        for (int j = font->charHeight - 1; j >= 0; j--) {
             bool setted = false;
-            for (int i = 0; i < font->width; i++) {
-                if (font->charset[charIndex][i + j * font->width] & 0xff000000) {
+            for (int i = 0; i < font->charWidth; i++) {
+                if (font->charset[charIndex][i + j * font->charWidth] & 0xff000000) {
                     canvas->setPixel(x + i,  y + j, charColor);
                     if (shadowColor.getAlpha() > 0) {
                         canvas->setPixel(x + i, y + j - 1, shadowColor);
@@ -200,11 +204,15 @@ struct Text
 
     static bool draw_text(Canvas* canvas, int x, int y, const char* text, Font* font, Color textColor, Color shadowColor = CLEAR, Color backgroundColor = CLEAR)
     {
-        if (x + font->width * strlen(text) < 0 || x >= canvas->width || y + font->height < 0 || y >= canvas->height) return false;
+        if (font->charCount == 0) {
+            draw_text(canvas, x, y, text, textColor, shadowColor, backgroundColor);
+        }
+
+        if (x + font->charWidth * strlen(text) < 0 || x >= canvas->width || y + font->charHeight < 0 || y >= canvas->height) return false;
 
         int index = 0;
         while (text[index] != '\0') {
-            draw_char(canvas, x + index * font->width, y, text[index], font, textColor, shadowColor, backgroundColor);
+            draw_char(canvas, x + index * font->charWidth, y, text[index], font, textColor, shadowColor, backgroundColor);
             index++;
         }
         return true;

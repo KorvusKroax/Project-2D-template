@@ -14,6 +14,9 @@
         clearPixelBuffer()
             - fill all bytes of pixelBuffer with 0 (means all pixel will be Color(0, 0, 0, 0))
 
+        fillPixelBuffer(color)
+            - fill all integer of pixelBuffer with passed color's value (slower than clearPixelBuffer())
+
         setPixel(x, y, color)
             - sets a pixel as the passed color, if the color's alpha is not 255, this color will be added to the pixel's current color below
             - returns
@@ -76,6 +79,13 @@ struct Canvas
 
     void clearPixelBuffer() { memset(this->pixelBuffer, 0, this->width * this->height * sizeof(unsigned int)); }
 
+    void fillPixelBuffer(Color color)
+    {
+        for (int i = 0; i < this->width * this->height; i++) {
+            this->pixelBuffer[i] = color.value;
+        }
+    }
+
     bool setPixel(int x, int y, Color color)
     {
         if (x < 0 || x >= this->width || y < 0 || y >= this->height) return false;
@@ -136,7 +146,7 @@ struct Canvas
         unsigned char *image;
         unsigned error = lodepng_decode32_file(&image, &imageWidth, &imageHeight, fileName);
         if (error) {
-            std::cout << "decoder error " << error << ": " << lodepng_error_text(error) << std::endl;
+            std::cout << "loadImage_PNG(): decoder error " << error << ": " << lodepng_error_text(error) << std::endl;
             return false;
         }
 

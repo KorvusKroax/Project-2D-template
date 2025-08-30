@@ -13,8 +13,6 @@ const unsigned int WIDTH = 320;
 const unsigned int HEIGHT = 240;
 const unsigned int PIXEL_SIZE = 4;
 
-const char* FONT_FILE_NAME = "resources/font/c64_font.png";
-
 Canvas canvas(WIDTH, HEIGHT);
 OpenGL openGL(&canvas, PIXEL_SIZE);//, FULLSCREEN_RESOLUTION);
 std::vector<std::pair<int, int>> points;
@@ -39,22 +37,28 @@ int main()
     // );
 
     points.clear();
+    Font font6x8("resources/font/font6x8.png", 32, 3, 6, 8);
+    Font font5x7("resources/font/font5x7.png", 32, 3, 5, 7);
 
     while (!glfwWindowShouldClose(openGL.window)) {
         canvas.clearPixelBuffer();
 
 
 
+        Rectangle::draw_filled(&canvas, 5, canvas.height - 5 - 40, 140, 40, C64_VICE_LIGHT_BLUE);
+        Text::draw_char(&canvas, 15, canvas.height - 16, 'F', &font6x8, C64_VICE_WHITE);
+        Text::draw_char(&canvas, 35, canvas.height - 16, 'G', &font6x8, C64_VICE_WHITE, Color(0, 0, 0, 63));
+        Text::draw_text(&canvas, 20, canvas.height - 40, "Hello megint", &font6x8, C64_VICE_WHITE, Color(0, 0, 0, 63), C64_VICE_BLUE);
+
+        Rectangle::draw_filled(&canvas, 5, canvas.height - 5 - 40 - 70, 140, 40, EGA_BRIGHT_RED);
+        Text::draw_char(&canvas, 15, canvas.height - 16 - 70, 'F', &font5x7, EGA_WHITE);
+        Text::draw_char(&canvas, 35, canvas.height - 16 - 70, 'G', &font5x7, EGA_WHITE, Color(0, 0, 0, 63));
+        Text::draw_text(&canvas, 20, canvas.height - 40 - 70, "Hello megint", &font5x7, EGA_WHITE, Color(0, 0, 0, 63), EGA_RED);
+
         Rectangle::draw_filled(&canvas, 10, 10, 16 * 4, 5 * 6, BROWN);
         Text::draw_char(&canvas, 18, 28, 'F', YELLOW);
         Text::draw_char(&canvas, 30, 28, 'G', YELLOW, Color(0, 0, 0, 63));
         Text::draw_text(&canvas, 18, 16, "Hello megint", YELLOW, Color(0, 0, 0, 63), DARK_GREEN);
-
-        Rectangle::draw_filled(&canvas, 5, canvas.height - 5 - 40, 140, 40, C64_VICE_LIGHT_BLUE);
-        Font font(FONT_FILE_NAME, 32, 3, 8, 8);
-        Text::draw_char(&canvas, 15, canvas.height - 16, 'F', &font, C64_VICE_WHITE);
-        Text::draw_char(&canvas, 35, canvas.height - 16, 'G', &font, C64_VICE_WHITE, Color(0, 0, 0, 63));
-        Text::draw_text(&canvas, 15, canvas.height - 32, "Hello megint", &font, C64_VICE_WHITE, Color(0, 0, 0, 63), C64_VICE_BLUE);
 
 
 
