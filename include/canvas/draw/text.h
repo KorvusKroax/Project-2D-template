@@ -130,6 +130,11 @@ struct Text
         }
 
         int charIndex = asciiCode - 32;
+        if (0 > charIndex || charIndex > 96) {
+            canvas->setPixel(x + 2,  y + 3, charColor);
+            return false;
+        }
+
         for (int j = 0; j < 6; j++) {
             unsigned char pixel = 0;
             switch (j - (font4x6[charIndex] & 1)) {
@@ -184,6 +189,11 @@ struct Text
         }
 
         int charIndex = asciiCode - 32;
+        if (0 > charIndex || charIndex > font->charCount) {
+            canvas->setPixel(x + (font->charWidth >> 1),  y + (font->charHeight >> 1), charColor);
+            return false;
+        }
+
         for (int j = font->charHeight - 1; j >= 0; j--) {
             bool setted = false;
             for (int i = 0; i < font->charWidth; i++) {
