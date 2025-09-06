@@ -15,12 +15,38 @@
 #include "font.h"
 #include "color.h"
 
+struct TextColor
+{
+    Color text, shadow, background;
+
+    TextColor(Color text = CLEAR, Color shadow = CLEAR, Color background = CLEAR)
+    {
+        this->text = text;
+        this->shadow = shadow;
+        this->background = background;
+    }
+};
+
 struct Text
 {
     // https://hackaday.io/project/6309-vga-graphics-over-spi-and-serial-vgatonic/log/20759-a-tiny-4x6-pixel-font-that-will-fit-on-almost-any-microcontroller-license-mit
-    static bool draw_char(Canvas* canvas, int x, int y, unsigned char asciiCode, Color charColor, Color shadowColor = CLEAR, Color backgroundColor = CLEAR)
+    static bool draw_char(Canvas* canvas, int x, int y, unsigned char asciiCode, TextColor colors)
     {
         if (x + 4 < 0 || x >= canvas->width || y + 6 < 0 || y >= canvas->height) return false;
+
+        if (colors.background.getAlpha() > 0) {
+            for (int j = 0; j < 6; j++) {
+                for (int i = 0; i < 4; i++) {
+                    canvas->setPixel(x + i,  y + j, colors.background);
+                }
+            }
+        }
+
+        int charIndex = asciiCode - 32;
+        if (0 > charIndex || charIndex > 96) {
+            canvas->setPixel(x + 1, y + 1, colors.text);
+            return false;
+        }
 
         const unsigned short font4x6 [96] {
             0x0000,   /*SPACE*/
@@ -121,37 +147,24 @@ struct Text
             0x56e2    /*''*/
         };
 
-        if (backgroundColor.getAlpha() > 0) {
-            for (int j = 0; j < 6; j++) {
-                for (int i = 0; i < 4; i++) {
-                    canvas->setPixel(x + i,  y + j, backgroundColor);
-                }
-            }
-        }
-
-        int charIndex = asciiCode - 32;
-        if (0 > charIndex || charIndex > 96) {
-            canvas->setPixel(x + 2,  y + 3, charColor);
-            return false;
-        }
+        const unsigned char pixelValues[6] = {
+            (unsigned char)((font4x6[charIndex] >> 12) & 0xe),
+            (unsigned char)((font4x6[charIndex] >> 9) & 0xe),
+            (unsigned char)(((font4x6[charIndex] & 0x0300) >> 6) | (font4x6[charIndex] & 0x02)),
+            (unsigned char)((font4x6[charIndex] >> 4) & 0xe),
+            (unsigned char)((font4x6[charIndex] >> 1) & 0xe),
+            0
+        };
 
         for (int j = 0; j < 6; j++) {
-            unsigned char pixel = 0;
-            switch (j - (font4x6[charIndex] & 1)) {
-                case 0: pixel = (font4x6[charIndex] >> 12) & 0xe; break;
-                case 1: pixel = (font4x6[charIndex] >> 9) & 0xe; break;
-                case 2: pixel = ((font4x6[charIndex] & 0x0300) >> 6) | (font4x6[charIndex] & 0x02); break;
-                case 3: pixel = (font4x6[charIndex] >> 4) & 0xe; break;
-                case 4: pixel = (font4x6[charIndex] >> 1) & 0xe; break;
-            }
-
+            unsigned char pixel = pixelValues[j];
             bool setted = false;
             for (int i = 0; i < 4; i++) {
                 if ((pixel >> i) & 1) {
-                    canvas->setPixel(x + 3 - i,  y + 5 - j, charColor);
-                    if (shadowColor.getAlpha() > 0) {
-                        canvas->setPixel(x + 2 - i, y + 4 - j, shadowColor);
-                        if (!setted) canvas->setPixel(x + 3 - i, y + 4 - j, shadowColor);
+                    canvas->setPixel(x + 3 - i, y + 5 - j, colors.text);
+                    if (colors.shadow.getAlpha() > 0) {
+                        canvas->setPixel(x + 2 - i, y + 4 - j, colors.shadow);
+                        if (!setted) canvas->setPixel(x + 3 - i, y + 4 - j, colors.shadow);
                     }
                     setted = true;
                 } else setted = false;
@@ -160,37 +173,48 @@ struct Text
         return true;
     }
 
-    static bool draw_text(Canvas* canvas, int x, int y, const char* text, Color textColor, Color shadowColor = CLEAR, Color backgroundColor = CLEAR)
+    static bool draw_line(Canvas* canvas, int x, int y, const char* text, TextColor colors)
     {
-        if (x + 4 * strlen(text) < 0 || x >= canvas->width || y + 6 < 0 || y >= canvas->height) return false;
+        int colCount, rowCount;
+        calcTextField(text, &colCount, &rowCount);
 
-        int index = 0;
-        while (text[index] != '\0') {
-            draw_char(canvas, x + index * 4, y, text[index], textColor, shadowColor, backgroundColor);
-            index++;
+        if (x + colCount * 4 < 0 || x >= canvas->width || y + rowCount * 6  < 0 || y >= canvas->height) return false;
+
+        int xPos = 0;
+        int yPos = rowCount - 1;
+        int i = 0;
+        while (text[i] != '\0') {
+            if (text[i] == '\n') {
+                xPos = 0;
+                yPos--;
+            } else {
+                draw_char(canvas, x + xPos * 4, y + yPos * 6, text[i], colors);
+                xPos++;
+            }
+            i++;
         }
         return true;
     }
 
-    static bool draw_char(Canvas* canvas, int x, int y, unsigned char asciiCode, Font* font, Color charColor, Color shadowColor = CLEAR, Color backgroundColor = CLEAR)
+    static bool draw_char(Canvas* canvas, int x, int y, unsigned char asciiCode, TextColor colors, Font* font)
     {
         if (font->charCount == 0) {
-            draw_char(canvas, x, y, asciiCode, charColor, shadowColor, backgroundColor);
+            draw_char(canvas, x, y, asciiCode, colors);
         }
 
         if (x + 4 < 0 || x >= canvas->width || y + 6 < 0 || y >= canvas->height) return false;
 
-        if (backgroundColor.getAlpha() > 0) {
+        if (colors.background.getAlpha() > 0) {
             for (int j = 0; j < font->charHeight; j++) {
                 for (int i = 0; i < font->charWidth; i++) {
-                    canvas->setPixel(x + i,  y + j, backgroundColor);
+                    canvas->setPixel(x + i,  y + j, colors.background);
                 }
             }
         }
 
         int charIndex = asciiCode - 32;
         if (0 > charIndex || charIndex > font->charCount) {
-            canvas->setPixel(x + (font->charWidth >> 1),  y + (font->charHeight >> 1), charColor);
+            canvas->setPixel(x + (font->charWidth >> 1), y + 1, colors.text);
             return false;
         }
 
@@ -198,10 +222,10 @@ struct Text
             bool setted = false;
             for (int i = 0; i < font->charWidth; i++) {
                 if (font->charset[charIndex][i + j * font->charWidth] & 0xff000000) {
-                    canvas->setPixel(x + i,  y + j, charColor);
-                    if (shadowColor.getAlpha() > 0) {
-                        canvas->setPixel(x + i, y + j - 1, shadowColor);
-                        if (!setted) canvas->setPixel(x + i - 1, y + j - 1, shadowColor);
+                    canvas->setPixel(x + i,  y + j, colors.text);
+                    if (colors.shadow.getAlpha() > 0) {
+                        canvas->setPixel(x + i, y + j - 1, colors.shadow);
+                        if (!setted) canvas->setPixel(x + i - 1, y + j - 1, colors.shadow);
                     }
                     setted = true;
                 } else setted = false;
@@ -210,19 +234,49 @@ struct Text
         return true;
     }
 
-    static bool draw_text(Canvas* canvas, int x, int y, const char* text, Font* font, Color textColor, Color shadowColor = CLEAR, Color backgroundColor = CLEAR)
+    static bool draw_line(Canvas* canvas, int x, int y, const char* text, TextColor colors, Font* font)
     {
         if (font->charCount == 0) {
-            draw_text(canvas, x, y, text, textColor, shadowColor, backgroundColor);
+            draw_line(canvas, x, y, text, colors);
         }
 
-        if (x + font->charWidth * strlen(text) < 0 || x >= canvas->width || y + font->charHeight < 0 || y >= canvas->height) return false;
+        int colCount, rowCount;
+        calcTextField(text, &colCount, &rowCount);
 
-        int index = 0;
-        while (text[index] != '\0') {
-            draw_char(canvas, x + index * font->charWidth, y, text[index], font, textColor, shadowColor, backgroundColor);
-            index++;
+        if (x + colCount * font->charWidth < 0 || x >= canvas->width || y + rowCount * font->charHeight  < 0 || y >= canvas->height) return false;
+
+        int xPos = 0;
+        int yPos = rowCount - 1;
+        int i = 0;
+        while (text[i] != '\0') {
+            if (text[i] == '\n') {
+                xPos = 0;
+                yPos--;
+            } else {
+                draw_char(canvas, x + xPos * font->charWidth, y + yPos * font->charHeight, text[i], colors, font);
+                xPos++;
+            }
+            i++;
         }
         return true;
+    }
+
+private:
+    static void calcTextField(const char* text, int* colCount, int* rowCount)
+    {
+        *colCount = 0;
+        *rowCount = 1;
+
+        int count = 0;
+        int i = 0;
+        while (text[i] != '\0') {
+            if (text[i] == '\n') {
+                *colCount = std::max(*colCount, count);
+                (*rowCount)++;
+                count = 0;
+            } else count++;
+            i++;
+        }
+        *colCount = std::max(*colCount, count);
     }
 };
