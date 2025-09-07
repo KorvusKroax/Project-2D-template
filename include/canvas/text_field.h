@@ -40,9 +40,9 @@ struct TextField
 
     void draw(Canvas* canvas, int x, int y)
     {
-        std::vector<std::string> lines = wordWrap(this->width / this->font->charWidth);
+        std::vector<std::string> lines = wordWrap();
 
-        int heightDif = this->height - lines.size() * this->font->charHeight;
+        int heightDiff = this->height - lines.size() * this->font->charHeight;
         for (int i = 0; i < lines.size(); i++) {
             int xPos, yPos;
             switch (this->textAlign) {
@@ -60,36 +60,36 @@ struct TextField
                     break;
                 case RIGHT_MIDDLE:
                     xPos = this->width - lines[i].size() * font->charWidth;
-                    yPos = this->height - (i + 1) * font->charHeight - (heightDif >> 1);
+                    yPos = this->height - (i + 1) * font->charHeight - (heightDiff >> 1);
                     break;
                 case CENTER_MIDDLE:
                     xPos = (this->width - lines[i].size() * font->charWidth) >> 1;
-                    yPos = this->height - (i + 1) * font->charHeight - (heightDif >> 1);
+                    yPos = this->height - (i + 1) * font->charHeight - (heightDiff >> 1);
                     break;
                 case LEFT_MIDDLE:
                     xPos = 0;
-                    yPos = this->height - (i + 1) * font->charHeight - (heightDif >> 1);
+                    yPos = this->height - (i + 1) * font->charHeight - (heightDiff >> 1);
                     break;
                 case RIGHT_BOTTOM:
                     xPos = this->width - lines[i].size() * font->charWidth;
-                    yPos = this->height - (i + 1) * font->charHeight - heightDif;
+                    yPos = this->height - (i + 1) * font->charHeight - heightDiff;
                     break;
                 case CENTER_BOTTOM:
                     xPos = (this->width - lines[i].size() * font->charWidth) >> 1;
-                    yPos = this->height - (i + 1) * font->charHeight - heightDif;
+                    yPos = this->height - (i + 1) * font->charHeight - heightDiff;
                     break;
                 default: // LEFT_BOTTOM
                     xPos = 0;
-                    yPos = this->height - (i + 1) * font->charHeight - heightDif;
+                    yPos = this->height - (i + 1) * font->charHeight - heightDiff;
             }
-
             Text::draw_line(canvas, x + xPos, y + yPos, lines[i].c_str(), this->colors, this->font);
         }
     }
 
 private:
-    std::vector<std::string> wordWrap(int maxChar)
+    std::vector<std::string> wordWrap()
     {
+        int maxChar = this->width / this->font->charWidth;
         std::vector<std::string> result;
 
         std::vector<std::string> lines = explode('\n', this->text);
@@ -102,7 +102,12 @@ private:
                         result.push_back(currentLine);
                         currentLine.clear();
                     }
-                    result.push_back(words[i]); // it must be break on charborder
+                    for (int k = 0; k < words[i].length(); k += maxChar) {
+                        currentLine = words[i].substr(k, maxChar);
+                        if (currentLine.size() == maxChar) {
+                            result.push_back(currentLine);
+                        }
+                    }
                     continue;
                 }
 
@@ -115,10 +120,8 @@ private:
                     currentLine = words[i];
                 }
             }
-
             result.push_back(currentLine);
         }
-
         return result;
     }
 
