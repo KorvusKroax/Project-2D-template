@@ -40,6 +40,7 @@ struct Line
                 d += dx * 2;
             }
         }
+        p = (p + 1) % 32;
         if (((pattern >> p) & 1)) canvas->setPixel(x2, y2, color);
     }
 
