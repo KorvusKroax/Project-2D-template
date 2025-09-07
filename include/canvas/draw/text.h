@@ -1,19 +1,21 @@
 /*
-    draw_char(x, y, asciiCode, font, charColor, shadowColor, backgroundColor)
-        - draw a charater of the given font to the passed coords,
-            font, shadowColor and backgroundColor are optional
+    draw_char(x, y, asciiCode, color, font)
+        - draw a charater of the given font to the passed coords, font are optional
             if no given font it will uses a simple 4x6 pixel charaterset
 
-    draw_text(x, y, text, font, textColor, shadowColor, backgroundColor)
-        - write the given text using the given font to the passed coords,
-            font, shadowColor and backgroundColor are optional
+    draw_line(x, y, text, color, font)
+        - write the given text using the given font to the passed coords, font are optional
             if no given font it will uses a simple 4x6 pixel charaterset
+            recognize and process the '\n' (newLine) character
+
+    private calcTextField(text, &colCount, &rowCount)
+        - give back row and max column count in charcount (not pixelcount)
 */
 #pragma once
 
 #include "canvas.h"
-#include "font.h"
 #include "color.h"
+#include "font.h"
 
 struct TextColor
 {
