@@ -7,18 +7,20 @@
 
 struct Line
 {
-    static void draw(Canvas* canvas, int x1, int y1, int x2, int y2, Color color)
+    static void draw(Canvas* canvas, int x1, int y1, int x2, int y2, Color color, int pattern = 0xffffffff)
     {
         int dx = abs(x2 - x1);
         int dy = abs(y2 - y1);
         int sx = x1 < x2 ? 1 : -1;
         int sy = y1 < y2 ? 1 : -1;
 
+        int p = -1;
         if (dx > dy) {
             int y = y1;
             int d = dy * 2 - dx;
             for (int x = x1; x != x2; x += sx) {
-                canvas->setPixel(x, y, color);
+                p = (p + 1) % 32;
+                if (((pattern >> p) & 1)) canvas->setPixel(x, y, color);
                 if (d > 0) {
                     y += sy;
                     d -= dx * 2;
@@ -29,7 +31,8 @@ struct Line
             int x = x1;
             int d = dx * 2 - dy;
             for (int y = y1; y != y2; y += sy) {
-                canvas->setPixel(x, y, color);
+                p = (p + 1) % 32;
+                if (((pattern >> p) & 1)) canvas->setPixel(x, y, color);
                 if (d > 0) {
                     x += sx;
                     d -= dy * 2;
@@ -37,7 +40,7 @@ struct Line
                 d += dx * 2;
             }
         }
-        canvas->setPixel(x2, y2, color);
+        if (((pattern >> p) & 1)) canvas->setPixel(x2, y2, color);
     }
 
     static void draw_AA(Canvas* canvas, int x1, int y1, int x2, int y2, Color color)

@@ -7,11 +7,11 @@
 
 struct Triangle
 {
-    static void draw(Canvas* canvas, int x1, int y1, int x2, int y2, int x3, int y3, Color color)
+    static void draw(Canvas* canvas, int x1, int y1, int x2, int y2, int x3, int y3, Color color, int pattern = 0xffffffff)
     {
-        Line::draw(canvas, x1, y1, x2, y2, color);
-        Line::draw(canvas, x2, y2, x3, y3, color);
-        Line::draw(canvas, x3, y3, x1, y1, color);
+        Line::draw(canvas, x1, y1, x2, y2, color, pattern);
+        Line::draw(canvas, x2, y2, x3, y3, color, pattern);
+        Line::draw(canvas, x3, y3, x1, y1, color, pattern);
     }
 
     static void draw_filled(Canvas* canvas, int x1, int y1, int x2, int y2, int x3, int y3, Color color)
