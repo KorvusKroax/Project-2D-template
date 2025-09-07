@@ -23,8 +23,12 @@ enum TextAlign {
 struct TextField
 {
     int width, height;
+    std::string text;
+    TextAlign textAlign;
+    TextColor colors;
+    Font* font;
 
-    TextField(int width, int height, std::string text, TextAlign textAlign, TextColor colors, Font* font)
+    TextField(int width, int height, TextAlign textAlign, std::string text, TextColor colors, Font* font)
     {
         this->width = width;
         this->height = height;
@@ -84,46 +88,49 @@ struct TextField
     }
 
 private:
-    std::string text;
-    TextAlign textAlign;
-    TextColor colors;
-    Font* font;
-
     std::vector<std::string> wordWrap(int maxChar)
     {
-        std::vector<std::string> words;
+        std::vector<std::string> result;
+
+        std::vector<std::string> lines = explode('\n', this->text);
+        for (int j = 0; j < lines.size(); j++) {
+            std::vector<std::string> words = explode(' ', lines[j]);
+            std::string currentLine;
+            for (int i = 0; i < words.size(); i++) {
+                if (words[i].size() > maxChar) {
+                    if (!currentLine.empty()) {
+                        result.push_back(currentLine);
+                        currentLine.clear();
+                    }
+                    result.push_back(words[i]); // it must be break on charborder
+                    continue;
+                }
+
+                if (currentLine.empty()) {
+                    currentLine = words[i];
+                } else if (currentLine.size() + 1 + words[i].size() <= maxChar) {
+                    currentLine += " " + words[i];
+                } else {
+                    result.push_back(currentLine);
+                    currentLine = words[i];
+                }
+            }
+
+            result.push_back(currentLine);
+        }
+
+        return result;
+    }
+
+    std::vector<std::string> explode(char separator, std::string text)
+    {
+        std::vector<std::string> result;
         size_t start = 0, end;
-        while ((end = text.find(' ', start)) != std::string::npos) {
-            words.push_back(text.substr(start, end - start));
+        while ((end = text.find(separator, start)) != std::string::npos) {
+            result.push_back(text.substr(start, end - start));
             start = end + 1;
         }
-        words.push_back(text.substr(start));
-
-        std::vector<std::string> lines;
-        std::string currentLine;
-        for (int i = 0; i < words.size(); i++) {
-            if (words[i].size() > maxChar) {
-                if (!currentLine.empty()) {
-                    lines.push_back(currentLine);
-                    currentLine.clear();
-                }
-                lines.push_back(words[i]); // it must be break on charborder
-                continue;
-            }
-
-            if (currentLine.empty()) {
-                currentLine = words[i];
-            } else if (currentLine.size() + 1 + words[i].size() <= maxChar) {
-                currentLine += " " + words[i];
-            } else {
-                lines.push_back(currentLine);
-                currentLine = words[i];
-            }
-        }
-        if (!currentLine.empty()) {
-            lines.push_back(currentLine);
-        }
-
-        return lines;
+        result.push_back(text.substr(start));
+        return result;
     }
 };

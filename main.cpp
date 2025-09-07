@@ -47,25 +47,23 @@ int main()
     Font font5x7("resources/font/font5x7.png", 32, 3, 5, 7);
 
     TextField textField(
-        200, 150,
-        "Lorem ipsum, dolor sit amet consectetur adipisicing elit.", LEFT_MIDDLE,
-        TextColor(WHITE),
-        &font8x8
+        200, 150, CENTER_MIDDLE,
+        "Lorem ipsum, dolor\nsit\n\namet consectetur adipisicing elit.",
+        TextColor(WHITE, CLEAR, DARK_GREEN),
+        &font6x8
     );
-
-    // Hotspot hotspot(10, 10, 100, 50);
 
     while (!glfwWindowShouldClose(openGL.window)) {
         canvas.clearPixelBuffer();
 
-        Line::draw(&canvas, canvas.width >> 1, 0, canvas.width >> 1, canvas.height - 1, C64_VICE_DARK_GREY);
-        Line::draw(&canvas, 0, canvas.height >> 1, canvas.width - 1, canvas.height >> 1, C64_VICE_DARK_GREY);
+        Line::draw(&canvas, canvas.width >> 1, 0, canvas.width >> 1, canvas.height - 1, DARK_GRAY, 0x33333333);
+        Line::draw(&canvas, 0, canvas.height >> 1, canvas.width - 1, canvas.height >> 1, DARK_GRAY, 0x33333333);
 
 
 
 
 
-        // textField.update(("Time:\n" + std::to_string(glfwGetTime())).c_str());
+        // textField.text = ("Time: " + std::to_string(glfwGetTime())).c_str();
 
         textField.draw(&canvas,
             (canvas.width >> 1) - (textField.width >> 1),
@@ -109,3 +107,5 @@ int main()
         openGL.update();
     }
 }
+
+// Lorem ipsum, dolor sit amet consectetur adipisicing elit. Similique, asperiores amet. Ducimus beatae magni dolores sed excepturi voluptatem dolor. Reiciendis hic dolorem accusamus minus nesciunt blanditiis deleniti aut ab eum?
