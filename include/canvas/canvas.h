@@ -142,7 +142,7 @@ struct Canvas
 
     bool loadImage_PNG(const char* fileName)
     {
-        unsigned imageWidth, imageHeight, channelCount = 4;
+        unsigned int imageWidth, imageHeight, channelCount = 4;
         unsigned char *image;
         unsigned error = lodepng_decode32_file(&image, &imageWidth, &imageHeight, fileName);
         if (error) {

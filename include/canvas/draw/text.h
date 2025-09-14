@@ -178,7 +178,7 @@ struct Text
     static bool draw_line(Canvas* canvas, int x, int y, const char* text, TextColor colors)
     {
         int colCount, rowCount;
-        calcTextField(text, &colCount, &rowCount);
+        calcTextFieldInChar(text, &colCount, &rowCount);
 
         if (x + colCount * 4 < 0 || x >= canvas->width || y + rowCount * 6  < 0 || y >= canvas->height) return false;
 
@@ -198,36 +198,40 @@ struct Text
         return true;
     }
 
-    static bool draw_char(Canvas* canvas, int x, int y, unsigned char asciiCode, TextColor colors, Font* font)
+    static bool draw_char(Canvas* canvas, int x, int y, unsigned char asciiCode, TextColor colors, Font* font, int charSpacing = 0, int lineSpacing = 0)
     {
         if (font->charCount == 0) {
             draw_char(canvas, x, y, asciiCode, colors);
         }
 
-        if (x + 4 < 0 || x >= canvas->width || y + 6 < 0 || y >= canvas->height) return false;
+        int charIndex = asciiCode - 32;
+        if (0 > charIndex || charIndex > font->charCount) {
+            canvas->setPixel(x + (font->charset[0]->width >> 1), y + 1, colors.text);
+            return false;
+        }
+
+        int charWidth = font->charset[charIndex]->width;
+
+        if (x + charWidth < 0 || x >= canvas->width || y + font->charHeight < 0 || y >= canvas->height) return false;
 
         if (colors.background.getAlpha() > 0) {
-            for (int j = 0; j < font->charHeight; j++) {
-                for (int i = 0; i < font->charWidth; i++) {
+            for (int j = 0; j < font->charHeight + lineSpacing; j++) {
+                for (int i = 0; i < charWidth + charSpacing; i++) {
                     canvas->setPixel(x + i,  y + j, colors.background);
                 }
             }
         }
 
-        int charIndex = asciiCode - 32;
-        if (0 > charIndex || charIndex > font->charCount) {
-            canvas->setPixel(x + (font->charWidth >> 1), y + 1, colors.text);
-            return false;
-        }
-
+        int lineSpacingOffset = lineSpacing >> 1;
+        int charSpacingOffset = charSpacing >> 1;
         for (int j = font->charHeight - 1; j >= 0; j--) {
             bool setted = false;
-            for (int i = 0; i < font->charWidth; i++) {
-                if (font->charset[charIndex][i + j * font->charWidth] & 0xff000000) {
-                    canvas->setPixel(x + i,  y + j, colors.text);
+            for (int i = 0; i < charWidth; i++) {
+                if (font->charset[charIndex]->pixels[i + j * charWidth] & 0xff000000) {
+                    canvas->setPixel(x + i + charSpacingOffset,  y + j + lineSpacingOffset, colors.text);
                     if (colors.shadow.getAlpha() > 0) {
-                        canvas->setPixel(x + i, y + j - 1, colors.shadow);
-                        if (!setted) canvas->setPixel(x + i - 1, y + j - 1, colors.shadow);
+                        canvas->setPixel(x + i + charSpacingOffset, y + j - 1 + lineSpacingOffset, colors.shadow);
+                        if (!setted) canvas->setPixel(x + i - 1 + charSpacingOffset, y + j - 1 + lineSpacingOffset, colors.shadow);
                     }
                     setted = true;
                 } else setted = false;
@@ -236,27 +240,29 @@ struct Text
         return true;
     }
 
-    static bool draw_line(Canvas* canvas, int x, int y, const char* text, TextColor colors, Font* font)
+    static bool draw_line(Canvas* canvas, int x, int y, const char* text, TextColor colors, Font* font, int charSpacing = 1, int lineSpacing = 0)
     {
         if (font->charCount == 0) {
             draw_line(canvas, x, y, text, colors);
         }
 
-        int colCount, rowCount;
-        calcTextField(text, &colCount, &rowCount);
+        if (font->fontType == MONOSPACED) charSpacing = 0;
 
-        if (x + colCount * font->charWidth < 0 || x >= canvas->width || y + rowCount * font->charHeight  < 0 || y >= canvas->height) return false;
+        int maxWidth, maxHeight;
+        calcTextFieldInPixel(text, &maxWidth, &maxHeight, font, charSpacing, lineSpacing);
+
+        if (x + maxWidth < 0 || x >= canvas->width || y + maxHeight  < 0 || y >= canvas->height) return false;
 
         int xPos = 0;
-        int yPos = rowCount - 1;
+        int yPos = maxHeight - (font->charHeight + lineSpacing);
         int i = 0;
         while (text[i] != '\0') {
             if (text[i] == '\n') {
                 xPos = 0;
-                yPos--;
+                yPos -= font->charHeight + lineSpacing;
             } else {
-                draw_char(canvas, x + xPos * font->charWidth, y + yPos * font->charHeight, text[i], colors, font);
-                xPos++;
+                draw_char(canvas, x + xPos, y + yPos, text[i], colors, font, charSpacing, lineSpacing);
+                xPos += font->charset[text[i] - 32]->width + charSpacing;
             }
             i++;
         }
@@ -264,7 +270,7 @@ struct Text
     }
 
 private:
-    static void calcTextField(const char* text, int* colCount, int* rowCount)
+    static void calcTextFieldInChar(const char* text, int* colCount, int* rowCount)
     {
         *colCount = 0;
         *rowCount = 1;
@@ -280,5 +286,25 @@ private:
             i++;
         }
         *colCount = std::max(*colCount, count);
+    }
+
+    static void calcTextFieldInPixel(const char* text, int* width, int* height, Font* font, int charSpacing, int lineSpacing)
+    {
+        *width = 0;
+        *height = font->charHeight + lineSpacing;
+
+        int pixelCount = 0;
+        int i = 0;
+        while (text[i] != '\0') {
+            if (text[i] == '\n') {
+                *width = std::max(*width, pixelCount);
+                (*height) += font->charHeight + lineSpacing;
+                pixelCount = 0;
+            } else {
+                pixelCount += font->charset[text[i] - 32]->width + charSpacing;
+            }
+            i++;
+        }
+        *width = std::max(*width, pixelCount);
     }
 };

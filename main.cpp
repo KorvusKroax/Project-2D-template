@@ -42,16 +42,18 @@ int main()
     // );
 
     points.clear();
-    Font font8x8("resources/font/font8x8_c64.png", 32, 3, 8, 8);
-    Font font6x8("resources/font/font6x8.png", 32, 3, 6, 8);
-    Font font5x7("resources/font/font5x7.png", 32, 3, 5, 7);
+    Font mono_8x8_c64("resources/font/mono_8x8_c64.png", 8);
+    Font mono_6x8("resources/font/mono_6x8.png", 6);
+    Font mono_5x7("resources/font/mono_5x7.png", 5);
+    Font prop_8("resources/font/prop_8.png");
+    Font prop_7("resources/font/prop_7.png");
 
-    TextField textField(
-        200, 150, CENTER_MIDDLE,
-        "Lorem ipsum, dolor\nsit\n\namet consectetur adipisicing elit.",
-        TextColor(WHITE, CLEAR, DARK_GREEN),
-        &font6x8
-    );
+    // TextField textField(
+    //     130, 150, LEFT_MIDDLE,
+    //     "Lorem ipsum, dolor sit amet consecteturadipisicingconsecteturadipisicingconsecteturadipisicing elit.",
+    //     TextColor(WHITE, CLEAR, DARK_GREEN),
+    //     &font8
+    // );
 
     while (!glfwWindowShouldClose(openGL.window)) {
         canvas.clearPixelBuffer();
@@ -64,23 +66,33 @@ int main()
 
 
         // textField.text = ("Time: " + std::to_string(glfwGetTime())).c_str();
+        // textField.draw(&canvas,
+        //     (canvas.width >> 1) - (textField.width >> 1),
+        //     (canvas.height >> 1) - (textField.height >> 1)
+        // );
 
-        textField.draw(&canvas,
-            (canvas.width >> 1) - (textField.width >> 1),
-            (canvas.height >> 1) - (textField.height >> 1)
+
+
+
+
+        Text::draw_line(&canvas, 30, 50,
+            "Lorem ipsum dolor sit amet\nconsectetur adipisicing elit.\nLaborum fugit eveniet iste\ndistinctio vel.",
+            TextColor(EGA_WHITE, Color(0, 0, 0, 64), EGA_GREEN),
+            &prop_7
+        );
+        Text::draw_char(&canvas, 30, 100,
+            'y',
+            TextColor(EGA_WHITE, Color(0, 0, 0, 64), EGA_BRIGHT_RED),
+            &prop_7
+        );
+
+        Text::draw_line(&canvas, 30, 150,
+            "Lorem ipsum dolor sit amet\nconsectetur adipisicing elit.\nLaborum fugit eveniet iste\ndistinctio vel.",
+            TextColor(EGA_WHITE, Color(0, 0, 0, 64), EGA_LIGHT_BLUE),
+            &mono_5x7
         );
 
 
-
-
-
-
-        // Rectangle::draw_filled(&canvas, (canvas.width >> 1) - 10, (canvas.height >> 1) - 10, 100, 50, EGA_LIGHT_BLUE);
-
-        // Text::draw_line(&canvas, canvas.width >> 1, canvas.height >> 1,
-        //     "Lorem ipsum dolor sit amet\nconsectetur adipisicing elit.\nLaborum fugit eveniet iste\ndistinctio vel.\nvalamimás",
-        //     TextColor(WHITE, Color(0, 0, 0, 64))
-        // );
 
 
         // draw points
