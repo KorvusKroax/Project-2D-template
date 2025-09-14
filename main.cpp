@@ -48,12 +48,12 @@ int main()
     Font prop_8("resources/font/prop_8.png");
     Font prop_7("resources/font/prop_7.png");
 
-    // TextField textField(
-    //     130, 150, LEFT_MIDDLE,
-    //     "Lorem ipsum, dolor sit amet consecteturadipisicingconsecteturadipisicingconsecteturadipisicing elit.",
-    //     TextColor(WHITE, CLEAR, DARK_GREEN),
-    //     &font8
-    // );
+    TextField textField(
+        130, 100, LEFT_MIDDLE,
+        "Lorem ipsum, dolor sit amet consecteturadipisicingconsecteturadipisicingconsecteturadipisicing elit.",
+        TextColor(WHITE, CLEAR, DARK_GREEN),
+        &prop_8
+    );
 
     while (!glfwWindowShouldClose(openGL.window)) {
         canvas.clearPixelBuffer();
@@ -66,31 +66,31 @@ int main()
 
 
         // textField.text = ("Time: " + std::to_string(glfwGetTime())).c_str();
-        // textField.draw(&canvas,
-        //     (canvas.width >> 1) - (textField.width >> 1),
-        //     (canvas.height >> 1) - (textField.height >> 1)
+        textField.draw(&canvas,
+            (canvas.width >> 1) - (textField.width >> 1),
+            (canvas.height >> 1) - (textField.height >> 1)
+        );
+
+
+
+
+
+        // Text::draw_line(&canvas, 30, 50,
+        //     "Lorem ipsum dolor sit amet\nconsectetur adipisicing elit.\nLaborum fugit eveniet iste\ndistinctio vel.",
+        //     TextColor(EGA_WHITE, Color(0, 0, 0, 64), EGA_GREEN),
+        //     &prop_7
+        // );
+        // Text::draw_char(&canvas, 30, 100,
+        //     'y',
+        //     TextColor(EGA_WHITE, Color(0, 0, 0, 64), EGA_BRIGHT_RED),
+        //     &prop_7
         // );
 
-
-
-
-
-        Text::draw_line(&canvas, 30, 50,
-            "Lorem ipsum dolor sit amet\nconsectetur adipisicing elit.\nLaborum fugit eveniet iste\ndistinctio vel.",
-            TextColor(EGA_WHITE, Color(0, 0, 0, 64), EGA_GREEN),
-            &prop_7
-        );
-        Text::draw_char(&canvas, 30, 100,
-            'y',
-            TextColor(EGA_WHITE, Color(0, 0, 0, 64), EGA_BRIGHT_RED),
-            &prop_7
-        );
-
-        Text::draw_line(&canvas, 30, 150,
-            "Lorem ipsum dolor sit amet\nconsectetur adipisicing elit.\nLaborum fugit eveniet iste\ndistinctio vel.",
-            TextColor(EGA_WHITE, Color(0, 0, 0, 64), EGA_LIGHT_BLUE),
-            &mono_5x7
-        );
+        // Text::draw_line(&canvas, 30, 150,
+        //     "Lorem ipsum dolor sit amet\nconsectetur adipisicing elit.\nLaborum fugit eveniet iste\ndistinctio vel.",
+        //     TextColor(EGA_WHITE, Color(0, 0, 0, 64), EGA_LIGHT_BLUE),
+        //     &mono_5x7
+        // );
 
 
 
