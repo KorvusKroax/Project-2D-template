@@ -49,9 +49,9 @@ int main()
     Font prop_7("resources/font/prop_7.png");
 
     TextField textField(
-        130, 100, LEFT_MIDDLE,
-        "Lorem ipsum, dolor sit amet consecteturadipisicingconsecteturadipisicingconsecteturadipisicing elit.",
-        TextColor(WHITE, CLEAR, DARK_GREEN),
+        115, 100, CENTER_MIDDLE,
+        "Lorem ipsum, dolor sit amet consecteturadipisic ingconsecteturadipisicingconsecteturadipisicing elit.",
+        TextColor(WHITE, CLEAR, CLEAR),
         &prop_8
     );
 

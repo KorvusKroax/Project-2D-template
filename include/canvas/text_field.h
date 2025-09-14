@@ -44,58 +44,56 @@ struct TextField
 
     void draw(Canvas* canvas, int x, int y)
     {
-        Rectangle::draw(canvas, x, y, this->width, this->height, EGA_RED, 0x55555555);
-
-        std::vector<std::string> lines = wordWrap();
+        std::vector<std::pair<std::string, int>> lines = wordWrap();
 
         int heightDiff = this->height - lines.size() * (this->font->charHeight + this->lineSpacing);
         for (int i = 0; i < lines.size(); i++) {
             int xPos, yPos;
-            // switch (this->textAlign) {
-            //     case RIGHT_TOP:
-            //         xPos = this->width - lines[i].size() * font->spaceWidth;
-            //         yPos = this->height - (i + 1) * font->charHeight;
-            //         break;
-            //     case CENTER_TOP:
-            //         xPos = (this->width - lines[i].size() * font->spaceWidth) >> 1;
-            //         yPos = this->height - (i + 1) * font->charHeight;
-            //         break;
-            //     case LEFT_TOP:
-            //         xPos = 0;
-            //         yPos = this->height - (i + 1) * font->charHeight;
-            //         break;
-            //     case RIGHT_MIDDLE:
-            //         xPos = this->width - lines[i].size() * font->spaceWidth;
-            //         yPos = this->height - (i + 1) * font->charHeight - (heightDiff >> 1);
-            //         break;
-            //     case CENTER_MIDDLE:
-            //         xPos = (this->width - lines[i].size() * font->spaceWidth) >> 1;
-            //         yPos = this->height - (i + 1) * font->charHeight - (heightDiff >> 1);
-            //         break;
-            //     case LEFT_MIDDLE:
-            //         xPos = 0;
-            //         yPos = this->height - (i + 1) * font->charHeight - (heightDiff >> 1);
-            //         break;
-            //     case RIGHT_BOTTOM:
-            //         xPos = this->width - lines[i].size() * font->spaceWidth;
-            //         yPos = this->height - (i + 1) * font->charHeight - heightDiff;
-            //         break;
-            //     case CENTER_BOTTOM:
-            //         xPos = (this->width - lines[i].size() * font->spaceWidth) >> 1;
-            //         yPos = this->height - (i + 1) * font->charHeight - heightDiff;
-            //         break;
-            //     default: // LEFT_BOTTOM
+            switch (this->textAlign) {
+                case RIGHT_TOP:
+                    xPos = this->width - lines[i].second;
+                    yPos = this->height - (i + 1) * font->charHeight;
+                    break;
+                case CENTER_TOP:
+                    xPos = (this->width - lines[i].second) >> 1;
+                    yPos = this->height - (i + 1) * font->charHeight;
+                    break;
+                case LEFT_TOP:
+                    xPos = 0;
+                    yPos = this->height - (i + 1) * font->charHeight;
+                    break;
+                case RIGHT_MIDDLE:
+                    xPos = this->width - lines[i].second;
+                    yPos = this->height - (i + 1) * font->charHeight - (heightDiff >> 1);
+                    break;
+                case CENTER_MIDDLE:
+                    xPos = (this->width - lines[i].second) >> 1;
+                    yPos = this->height - (i + 1) * font->charHeight - (heightDiff >> 1);
+                    break;
+                case LEFT_MIDDLE:
+                    xPos = 0;
+                    yPos = this->height - (i + 1) * font->charHeight - (heightDiff >> 1);
+                    break;
+                case RIGHT_BOTTOM:
+                    xPos = this->width - lines[i].second;
+                    yPos = this->height - (i + 1) * font->charHeight - heightDiff;
+                    break;
+                case CENTER_BOTTOM:
+                    xPos = (this->width - lines[i].second) >> 1;
+                    yPos = this->height - (i + 1) * font->charHeight - heightDiff;
+                    break;
+                default: // LEFT_BOTTOM
                     xPos = 0;
                     yPos = this->height - (i + 1) * font->charHeight - heightDiff;
-            // }
-            Text::draw_line(canvas, x + xPos, y + yPos, lines[i].c_str(), this->colors, this->font, this->charSpacing, this->lineSpacing);
+            }
+            Text::draw_line(canvas, x + xPos, y + yPos, lines[i].first.c_str(), this->colors, this->font, this->charSpacing, this->lineSpacing);
         }
     }
 
 private:
-    std::vector<std::string> wordWrap()
+    std::vector<std::pair<std::string, int>> wordWrap()
     {
-        std::vector<std::string> result;
+        std::vector<std::pair<std::string, int>> result;
 
         std::vector<std::string> lines = explode('\n', this->text);
         for (int j = 0; j < lines.size(); j++) {
@@ -107,7 +105,7 @@ private:
 
                 if (wordWidth >= this->width) {
                     if (!currentLine.empty()) {
-                        result.push_back(currentLine);
+                        result.push_back(std::make_pair(currentLine, currentLineWidth));
                         currentLine.clear();
                     }
                 }
@@ -117,13 +115,14 @@ private:
                     currentLineWidth = wordWidth;
                 } else if (currentLineWidth + this->font->charset[0]->width + wordWidth <= this->width) {
                     currentLine += " " + words[i];
-                    currentLineWidth += this->font->charset[0]->width + wordWidth;
+                    currentLineWidth += this->font->charset[0]->width + this->charSpacing + wordWidth;
                 } else {
-                    result.push_back(currentLine);
+                    result.push_back(std::make_pair(currentLine, currentLineWidth));
                     currentLine = words[i];
+                    currentLineWidth = wordWidth;
                 }
             }
-            result.push_back(currentLine);
+            result.push_back(std::make_pair(currentLine, currentLineWidth));
         }
         return result;
     }
