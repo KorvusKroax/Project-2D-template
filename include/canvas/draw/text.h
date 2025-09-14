@@ -246,7 +246,7 @@ struct Text
             draw_line(canvas, x, y, text, colors);
         }
 
-        if (font->fontType == MONOSPACED) charSpacing = 0;
+        if (font->type == MONOSPACED) charSpacing = 0;
 
         int maxWidth, maxHeight;
         calcTextFieldInPixel(text, &maxWidth, &maxHeight, font, charSpacing, lineSpacing);

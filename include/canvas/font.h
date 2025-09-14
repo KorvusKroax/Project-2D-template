@@ -50,7 +50,7 @@ struct Font
 {
     unsigned int charHeight, charCount = 0;
     FontChar** charset;
-    FontType fontType;
+    FontType type;
 
     Font() { }
 
@@ -109,7 +109,7 @@ private:
             xPos += charWidth;
         }
 
-        this->fontType = MONOSPACED;
+        this->type = MONOSPACED;
         return true;
     }
 
@@ -153,7 +153,7 @@ private:
             xPos += charWidths[i] + 1;
         }
 
-        this->fontType = PROPORTIONAL;
+        this->type = PROPORTIONAL;
         return true;
     }
 };

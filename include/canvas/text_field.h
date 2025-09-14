@@ -27,8 +27,8 @@ struct TextField
     TextAlign textAlign;
     TextColor colors;
     Font* font;
-    int charSpacing;
-    int lineSpacing;
+    int charSpacing = 0;
+    int lineSpacing = 0;
 
     TextField(int width, int height, TextAlign textAlign, std::string text, TextColor colors, Font* font, int charSpacing = 1, int lineSpacing = 0)
     {
@@ -38,8 +38,10 @@ struct TextField
         this->textAlign = textAlign;
         this->colors = colors;
         this->font = font;
-        this->charSpacing = charSpacing;
-        this->lineSpacing = lineSpacing;
+        if (this->font->type == PROPORTIONAL) {
+            this->charSpacing = charSpacing;
+            this->lineSpacing = lineSpacing;
+        }
     }
 
     void draw(Canvas* canvas, int x, int y)
@@ -52,39 +54,39 @@ struct TextField
             switch (this->textAlign) {
                 case RIGHT_TOP:
                     xPos = this->width - lines[i].second;
-                    yPos = this->height - (i + 1) * font->charHeight;
+                    yPos = this->height - (i + 1) * (this->font->charHeight + this->lineSpacing);
                     break;
                 case CENTER_TOP:
                     xPos = (this->width - lines[i].second) >> 1;
-                    yPos = this->height - (i + 1) * font->charHeight;
+                    yPos = this->height - (i + 1) * (this->font->charHeight + this->lineSpacing);
                     break;
                 case LEFT_TOP:
                     xPos = 0;
-                    yPos = this->height - (i + 1) * font->charHeight;
+                    yPos = this->height - (i + 1) * (this->font->charHeight + this->lineSpacing);
                     break;
                 case RIGHT_MIDDLE:
                     xPos = this->width - lines[i].second;
-                    yPos = this->height - (i + 1) * font->charHeight - (heightDiff >> 1);
+                    yPos = this->height - (i + 1) * (this->font->charHeight + this->lineSpacing) - (heightDiff >> 1);
                     break;
                 case CENTER_MIDDLE:
                     xPos = (this->width - lines[i].second) >> 1;
-                    yPos = this->height - (i + 1) * font->charHeight - (heightDiff >> 1);
+                    yPos = this->height - (i + 1) * (this->font->charHeight + this->lineSpacing) - (heightDiff >> 1);
                     break;
                 case LEFT_MIDDLE:
                     xPos = 0;
-                    yPos = this->height - (i + 1) * font->charHeight - (heightDiff >> 1);
+                    yPos = this->height - (i + 1) * (this->font->charHeight + this->lineSpacing) - (heightDiff >> 1);
                     break;
                 case RIGHT_BOTTOM:
                     xPos = this->width - lines[i].second;
-                    yPos = this->height - (i + 1) * font->charHeight - heightDiff;
+                    yPos = this->height - (i + 1) * (this->font->charHeight + this->lineSpacing) - heightDiff;
                     break;
                 case CENTER_BOTTOM:
                     xPos = (this->width - lines[i].second) >> 1;
-                    yPos = this->height - (i + 1) * font->charHeight - heightDiff;
+                    yPos = this->height - (i + 1) * (this->font->charHeight + this->lineSpacing) - heightDiff;
                     break;
                 default: // LEFT_BOTTOM
                     xPos = 0;
-                    yPos = this->height - (i + 1) * font->charHeight - heightDiff;
+                    yPos = this->height - (i + 1) * (this->font->charHeight + this->lineSpacing) - heightDiff;
             }
             Text::draw_line(canvas, x + xPos, y + yPos, lines[i].first.c_str(), this->colors, this->font, this->charSpacing, this->lineSpacing);
         }

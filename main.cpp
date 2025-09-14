@@ -49,10 +49,10 @@ int main()
     Font prop_7("resources/font/prop_7.png");
 
     TextField textField(
-        115, 100, CENTER_MIDDLE,
+        130, 100, CENTER_MIDDLE,
         "Lorem ipsum, dolor sit amet consecteturadipisic ingconsecteturadipisicingconsecteturadipisicing elit.",
-        TextColor(WHITE, CLEAR, CLEAR),
-        &prop_8
+        TextColor(WHITE, Color(0, 0, 0, 63), EGA_GREEN),
+        &prop_7, 4, 4
     );
 
     while (!glfwWindowShouldClose(openGL.window)) {
