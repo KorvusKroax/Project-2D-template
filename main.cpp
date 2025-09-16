@@ -50,7 +50,7 @@ int main()
 
     TextField textField(
         130, 100, CENTER_MIDDLE,
-        "Lorem ipsum, dolor sit amet consecteturadipisic ingconsecteturadipisicingconsecteturadipisicing elit.",
+        "Lorem ipsum, dolor sit amet 1234567890123456789 12345678901234567890123456789012345678901234567 elit.",
         TextColor(WHITE, Color(0, 0, 0, 63), EGA_GREEN),
         &prop_7, 4, 4
     );

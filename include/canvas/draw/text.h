@@ -205,7 +205,7 @@ struct Text
         }
 
         int charIndex = asciiCode - 32;
-        if (charIndex < 0 || charIndex > font->charCount) {
+        if (charIndex < 0 || charIndex >= font->charCount) {
             canvas->setPixel(x + (font->charset[0]->width >> 1), y + 1, colors.text);
             return false;
         }

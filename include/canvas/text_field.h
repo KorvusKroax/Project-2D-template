@@ -97,30 +97,35 @@ private:
     {
         std::vector<std::pair<std::string, int>> result;
 
-        std::vector<std::string> lines = explode('\n', this->text);
-        for (int j = 0; j < lines.size(); j++) {
-            std::vector<std::string> words = explode(' ', lines[j]);
+        std::vector<std::string> lines = explodeByChar(this->text, '\n');
+        for (int i = 0; i < lines.size(); i++) {
+            std::vector<std::string> words = explodeByChar(lines[i], ' ');
             std::string currentLine;
             int currentLineWidth = 0;
-            for (int i = 0; i < words.size(); i++) {
-                int wordWidth = getWordWidth(words[i]);
+            for (int j = 0; j < words.size(); j++) {
+                int wordWidth = getWordWidth(words[j]);
 
                 if (wordWidth >= this->width) {
                     if (!currentLine.empty()) {
                         result.push_back(std::make_pair(currentLine, currentLineWidth));
                         currentLine.clear();
                     }
+                    std::vector<std::pair<std::string, int>> splittedWords = explodeByWidth(words[j], this->width);
+                    for (int k = 0; k < splittedWords.size(); k++) {
+                        result.push_back(std::make_pair(splittedWords[k].first, splittedWords[k].second));
+                    }
+                    continue;
                 }
 
                 if (currentLine.empty()) {
-                    currentLine = words[i];
+                    currentLine = words[j];
                     currentLineWidth = wordWidth;
-                } else if (currentLineWidth + this->font->charset[0]->width + wordWidth <= this->width) {
-                    currentLine += " " + words[i];
+                } else if (currentLineWidth + this->font->charset[0]->width + wordWidth < this->width) {
+                    currentLine += " " + words[j];
                     currentLineWidth += this->font->charset[0]->width + this->charSpacing + wordWidth;
                 } else {
                     result.push_back(std::make_pair(currentLine, currentLineWidth));
-                    currentLine = words[i];
+                    currentLine = words[j];
                     currentLineWidth = wordWidth;
                 }
             }
@@ -129,7 +134,7 @@ private:
         return result;
     }
 
-    std::vector<std::string> explode(char separator, std::string text)
+    std::vector<std::string> explodeByChar(std::string text, char separator)
     {
         std::vector<std::string> result;
         size_t start = 0, end;
@@ -141,13 +146,32 @@ private:
         return result;
     }
 
+    std::vector<std::pair<std::string, int>> explodeByWidth(std::string text, int maxWidth)
+    {
+        std::vector<std::pair<std::string, int>> result;
+
+        int wordWidth = 0;
+        size_t start = 0, end;
+        for (int i = 0; i < text.size(); i++) {
+
+            int charWidth = this->font->charset[(text[i] - 32 < 1 || text[i] - 32 >= font->charCount) ? 0 : text[i] - 32]->width + this->charSpacing;
+
+            if (wordWidth + charWidth >= maxWidth) {
+                result.push_back(std::make_pair(text.substr(start, i - start), wordWidth));
+                wordWidth = charWidth;
+                start = i;
+            } else wordWidth += charWidth;
+        }
+        result.push_back(std::make_pair(text.substr(start), wordWidth));
+
+        return result;
+    }
+
     int getWordWidth(std::string text)
     {
         int result = 0;
         for (int i = 0; i < text.size(); i++) {
-            result += this->font->charset[
-                (text[i] - 32 < 1 || text[i] - 32 > font->charCount) ? 0 : text[i] - 32
-            ]->width + this->charSpacing;
+            result += this->font->charset[(text[i] - 32 < 1 || text[i] - 32 >= font->charCount) ? 0 : text[i] - 32]->width + this->charSpacing;
         }
         return result;
     }
