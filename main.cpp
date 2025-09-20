@@ -54,7 +54,7 @@ int main()
         130, 100, LEFT_MIDDLE,
         "Lorem ipsum, dolor sit amet consectetur adipisicing elit. Similique, asperiores amet.",
         TextColor(WHITE),//, Color(0, 0, 0, 63), EGA_GREEN),
-        &prop_7//, 4, 4
+        &mono_6x8_space_invaders, 4, 4
     );
 
     while (!glfwWindowShouldClose(openGL.window)) {

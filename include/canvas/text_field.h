@@ -38,10 +38,8 @@ struct TextField
         this->textAlign = textAlign;
         this->colors = colors;
         this->font = font;
-        if (this->font->type == PROPORTIONAL) {
-            this->charSpacing = charSpacing;
-            this->lineSpacing = lineSpacing;
-        }
+        if (this->font->type == MONOSPACED) this->charSpacing--;
+        this->lineSpacing = lineSpacing;
     }
 
     void draw(Canvas* canvas, int x, int y)
