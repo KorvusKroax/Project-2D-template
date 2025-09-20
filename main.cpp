@@ -44,15 +44,17 @@ int main()
     points.clear();
     Font mono_8x8_c64("resources/font/mono_8x8_c64.png", 8);
     Font mono_6x8("resources/font/mono_6x8.png", 6);
+    Font mono_6x8_space_invaders("resources/font/mono_6x8_space_invaders.png", 6);
     Font mono_5x7("resources/font/mono_5x7.png", 5);
     Font prop_8("resources/font/prop_8.png");
+    Font prop_8_minecraft("resources/font/prop_8_minecraft.png");
     Font prop_7("resources/font/prop_7.png");
 
     TextField textField(
-        130, 100, CENTER_MIDDLE,
-        "Lorem ipsum, dolor sit amet 1234567890123456789 12345678901234567890123456789012345678901234567 elit.",
-        TextColor(WHITE, Color(0, 0, 0, 63), EGA_GREEN),
-        &prop_7, 4, 4
+        130, 100, LEFT_MIDDLE,
+        "Lorem ipsum, dolor sit amet consectetur adipisicing elit. Similique, asperiores amet.",
+        TextColor(WHITE),//, Color(0, 0, 0, 63), EGA_GREEN),
+        &prop_7//, 4, 4
     );
 
     while (!glfwWindowShouldClose(openGL.window)) {
