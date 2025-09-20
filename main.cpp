@@ -53,8 +53,8 @@ int main()
     TextField textField(
         130, 100, LEFT_MIDDLE,
         "Lorem ipsum, dolor sit amet consectetur adipisicing elit. Similique, asperiores amet.",
-        TextColor(WHITE),//, Color(0, 0, 0, 63), EGA_GREEN),
-        &mono_6x8_space_invaders, 4, 4
+        TextColor(WHITE, Color(0, 0, 0, 63), EGA_GREEN),
+        &mono_6x8_space_invaders, 6, 4
     );
 
     while (!glfwWindowShouldClose(openGL.window)) {

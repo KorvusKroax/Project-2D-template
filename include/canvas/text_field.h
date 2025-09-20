@@ -27,8 +27,8 @@ struct TextField
     TextAlign textAlign;
     TextColor colors;
     Font* font;
-    int charSpacing = 0;
-    int lineSpacing = 0;
+    int charSpacing;
+    int lineSpacing;
 
     TextField(int width, int height, TextAlign textAlign, std::string text, TextColor colors, Font* font, int charSpacing = 1, int lineSpacing = 0)
     {
@@ -38,7 +38,7 @@ struct TextField
         this->textAlign = textAlign;
         this->colors = colors;
         this->font = font;
-        if (this->font->type == MONOSPACED) this->charSpacing--;
+        this->charSpacing = charSpacing;
         this->lineSpacing = lineSpacing;
     }
 
