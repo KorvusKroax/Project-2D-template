@@ -54,7 +54,6 @@
 #include "color.h"
 #include "lodepng.h"
 
-#include <iostream> // cout
 #include <cstring> // memset
 
 struct Canvas
@@ -145,10 +144,7 @@ struct Canvas
         unsigned int imageWidth, imageHeight, channelCount = 4;
         unsigned char *image;
         unsigned error = lodepng_decode32_file(&image, &imageWidth, &imageHeight, fileName);
-        if (error) {
-            std::cout << "loadImage_PNG(): decoder error " << error << ": " << lodepng_error_text(error) << std::endl;
-            return false;
-        }
+        if (error) return false;
 
         init(imageWidth, imageHeight);
         for (int i = 0; i < this->width; i++) {

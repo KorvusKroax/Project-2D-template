@@ -4,8 +4,8 @@
 #include "rectangle.h"
 #include "circle.h"
 #include "fill.h"
-#include "text.h"
-#include "text_field.h"
+#include "png_text/text.h"
+#include "png_text/text_field.h"
 
 #include <iostream>
 #include <vector>
@@ -42,13 +42,13 @@ int main()
     // );
 
     points.clear();
-    Font mono_8x8_c64("resources/font/mono_8x8_c64.png", 8);
-    Font mono_6x8("resources/font/mono_6x8.png", 6);
-    Font mono_6x8_space_invaders("resources/font/mono_6x8_space_invaders.png", 6);
-    Font mono_5x7("resources/font/mono_5x7.png", 5);
-    Font prop_8("resources/font/prop_8.png");
-    Font prop_8_minecraft("resources/font/prop_8_minecraft.png");
-    Font prop_7("resources/font/prop_7.png");
+    Font mono_8x8_c64("resources/font/png/mono_8x8_c64.png", 8);
+    Font mono_6x8("resources/font/png/mono_6x8.png", 6);
+    Font mono_6x8_space_invaders("resources/font/png/mono_6x8_space_invaders.png", 6);
+    Font mono_5x7("resources/font/png/mono_5x7.png", 5);
+    Font prop_8("resources/font/png/prop_8.png");
+    Font prop_8_minecraft("resources/font/png/prop_8_minecraft.png");
+    Font prop_7("resources/font/png/prop_7.png");
 
     TextField textField(
         130, 100, LEFT_MIDDLE,

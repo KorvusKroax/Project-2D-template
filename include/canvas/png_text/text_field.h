@@ -24,8 +24,8 @@ enum TextAlign
 struct TextField
 {
     int width, height;
-    std::string text;
     TextAlign textAlign;
+    std::string text;
     TextColor colors;
     Font* font;
     int charSpacing;

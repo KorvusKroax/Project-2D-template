@@ -31,7 +31,6 @@
 #include "GLFW/glfw3.h"
 #include "canvas.h"
 
-#include <iostream> // cout
 #include <algorithm> // clamp
 
 enum WindowMode
