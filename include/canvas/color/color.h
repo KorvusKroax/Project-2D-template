@@ -6,7 +6,8 @@
 
 #include <algorithm> // min
 
-struct Color {
+struct Color
+{
     unsigned int value;
 
     Color(unsigned int r, unsigned int g, unsigned int b, unsigned int a = 255)

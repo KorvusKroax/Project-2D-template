@@ -34,7 +34,8 @@
 #include <iostream> // cout
 #include <algorithm> // clamp
 
-enum WindowMode {
+enum WindowMode
+{
     FULLSCREEN_SCREEN,
     FULLSCREEN_RESOLUTION,
     WINDOWED,

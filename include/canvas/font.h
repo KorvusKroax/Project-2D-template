@@ -20,25 +20,26 @@
 #include <iostream> // cout
 #include <vector>
 
-enum FontType {
+enum FontType
+{
     MONOSPACED,
     PROPORTIONAL
 };
 
-struct FontChar
+struct Glyph
 {
     int width = 0;
     int* pixels = nullptr;
 
-    FontChar() { }
+    Glyph() { }
 
-    FontChar(int width, int height)
+    Glyph(int width, int height)
     {
         this->width = width;
         this->pixels = new int[this->width * height];
     }
 
-    ~FontChar()
+    ~Glyph()
     {
         if (pixels != nullptr) {
             delete[] pixels;
@@ -49,7 +50,7 @@ struct FontChar
 struct Font
 {
     unsigned int charHeight, charCount = 0;
-    FontChar** charset;
+    Glyph** charset;
     FontType type;
 
     Font() { }
@@ -92,11 +93,11 @@ private:
             return false;
         }
 
-        this->charset = new FontChar*[this->charCount];
+        this->charset = new Glyph*[this->charCount];
 
         int xPos = 0;
         for (int i = 0; i < this->charCount; i++) {
-            this->charset[i] = new FontChar(charWidth, this->charHeight);
+            this->charset[i] = new Glyph(charWidth, this->charHeight);
             for (int y = 0; y < this->charHeight; y++) {
                 for (int x = 0; x < charWidth; x++) {
                     this->charset[i]->pixels[x + (this->charHeight - 1 - y) * charWidth] =
@@ -136,11 +137,11 @@ private:
             return false;
         }
 
-        this->charset = new FontChar*[this->charCount];
+        this->charset = new Glyph*[this->charCount];
 
         int xPos = 0;
         for (int i = 0; i < this->charCount; i++) {
-            this->charset[i] = new FontChar(charWidths[i], this->charHeight);
+            this->charset[i] = new Glyph(charWidths[i], this->charHeight);
             for (int y = 0; y < this->charHeight; y++) {
                 for (int x = 0; x < charWidths[i]; x++) {
                     this->charset[i]->pixels[x + (this->charHeight - 1 - y) * charWidths[i]] =

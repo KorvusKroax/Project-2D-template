@@ -8,7 +8,8 @@
 #include <string>
 #include <vector>
 
-enum TextAlign {
+enum TextAlign
+{
     RIGHT_TOP,
     RIGHT_MIDDLE,
     RIGHT_BOTTOM,
