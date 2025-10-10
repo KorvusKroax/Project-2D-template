@@ -4,6 +4,7 @@
 #include "color.h"
 #include "font.h"
 #include "text.h"
+#include "rectangle.h"
 
 #include <string>
 #include <vector>
@@ -45,6 +46,8 @@ struct TextField
 
     void draw(Canvas* canvas, int x, int y)
     {
+        Rectangle::draw(canvas, x, y, this->width, this->height, EGA_RED);
+
         std::vector<std::pair<std::string, int>> lines = wordWrap();
 
         int heightDiff = this->height - lines.size() * (this->font->charHeight + this->lineSpacing);
@@ -109,10 +112,11 @@ private:
                         result.push_back(std::make_pair(currentLine, currentLineWidth));
                         currentLine.clear();
                     }
-                    std::vector<std::pair<std::string, int>> splittedWords = explodeByWidth(words[j], this->width);
-                    for (int k = 0; k < splittedWords.size(); k++) {
-                        result.push_back(std::make_pair(splittedWords[k].first, splittedWords[k].second));
-                    }
+                    // std::vector<std::pair<std::string, int>> splittedWords = explodeByWidth(words[j], this->width);
+                    // for (int k = 0; k < splittedWords.size(); k++) {
+                    //     result.push_back(std::make_pair(splittedWords[k].first, splittedWords[k].second));
+                    // }
+                    result.push_back(std::make_pair(words[j], wordWidth));
                     continue;
                 }
 

@@ -3,7 +3,6 @@
 #include "line.h"
 #include "rectangle.h"
 #include "circle.h"
-#include "fill.h"
 #include "png_text/text.h"
 #include "png_text/text_field.h"
 
@@ -52,9 +51,9 @@ int main()
 
     TextField textField(
         130, 100, LEFT_MIDDLE,
-        "Lorem ipsum, dolor sit amet consectetur adipisicing elit. Similique, asperiores amet.",
+        "Lorem ipsum, dolor sit amet consecteturadipisicingelit. Similique, asperiores amet.",
         TextColor(WHITE, Color(0, 0, 0, 63), EGA_GREEN),
-        &mono_6x8_space_invaders, 6, 4
+        &mono_6x8_space_invaders
     );
 
     while (!glfwWindowShouldClose(openGL.window)) {
