@@ -36,6 +36,16 @@ struct TextField
                         lines.push_back(std::make_pair(currentLine, currentLineWidth));
                         currentLine.clear();
                     }
+
+                    // split long word more lines
+                    std::vector<std::pair<std::string, int>> splittedWords = explodeByWidth(word);
+                    for (int i = 0; i < splittedWords.size() - 1; i++) {
+                        lines.push_back(std::make_pair(splittedWords[i].first, splittedWords[i].second));
+                    }
+                    // long word's end added to current line
+                    currentLine = splittedWords[splittedWords.size() - 1].first;
+                    currentLineWidth = splittedWords[splittedWords.size() - 1].second;
+                    continue;
                 }
 
                 if (currentLine.empty()) {
@@ -103,6 +113,9 @@ private:
         for (int i = 0; i < codepoints.size(); i++) {
             Glyph* glyph = this->font->getGlyph(codepoints[i]);
             textWidth += glyph->advanceWidth * this->font->scale;
+
+
+// ez itt nem jó: glyph indexet kell megadni neki nem a char-t
             if (i + 1 < codepoints.size()) {
                 textWidth += stbtt_GetGlyphKernAdvance(&this->font->info, codepoints[i], codepoints[i + 1]) * this->font->scale;
             }
@@ -124,6 +137,41 @@ private:
         int spaceWidth = glyph->advanceWidth * this->font->scale;
 
         return kerningLeft + spaceWidth + kerningRight;
+    }
+
+    std::vector<std::pair<std::string, int>> explodeByWidth(std::string text)
+    {
+        std::vector<std::pair<std::string, int>> result;
+
+        // std::vector<int> codepoints = this->font->utf8ToCodepoints(text);
+
+        std::string line;
+        float lineWidth = 0;
+        for (int i = 0; i < text.size(); i++) {
+
+
+            Glyph* glyph = this->font->getGlyph(this->font->utf8ToCodepoint(&text[i]));
+            int charWidth = glyph->advanceWidth * this->font->scale;
+
+            if (lineWidth + charWidth > this->width) {
+                result.push_back(std::make_pair(line, lineWidth));
+                line = text[i];
+                lineWidth = charWidth;
+            } else {
+                line += text[i];
+                lineWidth += charWidth;
+
+
+// ez itt nem jó: glyph indexet kell megadni neki nem a char-t
+                if (i + 1 < text.size()) {
+                    lineWidth += stbtt_GetGlyphKernAdvance(&this->font->info, text[i], text[i + 1]) * this->font->scale;
+                }
+            }
+
+        }
+        result.push_back(std::make_pair(line, lineWidth));
+
+        return result;
     }
 
 
