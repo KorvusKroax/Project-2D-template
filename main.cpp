@@ -16,7 +16,7 @@ OpenGL openGL(&canvas, PIXEL_SIZE);//, FULLSCREEN_RESOLUTION);
 
 std::vector<std::pair<int, int>> points;
 
-int px = 16;
+int px = 14;
 
 int main()
 {
@@ -56,8 +56,6 @@ int main()
     // PixelOperator.ttf: 16px
     // PixelOperator8.ttf: 8px (mono)
 
-    Font font("resources/font/ttf/PixelOperator.ttf", px);
-
     while (!glfwWindowShouldClose(openGL.window)) {
         canvas.clear();
 
@@ -74,10 +72,10 @@ int main()
 
 
 
-        // Font font("resources/font/ttf/PixelOperator.ttf", px);
-        // printf("px: %i\n", px);
+        Font font("resources/font/ttf/bitpotion.ext.ttf", px);
+        printf("px: %i\n", px);
 
-        Text::draw_line(&canvas, &font, "Helló, világ!\nHelló megint...", 10, (canvas.height >> 1), EGA_WHITE, 1.0f);
+        Text::draw_line(&canvas, &font, "Helló, világ!\nHelló megint...", 10, (canvas.height >> 1), C64_VICE_YELLOW, 1.0f);
 
 
 
