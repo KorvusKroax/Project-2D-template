@@ -107,8 +107,8 @@ int main()
         // mouse
         int mx, my;
         openGL.getMousePosition(&mx, &my);
-        Circle::draw(&canvas, mx, my, 5, Color(0, 255, 255, 31));
-        canvas.setPixel(mx, my, Color(0, 255, 255, 31));
+        Circle::draw(&canvas, mx, my, 5, Color(0, 255, 255, 63));
+        canvas.setPixel(mx, my, Color(255, 255, 255, 63));
 
         // drag mouse
         if (glfwGetMouseButton(openGL.window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS) {

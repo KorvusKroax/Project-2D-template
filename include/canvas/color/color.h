@@ -32,39 +32,19 @@ struct Color
 
     int grayscale()
     {
-        int v = getRed() * 0.299f + getGreen() * 0.587f + getBlue() * 0.114f;
-        return v | (v << 8) | (v << 16) | (getAlpha() << 24);
+        int v = this->getRed() * 0.299f + this->getGreen() * 0.587f + this->getBlue() * 0.114f;
+        return v | (v << 8) | (v << 16) | (this->getAlpha() << 24);
     }
 
-    Color add(Color color)
+    Color blend(Color fg) // "this" is bg color
     {
-        return Color(
-            std::min(255, int(getRed()   + (color.getRed()   * color.getAlpha()) / 255.0f)),
-            std::min(255, int(getGreen() + (color.getGreen() * color.getAlpha()) / 255.0f)),
-            std::min(255, int(getBlue()  + (color.getBlue()  * color.getAlpha()) / 255.0f)),
-            std::min(255, getAlpha() + color.getAlpha())
-        );
-    }
-
-    Color blend(Color color)
-    {
-        int r1 = color.getRed();
-        int g1 = color.getGreen();
-        int b1 = color.getBlue();
-        int a1 = color.getAlpha();
-
-        int r2 = getRed();
-        int g2 = getGreen();
-        int b2 = getBlue();
-        int a2 = getAlpha();
-
-        int outA = a1 + (a2 * (255 - a1) >> 8);
-        if (outA == 0) return Color(0, 0, 0, 0);
+        int aOut = fg.getAlpha() + (this->getAlpha() * (255 - fg.getAlpha())) >> 8;
+        if (aOut == 0) return Color(0, 0, 0, 0);
 
         return Color(
-            (r1 * a1 + (r2 * a2 * (255 - a1) >> 8) + (outA >> 1)) / outA,
-            (g1 * a1 + (g2 * a2 * (255 - a1) >> 8) + (outA >> 1)) / outA,
-            (b1 * a1 + (b2 * a2 * (255 - a1) >> 8) + (outA >> 1)) / outA
+            std::min((fg.getRed()   * fg.getAlpha() + (this->getRed()   * this->getAlpha() * (255 - fg.getAlpha()) >> 8) + (aOut >> 1)) / aOut, 255),
+            std::min((fg.getGreen() * fg.getAlpha() + (this->getGreen() * this->getAlpha() * (255 - fg.getAlpha()) >> 8) + (aOut >> 1)) / aOut, 255),
+            std::min((fg.getBlue()  * fg.getAlpha() + (this->getBlue()  * this->getAlpha() * (255 - fg.getAlpha()) >> 8) + (aOut >> 1)) / aOut, 255)
         );
     }
 };
