@@ -4,6 +4,7 @@
 #include "open_gl.h"
 #include "line.h"
 #include "circle.h"
+#include "rectangle.h"
 #include "text/font.h"
 #include "text/text.h"
 
@@ -16,7 +17,7 @@ OpenGL openGL(&canvas, PIXEL_SIZE);//, FULLSCREEN_RESOLUTION);
 
 std::vector<std::pair<int, int>> points;
 
-int px = 14;
+int px = 8;
 
 int main()
 {
@@ -56,6 +57,11 @@ int main()
     // PixelOperator.ttf: 16px
     // PixelOperator8.ttf: 8px (mono)
 
+    // C64_Pro_Mono-STYLE: 8px
+    // C64_Pro-STYLE: 8px
+    // Berkelium64.ttf: 10px
+    // Berkelium1541.ttf: 6px
+
     while (!glfwWindowShouldClose(openGL.window)) {
         canvas.clear();
 
@@ -72,10 +78,12 @@ int main()
 
 
 
-        Font font("resources/font/ttf/bitpotion.ext.ttf", px);
+        Font font("resources/font/PetMe64.ttf", px);
         printf("px: %i\n", px);
 
-        Text::draw_line(&canvas, &font, "Helló, világ!\nHelló megint...", 10, (canvas.height >> 1), C64_VICE_YELLOW, 1.0f);
+        Rectangle::draw_filled(&canvas, 5, (canvas.height >> 2), 200, 100, C64_VICE_GREEN);
+
+        Text::draw_line(&canvas, &font, "Helló, világ!\nhelló megint...", 20, (canvas.height >> 1), C64_VICE_WHITE, CLEAR, 1.5f);
 
 
 
