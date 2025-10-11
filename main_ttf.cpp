@@ -6,6 +6,7 @@
 #include "circle.h"
 #include "ttf_text/font.h"
 #include "ttf_text/text.h"
+// #include "ttf_text_old/text_field.h"
 
 const unsigned int WIDTH = 320;
 const unsigned int HEIGHT = 200;
@@ -17,7 +18,7 @@ OpenGL openGL(&canvas, PIXEL_SIZE);//, FULLSCREEN_RESOLUTION);
 std::vector<std::pair<int, int>> points;
 
 int px = 16;
-int lineHeightOverride = 16;
+int lineHeightOverride = 12;
 
 int main()
 {
@@ -30,6 +31,8 @@ int main()
     );
 
     points.clear();
+
+    Canvas image("resources/img/161.png");
 
 
     // FULL
@@ -53,33 +56,44 @@ int main()
     // Mojang-Bold.ttf: 8px
     // post-pixel-7.regular.ttf: 20px
     // PixelOperator.ttf: 16px
-    // PixelOperator8.ttf: 8px
+    // PixelOperator8.ttf: 8px (mono)
 
 
+    // TextField textField(
+    //     130, 100, LEFT_BOTTOM,
+    //     "Lorem ipsum, dolor sit amet consectetur adipisicing elit. Similique, asperiores amet.",
+    //     WHITE,
+    //     &font
+    // );
 
     while (!glfwWindowShouldClose(openGL.window)) {
         canvas.clearPixelBuffer();
 
-        Line::draw(&canvas, canvas.width >> 1, 0, canvas.width >> 1, canvas.height - 1, Color(32,32,32), 0x33333333);
-        Line::draw(&canvas, 0, canvas.height >> 1, canvas.width - 1, canvas.height >> 1, Color(32,32,32), 0x33333333);
-        Line::draw(&canvas, canvas.width >> 2, 0, canvas.width >> 2, canvas.height - 1, Color(24,24,24), 0x30303030);
-        Line::draw(&canvas, 0, canvas.height >> 2, canvas.width - 1, canvas.height >> 2, Color(24,24,24), 0x30303030);
-        Line::draw(&canvas, (canvas.width >> 1) + (canvas.width >> 2), 0, (canvas.width >> 1) + (canvas.width >> 2), canvas.height - 1, Color(24,24,24), 0x30303030);
-        Line::draw(&canvas, 0, (canvas.height >> 1) + (canvas.height >> 2), canvas.width - 1, (canvas.height >> 1) + (canvas.height >> 2), Color(24,24,24), 0x30303030);
+        canvas.setPixels(50, 20, &image);
+
+        Line::draw(&canvas, canvas.width >> 1, 0, canvas.width >> 1, canvas.height - 1, Color(64,64,64), 0x33333333);
+        Line::draw(&canvas, 0, canvas.height >> 1, canvas.width - 1, canvas.height >> 1, Color(64,64,64), 0x33333333);
+        Line::draw(&canvas, canvas.width >> 2, 0, canvas.width >> 2, canvas.height - 1, Color(32,32,32), 0x30303030);
+        Line::draw(&canvas, 0, canvas.height >> 2, canvas.width - 1, canvas.height >> 2, Color(32,32,32), 0x30303030);
+        Line::draw(&canvas, (canvas.width >> 1) + (canvas.width >> 2), 0, (canvas.width >> 1) + (canvas.width >> 2), canvas.height - 1, Color(32,32,32), 0x30303030);
+        Line::draw(&canvas, 0, (canvas.height >> 1) + (canvas.height >> 2), canvas.width - 1, (canvas.height >> 1) + (canvas.height >> 2), Color(32,32,32), 0x30303030);
 
 
 
+        Font font("resources/font/ttf/PixelOperator.ttf", px);
+        // printf("px: %i\n", px);
 
+        Text::draw_line(&canvas, &font, "Helló, világ!", 10, (canvas.height >> 1), EGA_WHITE, 1.0f);
+        // draw_line(&canvas,
+        //     10, (canvas.height >> 1),
+        //     "Helló, világ!",//\nHelló megint...",
+        //     EGA_WHITE, &font//, lineHeightOverride
+        // );
 
-        Font font("resources/font/ttf/bitpotion.ext.ttf", 14);
-        printf("px: %i\n", px);
-
-        Text::draw_text(
-            &canvas, &font,
-            "Hello, vilag!\nMasodik sor 0123456789\n-ÁÉÍÓÖŐÚÜŰ.\n-áéíóöőúüű.",
-            canvas.width >> 2, canvas.height >> 2,
-            EGA_WHITE//, lineHeightOverride
-        );
+        // textField.draw(&canvas,
+        //     (canvas.width >> 1) - (textField.width >> 1),
+        //     (canvas.height >> 1) - (textField.height >> 1)
+        // );
 
 
 
@@ -93,8 +107,8 @@ int main()
         // mouse
         int mx, my;
         openGL.getMousePosition(&mx, &my);
-        Circle::draw(&canvas, mx, my, 5, EGA_LIGHT_CYAN);
-        canvas.setPixel(mx, my, EGA_LIGHT_CYAN);
+        Circle::draw(&canvas, mx, my, 5, Color(0, 255, 255, 31));
+        canvas.setPixel(mx, my, Color(0, 255, 255, 31));
 
         // drag mouse
         if (glfwGetMouseButton(openGL.window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS) {

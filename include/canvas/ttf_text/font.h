@@ -5,63 +5,99 @@
 
 #include <vector>
 #include <map>
+#include <string>
+#include <fstream>
+#include <iostream> // cerr
 
 struct Glyph
 {
+    int codepoint;
+    int x0, y0;
     int width, height;
-    int xOffset, yOffset;
-    int advance;
+    int advanceWidth;
     std::vector<unsigned char> bitmap;
 
     Glyph() { }
 
-    Glyph(int width, int height, int x, int y, int advance)
+    Glyph(int codepoint, int x0, int y0, int widht, int height, int advanceWidth): codepoint(codepoint), width(widht), height(height), x0(x0), y0(y0), advanceWidth(advanceWidth)
     {
-        this->width = width;
-        this->height = height;
-        this->xOffset = x;
-        this->yOffset = y;
-        this->advance = advance;
-
         this->bitmap.resize(this->width * this->height);
     }
 };
 
 struct Font
 {
-    stbtt_fontinfo font;
+    stbtt_fontinfo info;
     std::vector<unsigned char> buffer;
     float scale;
     int ascent, descent, lineGap;
     std::map<int, Glyph> glyphCache;
 
-    Font() { }
-
-    Font(const char* filename, int pixelHeight)
+    Font(const std::string &filename, int pixelHeight)
     {
-        loadFont(filename, pixelHeight);
+        std::ifstream file(filename, std::ios::binary);
+        if (!file) {
+            std::cerr << "Failed to load font!\n";
+            return;
+        }
+
+        this->buffer = std::vector<unsigned char>(
+            std::istreambuf_iterator<char>(file),
+            std::istreambuf_iterator<char>()
+        );
+
+        if (!stbtt_InitFont(&this->info, this->buffer.data(), stbtt_GetFontOffsetForIndex(this->buffer.data(), 0))) {
+            std::cerr << "Failed to load font!\n";
+        }
+
+        this->scale = stbtt_ScaleForPixelHeight(&this->info, pixelHeight);
+
+        stbtt_GetFontVMetrics(&this->info, &this->ascent, &this->descent, &this->lineGap);
     }
 
-    bool loadFont(const char* filename, int pixelHeight)
+    static std::vector<int> utf8_to_codepoints(const std::string text)
     {
-        FILE* file = fopen(filename, "rb");
-        if (!file) return false;
+        std::vector<int> result;
 
-        fseek(file, 0, SEEK_END);
-        size_t size = ftell(file);
-        fseek(file, 0, SEEK_SET);
-        this->buffer.resize(size);
-        fread(this->buffer.data(), 1, size, file);
-        fclose(file);
+        int i = 0;
+        while (i < text.size()) {
+            unsigned char asciiCode = text[i];
+            int codepoint = 0;
+            int extra = 0;
 
-        if (!stbtt_InitFont(&this->font, this->buffer.data(), stbtt_GetFontOffsetForIndex(this->buffer.data(), 0))) return false;
+            if (asciiCode < 0x80) {
+                codepoint = asciiCode;
+                extra = 0;
+            } else if ((asciiCode >> 5) == 0x6) {
+                codepoint = asciiCode & 0x1F;
+                extra = 1;
+            } else if ((asciiCode >> 4) == 0xe) {
+                codepoint = asciiCode & 0x0f;
+                extra = 2;
+            } else if ((asciiCode >> 3) == 0x1e) {
+                codepoint = asciiCode & 0x07;
+                extra = 3;
+            } else {
+                i++;
+                continue;
+            }
 
-        this->scale = stbtt_ScaleForPixelHeight(&this->font, pixelHeight);
-        stbtt_GetFontVMetrics(&this->font, &this->ascent, &this->descent, &this->lineGap);
+            if (i + extra >= text.size()) break;
 
-        this->glyphCache.clear();
+            for (int j = 1; j <= extra; j++) {
+                unsigned char asciiCode = text[i + j];
+                if ((asciiCode >> 6) != 0x2) {
+                    codepoint = '?';
+                    break;
+                }
+                codepoint = (codepoint << 6) | (asciiCode & 0x3F);
+            }
 
-        return true;
+            result.push_back(codepoint);
+            i += extra + 1;
+        }
+
+        return result;
     }
 
     Glyph* getGlyph(int codepoint)
@@ -70,14 +106,13 @@ struct Font
         if (iterator != this->glyphCache.end()) return &iterator->second;
 
         int advanceWidth, leftSideBearing;
-        stbtt_GetCodepointHMetrics(&this->font, codepoint, &advanceWidth, &leftSideBearing);
+        stbtt_GetCodepointHMetrics(&this->info, codepoint, &advanceWidth, &leftSideBearing);
 
         int x0, y0, x1, y1;
-        stbtt_GetCodepointBitmapBox(&this->font, codepoint, this->scale, this->scale, &x0, &y0, &x1, &y1);
+        stbtt_GetCodepointBitmapBox(&this->info, codepoint, this->scale, this->scale, &x0, &y0, &x1, &y1);
 
-        Glyph glyph(x1 - x0, y1 - y0, x0, y0, int(advanceWidth * this->scale));
-
-        stbtt_MakeCodepointBitmap(&this->font, glyph.bitmap.data(), glyph.width, glyph.height, glyph.width, this->scale, this->scale, codepoint);
+        Glyph glyph(codepoint, x0, y0, x1 - x0, y1 - y0, advanceWidth);
+        stbtt_MakeCodepointBitmap(&this->info, glyph.bitmap.data(), glyph.width, glyph.height, glyph.width, this->scale, this->scale, glyph.codepoint);
 
         this->glyphCache[codepoint] = std::move(glyph);
 
