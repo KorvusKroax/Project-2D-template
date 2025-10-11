@@ -7,6 +7,7 @@
 #include "rectangle.h"
 #include "text/font.h"
 #include "text/text.h"
+#include "text/text_field.h"
 
 const unsigned int WIDTH = 320;
 const unsigned int HEIGHT = 200;
@@ -62,10 +63,20 @@ int main()
     // Berkelium64.ttf: 10px
     // Berkelium1541.ttf: 6px
 
+
+    Font font("resources/font/PetMe64.ttf", 8);
+    TextField textField(
+        216, 120,
+        "Lorém ipsüm, dólor sit ámet consectetúr adipisicing elit.\nSimilique, asperiores amet.", &font,
+        C64_VICE_CYAN, 1.2f
+    );
+
+    printf("%i, %i", (int)((unsigned char)" "[0]), font.utf8ToCodepoint(" "));
+
     while (!glfwWindowShouldClose(openGL.window)) {
         canvas.clear();
 
-        canvas.setPixels(50, 20, &image);
+        // canvas.setPixels(50, 20, &image);
 
         Line::draw(&canvas, canvas.width >> 1, 0, canvas.width >> 1, canvas.height - 1, Color(64,64,64), 0x33333333);
         Line::draw(&canvas, 0, canvas.height >> 1, canvas.width - 1, canvas.height >> 1, Color(64,64,64), 0x33333333);
@@ -78,12 +89,11 @@ int main()
 
 
 
-        Font font("resources/font/PetMe64.ttf", px);
-        printf("px: %i\n", px);
+        // Rectangle::draw_filled(&canvas, 5, (canvas.height >> 2), 200, 100, C64_VICE_GREEN);
+        // Text::draw_line(&canvas, 20, (canvas.height >> 1), "Helló, világ!", &font, C64_VICE_WHITE, CLEAR);
+        // Text::draw_multiline(&canvas, 20, (canvas.height >> 1), "Helló, világ!\nhelló megint...", &font, C64_VICE_WHITE, CLEAR, 1.5f);
 
-        Rectangle::draw_filled(&canvas, 5, (canvas.height >> 2), 200, 100, C64_VICE_GREEN);
-
-        Text::draw_line(&canvas, &font, "Helló, világ!\nhelló megint...", 20, (canvas.height >> 1), C64_VICE_WHITE, CLEAR, 1.5f);
+        textField.draw(&canvas, canvas.width >> 2, canvas.height >> 2);
 
 
 

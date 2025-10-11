@@ -19,7 +19,8 @@ struct Glyph
 
     Glyph() { }
 
-    Glyph(int codepoint, int x0, int y0, int widht, int height, int advanceWidth): codepoint(codepoint), width(widht), height(height), x0(x0), y0(y0), advanceWidth(advanceWidth)
+    Glyph(int codepoint, int x0, int y0, int widht, int height, int advanceWidth):
+        codepoint(codepoint), width(widht), height(height), x0(x0), y0(y0), advanceWidth(advanceWidth)
     {
         this->bitmap.resize(this->width * this->height);
     }
@@ -55,46 +56,51 @@ struct Font
         stbtt_GetFontVMetrics(&this->info, &this->ascent, &this->descent, &this->lineGap);
     }
 
-    static std::vector<int> utf8_to_codepoints(const std::string text)
+    static int utf8ToCodepoint(const char* utf8char, int* bytesUsed = nullptr)
+    {
+        const unsigned char ch = (unsigned char)utf8char[0];
+        int codepoint = 0;
+        int length = 0;
+
+        if (ch < 0x80) {
+            codepoint = ch;
+            length = 1;
+        } else if ((ch >> 5) == 0x6) {
+            codepoint = ((ch & 0x1f) << 6) | ((unsigned char)utf8char[1] & 0x3f);
+            length = 2;
+        } else if ((ch >> 4) == 0xe) {
+            codepoint = ((ch & 0x0f) << 12) |
+                (((unsigned char)utf8char[1] & 0x3f) << 6) |
+                ((unsigned char)utf8char[2] & 0x3f);
+            length = 3;
+        } else if ((ch >> 3) == 0x1e) {
+            codepoint = ((ch & 0x07) << 18) |
+                (((unsigned char)utf8char[1] & 0x3f) << 12) |
+                (((unsigned char)utf8char[2] & 0x3f) << 6) |
+                ((unsigned char)utf8char[3] & 0x3f);
+            length = 4;
+        } else {
+            codepoint = 0xfffd;
+            length = 1;
+        }
+
+        if (bytesUsed) *bytesUsed = length;
+        return codepoint;
+    }
+
+    static std::vector<int> utf8ToCodepoints(const std::string str)
     {
         std::vector<int> result;
-
         int i = 0;
-        while (i < text.size()) {
-            unsigned char asciiCode = text[i];
-            int codepoint = 0;
-            int extra = 0;
 
-            if (asciiCode < 0x80) {
-                codepoint = asciiCode;
-                extra = 0;
-            } else if ((asciiCode >> 5) == 0x6) {
-                codepoint = asciiCode & 0x1F;
-                extra = 1;
-            } else if ((asciiCode >> 4) == 0xe) {
-                codepoint = asciiCode & 0x0f;
-                extra = 2;
-            } else if ((asciiCode >> 3) == 0x1e) {
-                codepoint = asciiCode & 0x07;
-                extra = 3;
-            } else {
-                i++;
-                continue;
-            }
+        while (i < str.size()) {
+            int used = 0;
+            int cp = utf8ToCodepoint(&str[i], &used);
 
-            if (i + extra >= text.size()) break;
+            if (used == 0) break;
 
-            for (int j = 1; j <= extra; j++) {
-                unsigned char asciiCode = text[i + j];
-                if ((asciiCode >> 6) != 0x2) {
-                    codepoint = '?';
-                    break;
-                }
-                codepoint = (codepoint << 6) | (asciiCode & 0x3F);
-            }
-
-            result.push_back(codepoint);
-            i += extra + 1;
+            result.push_back(cp);
+            i += used;
         }
 
         return result;

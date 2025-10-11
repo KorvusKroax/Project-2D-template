@@ -53,16 +53,9 @@ struct OpenGL
     const char* title;
     float voidColor_r, voidColor_g, voidColor_b, voidColor_a;
 
-    OpenGL(Canvas* canvas, unsigned int pixelSize = 1, WindowMode windowMode = WINDOWED, const char* title = "OpenGL 2D canvas - scrollable", float voidColor_r = .1f, float voidColor_g = .2f, float voidColor_b = .2f, float voidColor_a = 1.0f)
+    OpenGL(Canvas* canvas, unsigned int pixelSize = 1, WindowMode windowMode = WINDOWED, const char* title = "OpenGL 2D canvas - scrollable", float voidColor_r = .1f, float voidColor_g = .2f, float voidColor_b = .2f, float voidColor_a = 1.0f):
+        canvas(canvas), pixelSize(pixelSize), title(title), voidColor_r(voidColor_r), voidColor_g(voidColor_g), voidColor_b(voidColor_b), voidColor_a(voidColor_a)
     {
-        this->canvas = canvas;
-        this->pixelSize = pixelSize;
-        this->title = title;
-        this->voidColor_r = voidColor_r;
-        this->voidColor_g = voidColor_g;
-        this->voidColor_b = voidColor_b;
-        this->voidColor_a = voidColor_a;
-
         glfwInit();
         glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
         glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
