@@ -1,6 +1,6 @@
 #pragma once
 
-#include <algorithm> // std::min, std::max
+#include <algorithm> // min, max
 #include "canvas.h"
 #include "color.h"
 #include "line.h"

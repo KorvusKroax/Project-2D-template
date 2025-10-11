@@ -52,19 +52,28 @@ struct Line
         int err = dx - dy, ee, xx;
         int ed = dx + dy == 0 ? 1 : sqrt((float)dx * dx + dy * dy);
 
+        int alpha = color.a;
+
         while (true) {
-            canvas->setPixel(x1, y1, Color(color.value, 255 - 255 * abs(err - dx + dy) / ed));
+            color.a = (unsigned char)(int(alpha - alpha * abs(err - dx + dy) / ed));
+            canvas->setPixel(x1, y1, color);
             ee = err;
             xx = x1;
             if (ee * 2 >= -dx) {
                 if (x1 == x2) break;
-                if (ee + dy < ed) canvas->setPixel(x1, y1 + sy, Color(color.value, 255 - 255 * (ee + dy) / ed));
+                if (ee + dy < ed) {
+                    color.a = (unsigned char)(int(alpha - alpha * (ee + dy) / ed));
+                    canvas->setPixel(x1, y1 + sy, color);
+                }
                 err -= dy;
                 x1 += sx;
             }
             if (ee * 2 <= dy) {
                 if (y1 == y2) break;
-                if (dx - ee < ed) canvas->setPixel(xx + sx, y1, Color(color.value, 255 - 255 * (dx - ee) / ed));
+                if (dx - ee < ed) {
+                    color.a = (unsigned char)(int(alpha - alpha * (dx - ee) / ed));
+                    canvas->setPixel(xx + sx, y1, color);
+                }
                 err += dx;
                 y1 += sy;
             }

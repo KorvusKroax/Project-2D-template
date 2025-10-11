@@ -13,8 +13,8 @@ struct Text
         if (glyph->width > 0 && glyph->height > 0) {
             for (int j = 0; j < glyph->height; j++) {
                 for (int i = 0; i < glyph->width; i++) {
-                    color.setAlpha(glyph->bitmap[j * glyph->width + i]);
-                    if (color.getAlpha() == 0) continue;
+                    color.a = glyph->bitmap[j * glyph->width + i];
+                    if (color.a == 0) continue;
 
                     int px = (int)std::lround(*x + glyph->x0 + i);
                     int py = (y  - glyph->y0) - j;

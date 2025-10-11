@@ -59,58 +59,71 @@
 struct Canvas
 {
     int width, height;
-    unsigned int* pixelBuffer;
+    std::vector<unsigned char> pixelBuffer; // RGBA
 
     Canvas() { }
 
-    Canvas(int width, int height) { init(width, height); }
+    Canvas(int w, int h): width(w), height(h), pixelBuffer(w * h * 4, 0) { }
 
-    Canvas(const char* fileName) { loadImage_PNG(fileName); }
-
-    ~Canvas() { delete[] this->pixelBuffer; }
-
-    void init(int width, int height)
+    Canvas(const char* fileName)
     {
-        this->width = width;
-        this->height = height;
-        this->pixelBuffer = new unsigned int[this->width * this->height];
+        loadImage_PNG(fileName);
     }
 
-    void clearPixelBuffer() { memset(this->pixelBuffer, 0, this->width * this->height * sizeof(unsigned int)); }
-
-    void fillPixelBuffer(Color color)
+    void resize(int newWidth, int newHeight, unsigned char fill = 0)
     {
-        for (int i = 0; i < this->width * this->height; i++) {
-            this->pixelBuffer[i] = color.value;
+        this->width = newWidth;
+        this->height = newHeight;
+        this->pixelBuffer.assign(this->width * this->height * 4, fill);
+    }
+
+    void clear()
+    {
+        memset(this->pixelBuffer.data(), 0, this->pixelBuffer.size());
+    }
+
+    void fill(Color color)
+    {
+        for (int i = 0; i < this->pixelBuffer.size(); i += 4) {
+            pixelBuffer[i + 0] = color.r;
+            pixelBuffer[i + 1] = color.g;
+            pixelBuffer[i + 2] = color.b;
+            pixelBuffer[i + 3] = color.a;
+        }
+    }
+
+    void fastFill(Color color)
+    {
+        const size_t pixelCount = this->width * this->height;
+        unsigned char c[4] = { color.r, color.g, color.b, color.a };
+
+        std::memcpy(this->pixelBuffer.data(), c, 4);
+
+        size_t filled = 1;
+        while (filled < pixelCount) {
+            size_t copyCount = std::min(filled, pixelCount - filled);
+            std::memcpy(this->pixelBuffer.data() + filled * 4, this->pixelBuffer.data(), copyCount * 4);
+            filled += copyCount;
         }
     }
 
     bool setPixel(int x, int y, Color color)
     {
-        if (x < 0 || x >= this->width || y < 0 || y >= this->height) return false;
+        if (color.a == 0 || x < 0 || x >= this->width || y < 0 || y >= this->height) return false;
 
-        if (color.getAlpha() < 255) {
-            if (color.getAlpha() == 0) return false;
-            color = Color(this->pixelBuffer[x + y * width]).blend(color);
+        int index = (x + y * this->width) * 4;
+        if (color.a < 255) {
+            color = Color(
+                this->pixelBuffer[index + 0],
+                this->pixelBuffer[index + 1],
+                this->pixelBuffer[index + 2],
+                this->pixelBuffer[index + 3]).blend(color);
         }
+        this->pixelBuffer[index + 0] = color.r;
+        this->pixelBuffer[index + 1] = color.g;
+        this->pixelBuffer[index + 2] = color.b;
+        this->pixelBuffer[index + 3] = color.a;
 
-        this->pixelBuffer[x + y * this->width] = color.value;
-        return true;
-    }
-
-    bool setPixels(int x, int y, Canvas* canvas)
-    {
-        if (x + canvas->width < 0 || x >= this->width || y + canvas->height < 0 || y >= this->height) return false;
-
-        for (int j = 0; j < canvas->height; j++)  {
-            if (y + j < 0) continue;
-            if (y + j >= this->height) break;
-            for (int i = 0; i < canvas->width; i++) {
-                if (x + i < 0) continue;
-                if (x + i >= this->width) break;
-                this->pixelBuffer[(x + i) + (y + j) * this->width] = canvas->pixelBuffer[i + j * canvas->width];
-            }
-        }
         return true;
     }
 
@@ -118,44 +131,83 @@ struct Canvas
     {
         if (x < 0 || x >= this->width || y < 0 || y >= this->height) return false;
 
-        *color = Color(this->pixelBuffer[x + y * width]);
+        int index = (x + y * width) * 4;
+        *color = Color(
+            this->pixelBuffer[index + 0],
+            this->pixelBuffer[index + 1],
+            this->pixelBuffer[index + 2],
+            this->pixelBuffer[index + 3]
+        );
+
+        return true;
+    }
+
+    bool setPixels(int x, int y, const Canvas* canvas)
+    {
+        int destStartX = std::max(0, x);
+        int destStartY = std::max(0, y);
+        int destEndX = std::min(this->width, x + canvas->width);
+        int destEndY = std::min(this->height, y + canvas->height);
+
+        if (destStartX >= destEndX || destStartY >= destEndY) return false;
+
+        int srcOffsetX = destStartX - x;
+        int srcOffsetY = destStartY - y;
+
+        for (int i = 0; i < destEndY - destStartY; i++) {
+            const int destIndex = (destStartX + (destStartY + i) * this->width) * 4;
+            const int srcIndex  = (srcOffsetX + (srcOffsetY + i) * canvas->width) * 4;
+            std::memcpy(&this->pixelBuffer[destIndex], &canvas->pixelBuffer[srcIndex], (destEndX - destStartX) * 4);
+        }
+
         return true;
     }
 
     bool getPixels(int x, int y, int width, int height, Canvas* canvas)
     {
-        if (x + width < 0 || x >= this->width || y + height < 0 || y >= this->height) return false;
+        canvas->resize(width, height);
 
-        canvas->init(width, height);
-        for (int j = 0; j < canvas->height; j++)  {
-            if (y + j < 0) continue;
-            if (y + j >= this->height) break;
-            for (int i = 0; i < canvas->width; i++) {
-                if (x + i < 0) continue;
-                if (x + i >= this->width) break;
-                canvas->pixelBuffer[i + j * canvas->width] = this->pixelBuffer[(x + i) + (y + j) * this->width];
-            }
+        int srcStartX = std::max(0, x);
+        int srcStartY = std::max(0, y);
+        int srcEndX   = std::min(this->width,  x + width);
+        int srcEndY   = std::min(this->height, y + height);
+
+        if (srcStartX >= srcEndX || srcStartY >= srcEndY)
+            return false;
+
+        int destOffsetX = srcStartX - x;
+        int destOffsetY = srcStartY - y;
+
+        for (int j = 0; j < srcEndY - srcStartY; ++j) {
+            const int srcIndex  = (srcStartX + (srcStartY + j) * this->width) * 4;
+            const int destIndex = (destOffsetX + (destOffsetY + j) * width) * 4;
+            std::memcpy(&canvas->pixelBuffer[destIndex], &this->pixelBuffer[srcIndex], (srcEndX - srcStartX) * 4);
         }
+
         return true;
     }
 
     bool loadImage_PNG(const char* fileName)
     {
         unsigned int imageWidth, imageHeight, channelCount = 4;
-        unsigned char *image;
-        unsigned error = lodepng_decode32_file(&image, &imageWidth, &imageHeight, fileName);
-        if (error) return false;
-
-        init(imageWidth, imageHeight);
-        for (int i = 0; i < this->width; i++) {
-            for (int j = 0; j < this->height; j++) {
-                this->pixelBuffer[i + j * this->width] =
-                    image[(i * channelCount + 0) + (this->height - 1 - j) * (this->width * channelCount)] |
-                    image[(i * channelCount + 1) + (this->height - 1 - j) * (this->width * channelCount)] << 8 |
-                    image[(i * channelCount + 2) + (this->height - 1 - j) * (this->width * channelCount)] << 16 |
-                    image[(i * channelCount + 3) + (this->height - 1 - j) * (this->width * channelCount)] << 24;
-            }
+        unsigned char* image;
+        unsigned int error = lodepng_decode32_file(&image, &imageWidth, &imageHeight, fileName);
+        if (error) {
+            printf("Canvas::loadImage_PNG ERROR: %i\n", error);
+            return false;
         }
+
+        resize(imageWidth, imageHeight);
+
+        for (int y = 0; y < this->height; y++) {
+            std::memcpy(
+                this->pixelBuffer.data() + y * this->width * channelCount,
+                image + (this->height - 1 - y) * this->width * channelCount,
+                this->width * channelCount
+            );
+        }
+        free(image);
+
         return true;
     }
 };

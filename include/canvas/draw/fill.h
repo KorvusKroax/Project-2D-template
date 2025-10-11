@@ -12,7 +12,7 @@ struct Fill
         if (x < 0 || x >= canvas->width || y < 0 || y >= canvas->height) return false;
 
         Color targetColor, currPixel;
-        if (!canvas->getPixel(x, y, &targetColor) || targetColor.value == color.value) return false;
+        if (!canvas->getPixel(x, y, &targetColor) || targetColor == color) return false;
         canvas->setPixel(x, y, color);
 
         int dir[] = {0,1, 1,0, 0,-1, -1,0};
@@ -20,7 +20,7 @@ struct Fill
         std::vector<std::pair<int, int>> next;
         while (true) {
             for (int i = 0; i < 8; i += 2) {
-                if (canvas->getPixel(x + dir[i], y + dir[i + 1], &currPixel) && currPixel.value == targetColor.value) {
+                if (canvas->getPixel(x + dir[i], y + dir[i + 1], &currPixel) && currPixel == targetColor) {
                     canvas->setPixel(x + dir[i], y + dir[i + 1], color);
                     next.push_back({x + dir[i], y + dir[i + 1]});
                 }
@@ -40,7 +40,7 @@ struct Fill
         if (x < 0 || x >= canvas->width || y < 0 || y >= canvas->height) return false;
 
         Color targetColor, currPixel;
-        if (!canvas->getPixel(x, y, &targetColor) || targetColor.value == color.value) return false;
+        if (!canvas->getPixel(x, y, &targetColor) || targetColor == color) return false;
 
         int *next = new int[canvas->width * canvas->height * 2];
         int index = 0;
@@ -58,8 +58,8 @@ struct Fill
 
         while (true) {
             x = x1;
-            if (canvas->getPixel(x, y, &currPixel) && currPixel.value == targetColor.value) {
-                while (canvas->getPixel(x - 1, y, &currPixel) && currPixel.value == targetColor.value) {
+            if (canvas->getPixel(x, y, &currPixel) && currPixel == targetColor) {
+                while (canvas->getPixel(x - 1, y, &currPixel) && currPixel == targetColor) {
                     canvas->setPixel(x - 1, y, color);
                     x--;
                 }
@@ -73,7 +73,7 @@ struct Fill
             }
 
             while (x1 <= x2) {
-                while (canvas->getPixel(x1, y, &currPixel) && currPixel.value == targetColor.value) {
+                while (canvas->getPixel(x1, y, &currPixel) && currPixel == targetColor) {
                     canvas->setPixel(x1, y, color);
                     x1++;
                 }
@@ -92,7 +92,7 @@ struct Fill
                     index += 4;
                 }
                 x1++;
-                while (x1 < x2 && canvas->getPixel(x1, y, &currPixel) && currPixel.value != targetColor.value) x1++;
+                while (x1 < x2 && canvas->getPixel(x1, y, &currPixel) && currPixel != targetColor) x1++;
                 x = x1;
             }
             if (index == 0) break;

@@ -4,9 +4,8 @@
 #include "open_gl.h"
 #include "line.h"
 #include "circle.h"
-#include "ttf_text/font.h"
-#include "ttf_text/text.h"
-// #include "ttf_text_old/text_field.h"
+#include "text/font.h"
+#include "text/text.h"
 
 const unsigned int WIDTH = 320;
 const unsigned int HEIGHT = 200;
@@ -18,7 +17,6 @@ OpenGL openGL(&canvas, PIXEL_SIZE);//, FULLSCREEN_RESOLUTION);
 std::vector<std::pair<int, int>> points;
 
 int px = 16;
-int lineHeightOverride = 12;
 
 int main()
 {
@@ -58,16 +56,10 @@ int main()
     // PixelOperator.ttf: 16px
     // PixelOperator8.ttf: 8px (mono)
 
-
-    // TextField textField(
-    //     130, 100, LEFT_BOTTOM,
-    //     "Lorem ipsum, dolor sit amet consectetur adipisicing elit. Similique, asperiores amet.",
-    //     WHITE,
-    //     &font
-    // );
+    Font font("resources/font/ttf/PixelOperator.ttf", px);
 
     while (!glfwWindowShouldClose(openGL.window)) {
-        canvas.clearPixelBuffer();
+        canvas.clear();
 
         canvas.setPixels(50, 20, &image);
 
@@ -80,20 +72,12 @@ int main()
 
 
 
-        Font font("resources/font/ttf/PixelOperator.ttf", px);
+
+
+        // Font font("resources/font/ttf/PixelOperator.ttf", px);
         // printf("px: %i\n", px);
 
-        Text::draw_line(&canvas, &font, "Helló, világ!", 10, (canvas.height >> 1), EGA_WHITE, 1.0f);
-        // draw_line(&canvas,
-        //     10, (canvas.height >> 1),
-        //     "Helló, világ!",//\nHelló megint...",
-        //     EGA_WHITE, &font//, lineHeightOverride
-        // );
-
-        // textField.draw(&canvas,
-        //     (canvas.width >> 1) - (textField.width >> 1),
-        //     (canvas.height >> 1) - (textField.height >> 1)
-        // );
+        Text::draw_line(&canvas, &font, "Helló, világ!\nHelló megint...", 10, (canvas.height >> 1), EGA_WHITE, 1.0f);
 
 
 
@@ -114,8 +98,6 @@ int main()
         if (glfwGetMouseButton(openGL.window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS) {
             points.push_back({mx, my});
         }
-
-
 
 
 

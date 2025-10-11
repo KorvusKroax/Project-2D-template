@@ -95,7 +95,7 @@ struct OpenGL
 
         glGenTextures(1, &this->texColorBuffer);
         glBindTexture(GL_TEXTURE_2D, this->texColorBuffer);
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, this->canvas->width, this->canvas->height, 0, GL_RGBA, GL_UNSIGNED_BYTE, this->canvas->pixelBuffer);
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, this->canvas->width, this->canvas->height, 0, GL_RGBA, GL_UNSIGNED_BYTE, this->canvas->pixelBuffer.data());
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 
@@ -140,7 +140,7 @@ struct OpenGL
         glUniform1f(glGetUniformLocation(this->shader, "yPixelOffset"), this->yPixelOffset);
 
         glBindTexture(GL_TEXTURE_2D, this->texColorBuffer);
-        glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, this->canvas->width, this->canvas->height, GL_RGBA, GL_UNSIGNED_BYTE, this->canvas->pixelBuffer);
+        glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, this->canvas->width, this->canvas->height, GL_RGBA, GL_UNSIGNED_BYTE, this->canvas->pixelBuffer.data());
 
         glClearColor(this->voidColor_r, this->voidColor_g, this->voidColor_b, this->voidColor_a);
         glClear(GL_COLOR_BUFFER_BIT);
@@ -250,7 +250,7 @@ private:
 
     void createFullScreen_quadToScreen()
     {
-        this->canvas->init(
+        this->canvas->resize(
             (float)this->videoMode->width / this->pixelSize,
             (float)this->videoMode->height / this->pixelSize
         );
