@@ -44,16 +44,16 @@ enum WindowMode
 
 struct OpenGL
 {
-    Canvas* canvas;
+    Canvas *canvas;
     unsigned int pixelSize;
     int xPixelOffset, yPixelOffset;
 
-    GLFWwindow* window;
+    GLFWwindow *window;
     int windowWidth, windowHeight;
-    const char* title;
+    const char *title;
     float voidColor_r, voidColor_g, voidColor_b, voidColor_a;
 
-    OpenGL(Canvas* canvas, unsigned int pixelSize = 1, WindowMode windowMode = WINDOWED, const char* title = "OpenGL 2D canvas - scrollable", float voidColor_r = .1f, float voidColor_g = .2f, float voidColor_b = .2f, float voidColor_a = 1.0f):
+    OpenGL(Canvas *canvas, unsigned int pixelSize = 1, WindowMode windowMode = WINDOWED, const char *title = "OpenGL 2D canvas - scrollable", float voidColor_r = .1f, float voidColor_g = .2f, float voidColor_b = .2f, float voidColor_a = 1.0f):
         canvas(canvas), pixelSize(pixelSize), title(title), voidColor_r(voidColor_r), voidColor_g(voidColor_g), voidColor_b(voidColor_b), voidColor_a(voidColor_a)
     {
         glfwInit();
@@ -169,7 +169,7 @@ struct OpenGL
         }
     }
 
-    void getMousePosition(int* x, int* y)
+    void getMousePosition(int *x, int *y)
     {
         double mouseX, mouseY;
         glfwGetCursorPos(this->window, &mouseX, &mouseY);
@@ -180,8 +180,8 @@ struct OpenGL
 
 
 private:
-    GLFWmonitor* primaryMonitor;
-    const GLFWvidmode* videoMode;
+    GLFWmonitor *primaryMonitor;
+    const GLFWvidmode *videoMode;
 
     GLuint VAO, VBO, shader;
     GLuint texColorBuffer;

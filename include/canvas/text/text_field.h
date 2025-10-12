@@ -14,11 +14,11 @@ struct TextField
 {
     int width, height;
     std::string text;
-    Font* font;
+    Font *font;
     Color color;
     float lineSpacingMultiplier;
 
-    TextField(int width, int height, std::string text, Font* font, Color color, float lineSpacingMultiplier = 1.0f):
+    TextField(int width, int height, std::string text, Font *font, Color color, float lineSpacingMultiplier = 1.0f):
         width(width), height(height), text(text), font(font), color(color), lineSpacingMultiplier(lineSpacingMultiplier)
     {
         std::vector<std::string> rows = explodeByChar(this->text, '\n');
@@ -38,7 +38,7 @@ struct TextField
                     }
 
                     // split long word more lines
-                    std::vector<std::pair<std::string, int>> splittedWords = explodeByWidth(word);
+                    std::vector<std::pair<std::string, float>> splittedWords = explodeByWidth(word);
                     for (int i = 0; i < splittedWords.size() - 1; i++) {
                         lines.push_back(std::make_pair(splittedWords[i].first, splittedWords[i].second));
                     }
@@ -74,7 +74,7 @@ struct TextField
         }
     }
 
-    void draw(Canvas* canvas, int x, float y)
+    void draw(Canvas *canvas, int x, float y)
     {
         Rectangle::draw(canvas, x, y, this->width, this->height, C64_VICE_RED);
 
@@ -82,14 +82,14 @@ struct TextField
 
         y += (this->lines.size() - 1) * lineHeight;
 
-        for (std::pair<std::string, int> line : this->lines) {
+        for (std::pair<std::string, float> line : this->lines) {
             Text::draw_line(canvas, x, y, line.first, this->font, this->color, CLEAR);
             y -= lineHeight;
         }
     }
 
 private:
-    std::vector<std::pair<std::string, int>> lines;
+    std::vector<std::pair<std::string, float>> lines;
 
     std::vector<std::string> explodeByChar(std::string text, char separator)
     {
@@ -107,18 +107,17 @@ private:
 
     float getTextWidth(std::string text)
     {
-        float textWidth = 0;
-
         std::vector<int> codepoints = this->font->utf8ToCodepoints(text);
-        for (int i = 0; i < codepoints.size(); i++) {
-            Glyph* glyph = this->font->getGlyph(codepoints[i]);
-            textWidth += glyph->advanceWidth * this->font->scale;
 
+        Glyph *nextGlyph, *currGlyph = this->font->getGlyph(codepoints[0]);
+        float textWidth = currGlyph->advanceWidth * this->font->scale;
 
-// ez itt nem jó: glyph indexet kell megadni neki nem a char-t
-            if (i + 1 < codepoints.size()) {
-                textWidth += stbtt_GetGlyphKernAdvance(&this->font->info, codepoints[i], codepoints[i + 1]) * this->font->scale;
-            }
+        for (int i = 1; i < codepoints.size(); i++) {
+            nextGlyph = this->font->getGlyph(codepoints[i]);
+            textWidth +=
+                stbtt_GetGlyphKernAdvance(&this->font->info, currGlyph->index, nextGlyph->index) * this->font->scale +
+                nextGlyph->advanceWidth * this->font->scale;
+            currGlyph = nextGlyph;
         }
 
         return textWidth;
@@ -126,112 +125,46 @@ private:
 
     float getSpaceWidthWithKerning(unsigned char lastChar, unsigned char firstChar)
     {
-        int lastGlyphFirst   = stbtt_FindGlyphIndex(&this->font->info, lastChar);
-        int spaceGlyph       = stbtt_FindGlyphIndex(&this->font->info, ' ');
-        int firstGlyphSecond = stbtt_FindGlyphIndex(&this->font->info, firstChar);
+        Glyph *lastGlyph = this->font->getGlyph(lastChar); // this->font->utf8ToCodepoint(lastChar)
+        Glyph *spaceGlyph = this->font->getGlyph(' '); // this->font->utf8ToCodepoint(" ")
+        Glyph *firstGlyph = this->font->getGlyph(firstChar); // this->font->utf8ToCodepoint(firstChar)
 
-        float kerningLeft  = stbtt_GetGlyphKernAdvance(&this->font->info, lastGlyphFirst, spaceGlyph) * this->font->scale;
-        float kerningRight = stbtt_GetGlyphKernAdvance(&this->font->info, spaceGlyph, firstGlyphSecond) * this->font->scale;
-
-        Glyph* glyph = this->font->getGlyph(' '); // this->font->utf8ToCodepoint(" ")
-        int spaceWidth = glyph->advanceWidth * this->font->scale;
+        float kerningLeft  = stbtt_GetGlyphKernAdvance(&this->font->info, lastGlyph->index, spaceGlyph->index) * this->font->scale;
+        int spaceWidth = spaceGlyph->advanceWidth * this->font->scale;
+        float kerningRight = stbtt_GetGlyphKernAdvance(&this->font->info, spaceGlyph->index, firstGlyph->index) * this->font->scale;
 
         return kerningLeft + spaceWidth + kerningRight;
     }
 
-    std::vector<std::pair<std::string, int>> explodeByWidth(std::string text)
+    std::vector<std::pair<std::string, float>> explodeByWidth(std::string text)
     {
-        std::vector<std::pair<std::string, int>> result;
+        std::vector<std::pair<std::string, float>> result;
 
-        // std::vector<int> codepoints = this->font->utf8ToCodepoints(text);
+        std::vector<int> codepoints = this->font->utf8ToCodepoints(text);
 
-        std::string line;
-        float lineWidth = 0;
-        for (int i = 0; i < text.size(); i++) {
+        Glyph *nextGlyph, *currGlyph = this->font->getGlyph(codepoints[0]);
+        std::string line(1, text[0]);
+        float lineWidth = currGlyph->advanceWidth * this->font->scale;
 
-
-            Glyph* glyph = this->font->getGlyph(this->font->utf8ToCodepoint(&text[i]));
-            int charWidth = glyph->advanceWidth * this->font->scale;
+        for (int i = 1; i < text.size(); i++) {
+            nextGlyph = this->font->getGlyph(codepoints[i]);
+            float charWidth =
+                stbtt_GetGlyphKernAdvance(&this->font->info, currGlyph->index, nextGlyph->index) * this->font->scale +
+                nextGlyph->advanceWidth * this->font->scale;
 
             if (lineWidth + charWidth > this->width) {
                 result.push_back(std::make_pair(line, lineWidth));
                 line = text[i];
                 lineWidth = charWidth;
-            } else {
-                line += text[i];
-                lineWidth += charWidth;
-
-
-// ez itt nem jó: glyph indexet kell megadni neki nem a char-t
-                if (i + 1 < text.size()) {
-                    lineWidth += stbtt_GetGlyphKernAdvance(&this->font->info, text[i], text[i + 1]) * this->font->scale;
-                }
+                continue;
             }
 
+            line += text[i];
+            lineWidth += charWidth;
+            currGlyph = nextGlyph;
         }
         result.push_back(std::make_pair(line, lineWidth));
 
         return result;
     }
-
-
-    // void wordWrap()
-    // {
-    //     std::vector<std::vector<int>> lines = explodeByChar(this->font->utf8_to_codepoints(this->text), '\n');
-    //     for (int i = 0; i < lines.size(); i++) {
-
-    //         std::vector<std::vector<int>> words = explodeByChar(lines[i], ' ');
-    //         std::string currentLine;
-    //         int currentLineWidth = 0;
-    //         for (int j = 0; j < words.size(); j++) {
-    //             float wordWidth = getWordWidth(words[j]);
-
-    //             if (wordWidth >= this->width) {
-    //                 if (!currentLine.empty()) {
-    //                     rows.push_back(std::make_pair(currentLine, currentLineWidth));
-    //                     currentLine.clear();
-    //                 }
-    //                 std::vector<std::pair<std::string, int>> splittedWords = explodeByWidth(words[j], this->width);
-    //                 for (int k = 0; k < splittedWords.size(); k++) {
-    //                     rows.push_back(std::make_pair(splittedWords[k].first, splittedWords[k].second));
-    //                 }
-    //                 continue;
-    //             }
-
-    //             if (currentLine.empty()) {
-    //                 currentLine = words[j];
-    //                 currentLineWidth = wordWidth;
-    //             } else if (currentLineWidth + this->font->charset[0]->width + wordWidth < this->width) {
-    //                 currentLine += " " + words[j];
-    //                 currentLineWidth += this->font->charset[0]->width + this->charSpacing + wordWidth;
-    //             } else {
-    //                 result.push_back(std::make_pair(currentLine, currentLineWidth));
-    //                 currentLine = words[j];
-    //                 currentLineWidth = wordWidth;
-    //             }
-    //         }
-    //         result.push_back(std::make_pair(currentLine, currentLineWidth));
-    //     }
-    // }
-
-    // std::vector<std::pair<std::string, int>> explodeByWidth(std::vector<int> codepoints, int maxWidth)
-    // {
-    //     std::vector<std::pair<std::string, int>> result;
-
-    //     int wordWidth = 0;
-    //     size_t start = 0, end;
-    //     for (int i = 0; i < text.size(); i++) {
-
-    //         int charWidth = this->font->charset[(text[i] - 32 < 1 || text[i] - 32 >= font->charCount) ? 0 : text[i] - 32]->width + this->charSpacing;
-
-    //         if (wordWidth + charWidth >= maxWidth) {
-    //             result.push_back(std::make_pair(text.substr(start, i - start), wordWidth));
-    //             wordWidth = charWidth;
-    //             start = i;
-    //         } else wordWidth += charWidth;
-    //     }
-    //     result.push_back(std::make_pair(text.substr(start), wordWidth));
-
-    //     return result;
-    // }
 };

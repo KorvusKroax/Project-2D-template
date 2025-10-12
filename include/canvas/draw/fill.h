@@ -7,7 +7,7 @@
 
 struct Fill
 {
-    static bool flood(Canvas* canvas, int x, int y, Color color)
+    static bool flood(Canvas *canvas, int x, int y, Color color)
     {
         if (x < 0 || x >= canvas->width || y < 0 || y >= canvas->height) return false;
 
@@ -35,7 +35,7 @@ struct Fill
     }
 
     // deprecated ('vector' not used)
-    static bool span(Canvas* canvas, int x, int y, Color color)
+    static bool span(Canvas *canvas, int x, int y, Color color)
     {
         if (x < 0 || x >= canvas->width || y < 0 || y >= canvas->height) return false;
 

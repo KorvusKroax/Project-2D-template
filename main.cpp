@@ -67,7 +67,8 @@ int main()
     Font font("resources/font/PetMe64.ttf", 8);
     TextField textField(
         160, 120,
-        "Lorém ipsüm, dólor sit ámet consectetúradipisicingelit.Similique,asperiores amet.", &font,
+        // "Lorém ipsüm, dólor sit ámet consectetúradipisicingelit. Similique, asperiores amet.", &font,
+        "Lorém ipsüm, dólor sit ámet consectetúradipisicingelitSimiliqueasperiores amet.", &font,
         C64_VICE_CYAN, 1.2f
     );
 

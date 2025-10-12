@@ -9,9 +9,9 @@
 
 struct Text
 {
-    static void draw_char(Canvas* canvas, float* x, int y, int codepoint, Font* font, Color color, Color shadow = CLEAR)
+    static void draw_char(Canvas *canvas, float *x, int y, int codepoint, Font *font, Color color, Color shadow = CLEAR)
     {
-        Glyph* glyph = font->getGlyph(codepoint);
+        Glyph *glyph = font->getGlyph(codepoint);
 
         if (glyph->width > 0 && glyph->height > 0) {
             for (int j = 0; j < glyph->height; j++) {
@@ -39,7 +39,7 @@ struct Text
         *x += glyph->advanceWidth * font->scale;
     }
 
-    static void draw_line(Canvas* canvas, float x, int y, const std::string text, Font* font, Color color, Color shadow = CLEAR)
+    static void draw_line(Canvas *canvas, float x, int y, const std::string text, Font *font, Color color, Color shadow = CLEAR)
     {
         std::vector<int> codepoints = font->utf8ToCodepoints(text);
 
@@ -51,7 +51,7 @@ struct Text
         }
     }
 
-    static void draw_multiline(Canvas* canvas, float x, int y, const std::string text, Font* font, Color color, Color shadow = CLEAR, float lineSpacingMultiplier = 1.0f)
+    static void draw_multiline(Canvas *canvas, float x, int y, const std::string text, Font *font, Color color, Color shadow = CLEAR, float lineSpacingMultiplier = 1.0f)
     {
         float lineHeight = (font->ascent - font->descent + font->lineGap) * font->scale * lineSpacingMultiplier;
 

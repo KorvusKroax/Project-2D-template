@@ -19,7 +19,7 @@ struct Color
         return Color(v, v, v, this->a);
     }
 
-    Color blend(const Color& fg) const
+    Color blend(const Color &fg) const
     {
         return Color(
             (unsigned char)(int(fg.r * fg.a + this->r * (255 - fg.a)) >> 8),
@@ -28,12 +28,12 @@ struct Color
         );
     }
 
-    bool operator == (const Color& other) const
+    bool operator == (const Color &other) const
     {
         return this->r == other.r && this->g == other.g && this->b == other.b && this->a == other.a;
     }
 
-    bool operator != (const Color& other) const
+    bool operator != (const Color &other) const
     {
         return !(*this == other);
     }

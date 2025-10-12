@@ -11,6 +11,7 @@
 
 struct Glyph
 {
+    int index;
     int codepoint;
     int x0, y0;
     int width, height;
@@ -19,8 +20,8 @@ struct Glyph
 
     Glyph() { }
 
-    Glyph(int codepoint, int x0, int y0, int widht, int height, int advanceWidth):
-        codepoint(codepoint), width(widht), height(height), x0(x0), y0(y0), advanceWidth(advanceWidth)
+    Glyph(int index, int codepoint, int x0, int y0, int widht, int height, int advanceWidth):
+        index(index), codepoint(codepoint), width(widht), height(height), x0(x0), y0(y0), advanceWidth(advanceWidth)
     {
         this->bitmap.resize(this->width * this->height);
     }
@@ -56,7 +57,7 @@ struct Font
         stbtt_GetFontVMetrics(&this->info, &this->ascent, &this->descent, &this->lineGap);
     }
 
-    static int utf8ToCodepoint(const char* utf8char, int* bytesUsed = nullptr)
+    static int utf8ToCodepoint(const char *utf8char, int *bytesUsed = nullptr)
     {
         const unsigned char ch = (unsigned char)utf8char[0];
         int codepoint = 0;
@@ -106,10 +107,12 @@ struct Font
         return result;
     }
 
-    Glyph* getGlyph(int codepoint)
+    Glyph *getGlyph(int codepoint)
     {
         std::map<int, Glyph>::iterator iterator = this->glyphCache.find(codepoint);
         if (iterator != this->glyphCache.end()) return &iterator->second;
+
+        int index = stbtt_FindGlyphIndex(&this->info, codepoint);
 
         int advanceWidth, leftSideBearing;
         stbtt_GetCodepointHMetrics(&this->info, codepoint, &advanceWidth, &leftSideBearing);
@@ -117,7 +120,7 @@ struct Font
         int x0, y0, x1, y1;
         stbtt_GetCodepointBitmapBox(&this->info, codepoint, this->scale, this->scale, &x0, &y0, &x1, &y1);
 
-        Glyph glyph(codepoint, x0, y0, x1 - x0, y1 - y0, advanceWidth);
+        Glyph glyph(index, codepoint, x0, y0, x1 - x0, y1 - y0, advanceWidth);
         stbtt_MakeCodepointBitmap(&this->info, glyph.bitmap.data(), glyph.width, glyph.height, glyph.width, this->scale, this->scale, glyph.codepoint);
 
         this->glyphCache[codepoint] = std::move(glyph);

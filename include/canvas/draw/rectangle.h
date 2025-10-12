@@ -5,7 +5,7 @@
 
 struct Rectangle
 {
-    static bool draw(Canvas* canvas, int x, int y, int width, int height, Color color, int pattern = 0xffffffff)
+    static bool draw(Canvas *canvas, int x, int y, int width, int height, Color color, int pattern = 0xffffffff)
     {
         if (x + width < 0 || x >= canvas->width || y + height < 0 || y >= canvas->height) return false;
 
@@ -40,7 +40,7 @@ struct Rectangle
         return true;
     }
 
-    static bool draw_filled(Canvas* canvas, int x, int y, int width, int height, Color color)
+    static bool draw_filled(Canvas *canvas, int x, int y, int width, int height, Color color)
     {
         if (x + width < 0 || x >= canvas->width || y + height < 0 || y >= canvas->height) return false;
 

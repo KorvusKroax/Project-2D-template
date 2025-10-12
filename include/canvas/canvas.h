@@ -66,7 +66,7 @@ struct Canvas
     Canvas(int w, int h):
         width(w), height(h), pixelBuffer(w * h * 4, 0) { }
 
-    Canvas(const char* fileName)
+    Canvas(const char *fileName)
     {
         loadImage_PNG(fileName);
     }
@@ -128,7 +128,7 @@ struct Canvas
         return true;
     }
 
-    bool getPixel(int x, int y, Color* color)
+    bool getPixel(int x, int y, Color *color)
     {
         if (x < 0 || x >= this->width || y < 0 || y >= this->height) return false;
 
@@ -143,7 +143,7 @@ struct Canvas
         return true;
     }
 
-    bool setPixels(int x, int y, const Canvas* canvas)
+    bool setPixels(int x, int y, const Canvas *canvas)
     {
         int destStartX = std::max(0, x);
         int destStartY = std::max(0, y);
@@ -164,7 +164,7 @@ struct Canvas
         return true;
     }
 
-    bool getPixels(int x, int y, int width, int height, Canvas* canvas)
+    bool getPixels(int x, int y, int width, int height, Canvas *canvas)
     {
         canvas->resize(width, height);
 
@@ -188,7 +188,7 @@ struct Canvas
         return true;
     }
 
-    bool loadImage_PNG(const char* fileName)
+    bool loadImage_PNG(const char *fileName)
     {
         unsigned int imageWidth, imageHeight, channelCount = 4;
         unsigned char* image;
