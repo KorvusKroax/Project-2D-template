@@ -10,14 +10,19 @@
 
 struct TextField
 {
-    const unsigned int tabSize = 4;
-
     int width, height;
     Font *font;
 
-    TextField(int width, int height, Font *font, std::string text):
+    TextField(int width, int height, Font *font, std::string text, const unsigned int tabSize = 4):
         width(width), height(height), font(font)
     {
+        update(text, tabSize);
+    }
+
+    void update(std::string text, const unsigned int tabSize = 4)
+    {
+        lines.clear();
+
         // replace tabs to spaces
         std::string spaces(tabSize, ' ');
         int pos = 0;
@@ -87,14 +92,14 @@ struct TextField
         }
     }
 
-    void draw(Canvas *canvas, int x, float y, Color color, float lineSpacingMultiplier = 1.0f)
+    void draw(Canvas *canvas, int x, float y, Color color, Color shadow = CLEAR, float lineSpacingMultiplier = 1.0f)
     {
         float lineHeight = (this->font->ascent - this->font->descent + this->font->lineGap) * this->font->scale * lineSpacingMultiplier;
 
         y += (this->lines.size() - 1) * lineHeight;
 
         for (std::pair<std::vector<int>, float> line : this->lines) {
-            Text::draw_line(canvas, x, y, line.first, this->font, color, CLEAR);
+            Text::draw_line(canvas, x, y, line.first, this->font, color, shadow);
             y -= lineHeight;
         }
     }

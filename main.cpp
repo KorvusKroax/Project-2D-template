@@ -64,20 +64,18 @@ int main()
     // Berkelium1541.ttf: 6px
 
 
-    Font font("resources/font/PetMe64.ttf", 8);
-    TextField textField(
-        160, 120,
-        // "Lorém ipsüm, dólor sit ámet consectetúradipisicingelit. Similique, asperiores amet.", &font,
-        "Lorém ipsüm, dólor sit ámet consectetúradipisicingelitSimiliqueasperiores amet.", &font,
-        C64_VICE_CYAN, 1.2f
-    );
 
-    printf("%i, %i", (int)((unsigned char)" "[0]), font.utf8ToCodepoint(" "));
+    Font font("resources/font/PetMe64.ttf", 8);
+
+    TextField textField(
+        128, 128, &font,
+        " Lorém\tipsüm,\n\t\tdolór  sit\n\n ámet consectetúradipisicingelit.    Similique, asperiores amet."
+    );
 
     while (!glfwWindowShouldClose(openGL.window)) {
         canvas.clear();
 
-        // canvas.setPixels(50, 20, &image);
+        canvas.setPixels(50, 20, &image);
 
         Line::draw(&canvas, canvas.width >> 1, 0, canvas.width >> 1, canvas.height - 1, Color(64,64,64), 0x33333333);
         Line::draw(&canvas, 0, canvas.height >> 1, canvas.width - 1, canvas.height >> 1, Color(64,64,64), 0x33333333);
@@ -91,12 +89,17 @@ int main()
 
 
         // Rectangle::draw_filled(&canvas, 5, (canvas.height >> 2), 200, 100, C64_VICE_GREEN);
+        // Text::draw_char(&canvas, 20, (canvas.height >> 1), "é", &font, C64_VICE_WHITE, CLEAR);
         // Text::draw_line(&canvas, 20, (canvas.height >> 1), "Helló, világ!", &font, C64_VICE_WHITE, CLEAR);
         // Text::draw_multiline(&canvas, 20, (canvas.height >> 1), "Helló, világ!\nhelló megint...", &font, C64_VICE_WHITE, CLEAR, 1.5f);
 
-        textField.draw(&canvas, canvas.width >> 2, canvas.height >> 2);
+        int xPos = canvas.width >> 2;
+        int yPos = canvas.height >> 2;
+        Rectangle::draw(&canvas, xPos, yPos, textField.width, textField.height, EGA_RED);
+        textField.draw(&canvas, xPos, yPos, EGA_WHITE, EGA_DARK_GREY, 1.2f);
 
 
+        // textField.update("Time:\n\t" + std::to_string(glfwGetTime()), 3);
 
 
 
