@@ -11,8 +11,6 @@
 
 struct Glyph
 {
-    int index;
-    int codepoint;
     int x0, y0;
     int width, height;
     int advanceWidth;
@@ -20,8 +18,8 @@ struct Glyph
 
     Glyph() { }
 
-    Glyph(int index, int codepoint, int x0, int y0, int widht, int height, int advanceWidth):
-        index(index), codepoint(codepoint), width(widht), height(height), x0(x0), y0(y0), advanceWidth(advanceWidth)
+    Glyph(int x0, int y0, int widht, int height, int advanceWidth):
+        x0(x0), y0(y0), width(widht), height(height), advanceWidth(advanceWidth)
     {
         this->bitmap.resize(this->width * this->height);
     }
@@ -112,16 +110,14 @@ struct Font
         std::map<int, Glyph>::iterator iterator = this->glyphCache.find(codepoint);
         if (iterator != this->glyphCache.end()) return &iterator->second;
 
-        int index = stbtt_FindGlyphIndex(&this->info, codepoint);
-
         int advanceWidth, leftSideBearing;
         stbtt_GetCodepointHMetrics(&this->info, codepoint, &advanceWidth, &leftSideBearing);
 
         int x0, y0, x1, y1;
         stbtt_GetCodepointBitmapBox(&this->info, codepoint, this->scale, this->scale, &x0, &y0, &x1, &y1);
 
-        Glyph glyph(index, codepoint, x0, y0, x1 - x0, y1 - y0, advanceWidth);
-        stbtt_MakeCodepointBitmap(&this->info, glyph.bitmap.data(), glyph.width, glyph.height, glyph.width, this->scale, this->scale, glyph.codepoint);
+        Glyph glyph(x0, y0, x1 - x0, y1 - y0, advanceWidth);
+        stbtt_MakeCodepointBitmap(&this->info, glyph.bitmap.data(), glyph.width, glyph.height, glyph.width, this->scale, this->scale, codepoint);
 
         this->glyphCache[codepoint] = std::move(glyph);
 
