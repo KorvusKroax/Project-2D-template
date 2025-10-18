@@ -1,30 +1,3 @@
-/*
-    USAGE:
-        OpenGL(&canvas, pixelSize, windowMode, title, voidColor_r, voidColor_g, voidColor_b, voidColor_a)
-            - canvas: window will be setted to this dimensions
-            - pixelSize: size of pixel in real screen pixel
-            - windowMode: can fullscreen or windowed
-            - title: window header title text
-            - voidColor_r, voidColor_g, voidColor_b, voidColor_a:
-                the color of the screen around the canvas' plane in fullscreen modes
-
-        window modes:
-            - FULLSCREEN_SCREEN: set view to fullscreen mode and the passed canvas size will be setted according to screen size and passed pixelSize
-            - FULLSCREEN_RESOLUTION: set view to fullscreen mode and create a plane for the canvas, bigger canvas is scrollable
-            - WINDOWED: create a window sized by the canvas resalution and pixelSize with borders and header (and its buttons), not resizable
-            - WINDOWED_BORDERLESS: create a window sized by the canvas resalution and pixelSize without borders and header, not resizable
-            - WINDOWED_RESIZABLE: not implemented
-
-    FUNCTIONS:
-        update()
-            - refresh the window content and process all openGL pending events
-
-        updateScroll()
-            - if canvas is bigger than the screen it will control the position of the canvas by dragging it with the middle mouse button
-
-        getMousePosition(&x, &y)
-            - it sets the given coords with the pixel coord on the canvas pointed by the mouse
-*/
 #pragma once
 
 #include "glad/glad.h"
