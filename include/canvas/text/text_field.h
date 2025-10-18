@@ -16,26 +16,29 @@ struct TextField
     TextField(int width, int height, Font *font, std::string text):
         width(width), height(height), font(font)
     {
-        std::vector<std::vector<int>> rows = explodeByCodepoint(this->font->utf8ToCodepoints(text), '\n');
-        for (std::vector<int> row : rows) {
-            std::vector<std::vector<int>> words = explodeByCodepoint(row, ' ');
+        std::vector<std::pair<int, std::vector<int>>> rows = explodeByCodepoint(this->font->utf8ToCodepoints(text), '\n');
+        for (std::pair<int, std::vector<int>> row : rows) {
 
             std::vector<int> currentLine;
             float currentLineWidth = 0;
 
-            for (std::vector<int> word : words) {
-                float wordWidth = getTextWidth(word);
+            // process multiple '\n'
+            for (int i = 0; i < row.first - 1; i++) {
+                lines.push_back(std::make_pair(currentLine, currentLineWidth));
+            }
 
-                if (wordWidth == 0) continue;
+            std::vector<std::pair<int, std::vector<int>>> words = explodeByCodepoint(row.second, ' ');
+            for (std::pair<int, std::vector<int>> word : words) {
+                float wordWidth = getTextWidth(word.second);
 
+                // break long words
                 if (wordWidth > this->width) {
                     if (currentLineWidth > 0) {
                         lines.push_back(std::make_pair(currentLine, currentLineWidth));
                         currentLine.clear();
                         currentLineWidth = 0;
                     }
-
-                    std::vector<std::pair<std::vector<int>, float>> splittedLongWordParts = explodeByFieldWidth(word);
+                    std::vector<std::pair<std::vector<int>, float>> splittedLongWordParts = explodeByFieldWidth(word.second);
                     for (int i = 0; i < splittedLongWordParts.size() - 1; i++) {
                         lines.push_back(std::make_pair(splittedLongWordParts[i].first, splittedLongWordParts[i].second));
                     }
@@ -44,27 +47,29 @@ struct TextField
                     continue;
                 }
 
-                if (currentLineWidth == 0) {
-                    currentLine = word;
-                    currentLineWidth = wordWidth;
-                    continue;
+                // calculate spaces width (even multiple spaces)
+                float spaceWidth = currentLineWidth ? stbtt_GetCodepointKernAdvance(&this->font->info, currentLine.back(), ' ') : 0;
+                for (int i = 0; i < word.first - 1; i++) {
+                    spaceWidth +=
+                        this->font->getGlyph(' ')->advanceWidth +
+                        stbtt_GetCodepointKernAdvance(&this->font->info, ' ', ' ');
                 }
-
-                float spaceWidth = (
-                    stbtt_GetCodepointKernAdvance(&this->font->info, currentLine.back(), ' ') +
+                spaceWidth +=
                     this->font->getGlyph(' ')->advanceWidth +
-                    stbtt_GetCodepointKernAdvance(&this->font->info, ' ', word.front())
-                ) * this->font->scale;
+                    stbtt_GetCodepointKernAdvance(&this->font->info, ' ', word.second.front());
+                spaceWidth *= this->font->scale;
 
                 if (currentLineWidth + spaceWidth + wordWidth <= this->width) {
-                    currentLine.push_back(' ');
-                    currentLine.insert(currentLine.end(), word.begin(), word.end());
+                    // add spaces and the current word to the line
+                    currentLine.insert(currentLine.end(), word.first, ' ');
+                    currentLine.insert(currentLine.end(), word.second.begin(), word.second.end());
                     currentLineWidth += spaceWidth + wordWidth;
                     continue;
                 }
 
+                // break the line and start the next line with the current word
                 lines.push_back(std::make_pair(currentLine, currentLineWidth));
-                currentLine = word;
+                currentLine = word.second;
                 currentLineWidth = wordWidth;
             }
 
@@ -87,20 +92,24 @@ struct TextField
 private:
     std::vector<std::pair<std::vector<int>, float>> lines;
 
-    std::vector<std::vector<int>> explodeByCodepoint(const std::vector<int> &text, int separator)
+    std::vector<std::pair<int, std::vector<int>>> explodeByCodepoint(const std::vector<int> &text, int separator)
     {
-        std::vector<std::vector<int>> result;
+        std::vector<std::pair<int, std::vector<int>>> result; // pair.first = separator count before string, pair.second = string
 
         std::vector<int> textPart;
+        int separatorCount = 0;
         for (int codepoint : text) {
-            if (codepoint == separator) {
-                result.push_back(textPart);
-                textPart.clear();
-            } else {
+            if (codepoint != separator) {
                 textPart.push_back(codepoint);
+                continue;
             }
+            if (!textPart.empty()) {
+                result.push_back(std::make_pair(separatorCount, textPart));
+                textPart.clear();
+                separatorCount = 1;
+            } else separatorCount++;
         }
-        result.push_back(textPart);
+        result.push_back(std::make_pair(separatorCount, textPart));
 
         return result;
     }
