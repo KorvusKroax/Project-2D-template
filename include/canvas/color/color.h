@@ -24,7 +24,8 @@ struct Color
         return Color(
             (unsigned char)(int(fg.r * fg.a + this->r * (255 - fg.a)) >> 8),
             (unsigned char)(int(fg.g * fg.a + this->g * (255 - fg.a)) >> 8),
-            (unsigned char)(int(fg.b * fg.a + this->b * (255 - fg.a)) >> 8)
+            (unsigned char)(int(fg.b * fg.a + this->b * (255 - fg.a)) >> 8),
+            fg.a + this->a * (255 - fg.a)
         );
     }
 
