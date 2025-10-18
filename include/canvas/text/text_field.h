@@ -10,12 +10,22 @@
 
 struct TextField
 {
+    const unsigned int tabSize = 4;
+
     int width, height;
     Font *font;
 
     TextField(int width, int height, Font *font, std::string text):
         width(width), height(height), font(font)
     {
+        // replace tabs to spaces
+        std::string spaces(tabSize, ' ');
+        int pos = 0;
+        while ((pos = text.find('\t', pos)) != std::string::npos) {
+            text.replace(pos, 1, spaces);
+            pos += tabSize;
+        }
+
         std::vector<std::pair<int, std::vector<int>>> rows = explodeByCodepoint(this->font->utf8ToCodepoints(text), '\n');
         for (std::pair<int, std::vector<int>> row : rows) {
 
