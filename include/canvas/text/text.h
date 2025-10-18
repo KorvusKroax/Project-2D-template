@@ -9,8 +9,18 @@
 
 struct Text
 {
-    static void draw_char(Canvas *canvas, float *x, int y, int codepoint, Font *font, Color color, Color shadow = CLEAR)
+    static float draw_char(Canvas *canvas, float x, int y, const char *ch, Font *font, Color color, Color shadow = CLEAR)
     {
+        return draw_char(canvas, x, y, font->utf8ToCodepoint(ch), font, color, shadow);
+    }
+
+    static float draw_char(Canvas *canvas, float x, int y, int codepoint, Font *font, Color color, Color shadow = CLEAR)
+    {
+        if (codepoint == '\t') {
+            Glyph *glyph = font->getGlyph(' ');
+            return (glyph->advanceWidth * 4 + stbtt_GetCodepointKernAdvance(&font->info, ' ', ' ') * 3) * font->scale;
+        }
+
         Glyph *glyph = font->getGlyph(codepoint);
 
         if (glyph->width > 0 && glyph->height > 0) {
@@ -23,7 +33,7 @@ struct Text
                         continue;
                     }
 
-                    int px = (int)std::lround(*x + glyph->x0 + i);
+                    int px = (int)std::lround(x + glyph->x0 + i);
                     int py = (y  - glyph->y0) - j;
                     canvas->setPixel(px, py, color);
 
@@ -36,17 +46,21 @@ struct Text
                 }
             }
         }
-        *x += glyph->advanceWidth * font->scale;
+
+        return glyph->advanceWidth * font->scale;
     }
 
     static void draw_line(Canvas *canvas, float x, int y, const std::string text, Font *font, Color color, Color shadow = CLEAR)
     {
-        std::vector<int> codepoints = font->utf8ToCodepoints(text);
+        draw_line(canvas, x, y, font->utf8ToCodepoints(text), font, color, shadow);
+    }
 
+    static void draw_line(Canvas *canvas, float x, int y, const std::vector<int> codepoints, Font *font, Color color, Color shadow = CLEAR)
+    {
         for (int i = 0; i < codepoints.size(); i++) {
-            draw_char(canvas, &x, y, codepoints[i], font, color, shadow);
+            x += draw_char(canvas, x, y, codepoints[i], font, color, shadow);
             if (i + 1 < codepoints.size()) {
-                x += stbtt_GetGlyphKernAdvance(&font->info, codepoints[i], codepoints[i + 1]) * font->scale;
+                x += stbtt_GetCodepointKernAdvance(&font->info, codepoints[i], codepoints[i + 1]) * font->scale;
             }
         }
     }
@@ -64,4 +78,8 @@ struct Text
             start = (end == std::string::npos) ? text.size() : end + 1;
         }
     }
+
+    // static void draw_multiline(Canvas *canvas, float x, int y, const std::vector<int> codepoints, Font *font, Color color, Color shadow = CLEAR, float lineSpacingMultiplier = 1.0f)
+    // {
+    // }
 };
