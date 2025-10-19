@@ -10,9 +10,15 @@
 
 enum TextAlign
 {
-    LEFT,
-    MIDDLE,
-    RIGHT
+    LEFT_TOP,
+    LEFT_CENTER,
+    LEFT_BOTTOM,
+    CENTER_TOP,
+    CENTER_CENTER,
+    CENTER_BOTTOM,
+    RIGHT_TOP,
+    RIGHT_CENTER,
+    RIGHT_BOTTOM
 };
 
 struct TextField
@@ -106,24 +112,39 @@ struct TextField
     void draw(Canvas *canvas, int x, int y, TextAlign textAlign, Color color, Color shadow = CLEAR, float lineSpacingMultiplier = 1.0f)
     {
         float lineHeight = (this->font->ascent - this->font->descent + this->font->lineGap) * this->font->scale * lineSpacingMultiplier;
+        float xPos, yPos;
 
-        float yPos = y + (this->lines.size() - 1) * lineHeight;
+        switch (textAlign) {
+            case RIGHT_TOP:
+            case CENTER_TOP:
+            case LEFT_TOP:
+                yPos = y + this->height - lineHeight;
+                break;
+            case RIGHT_CENTER:
+            case CENTER_CENTER:
+            case LEFT_CENTER:
+                yPos = y + ((this->height - lineHeight) + ((this->lines.size() - 1) * lineHeight)) * .5f;
+                break;
+            case RIGHT_BOTTOM:
+            case CENTER_BOTTOM:
+            default: // LEFT_BOTTOM
+                yPos = y + (this->lines.size() - 1) * lineHeight;
+                break;
+        }
+
         for (std::pair<std::vector<int>, float> line : this->lines) {
-
-            float xPos, lineLength = line.second;
-
-            printf("%i, %f\n", line.first.size(), lineLength);
-
             switch (textAlign) {
-                case RIGHT:
-                    xPos = x + (this->width - lineLength);
+                case RIGHT_TOP:
+                case RIGHT_CENTER:
+                case RIGHT_BOTTOM:
+                    xPos = x + (this->width - line.second);
                     break;
-
-                case MIDDLE:
-                    xPos = x + (this->width - lineLength) * .5f;
+                case CENTER_TOP:
+                case CENTER_CENTER:
+                case CENTER_BOTTOM:
+                    xPos = x + (this->width - line.second) * .5f;
                     break;
-
-                default: // LEFT
+                default: // LEFT_TOP, LEFT_CENTER, LEFT_BOTTOM
                     xPos = x;
                     break;
             }
