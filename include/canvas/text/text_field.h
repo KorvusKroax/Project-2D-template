@@ -8,27 +8,35 @@
 #include <string>
 #include <vector>
 
+enum TextAlign
+{
+    LEFT,
+    MIDDLE,
+    RIGHT
+};
+
 struct TextField
 {
     int width, height;
+    unsigned int tabSize;
     Font *font;
 
-    TextField(int width, int height, Font *font, std::string text, const unsigned int tabSize = 4):
-        width(width), height(height), font(font)
+    TextField(int width, int height, Font *font, std::string text, unsigned int tabSize = 4):
+        width(width), height(height), font(font), tabSize(tabSize)
     {
-        update(text, tabSize);
+        update(text);
     }
 
-    void update(std::string text, const unsigned int tabSize = 4)
+    void update(std::string text)
     {
         lines.clear();
 
         // replace tabs to spaces
-        std::string spaces(tabSize, ' ');
+        std::string spaces(this->tabSize, ' ');
         int pos = 0;
         while ((pos = text.find('\t', pos)) != std::string::npos) {
             text.replace(pos, 1, spaces);
-            pos += tabSize;
+            pos += this->tabSize;
         }
 
         std::vector<std::pair<int, std::vector<int>>> rows = explodeByCodepoint(this->font->utf8ToCodepoints(text), '\n');
@@ -63,16 +71,19 @@ struct TextField
                 }
 
                 // calculate spaces width (even multiple spaces)
-                float spaceWidth = currentLineWidth ? stbtt_GetCodepointKernAdvance(&this->font->info, currentLine.back(), ' ') : 0;
-                for (int i = 0; i < word.first - 1; i++) {
+                float spaceWidth = 0;
+                if (word.first > 0) {
+                    spaceWidth = currentLineWidth ? stbtt_GetCodepointKernAdvance(&this->font->info, currentLine.back(), ' ') : 0;
+                    for (int i = 0; i < word.first - 1; i++) { // word.first: separator count (means spaces)
+                        spaceWidth +=
+                            this->font->getGlyph(' ')->advanceWidth +
+                            stbtt_GetCodepointKernAdvance(&this->font->info, ' ', ' ');
+                    }
                     spaceWidth +=
                         this->font->getGlyph(' ')->advanceWidth +
-                        stbtt_GetCodepointKernAdvance(&this->font->info, ' ', ' ');
+                        stbtt_GetCodepointKernAdvance(&this->font->info, ' ', word.second.front());
+                    spaceWidth *= this->font->scale;
                 }
-                spaceWidth +=
-                    this->font->getGlyph(' ')->advanceWidth +
-                    stbtt_GetCodepointKernAdvance(&this->font->info, ' ', word.second.front());
-                spaceWidth *= this->font->scale;
 
                 if (currentLineWidth + spaceWidth + wordWidth <= this->width) {
                     // add spaces and the current word to the line
@@ -92,16 +103,36 @@ struct TextField
         }
     }
 
-    void draw(Canvas *canvas, int x, float y, Color color, Color shadow = CLEAR, float lineSpacingMultiplier = 1.0f)
+    void draw(Canvas *canvas, int x, int y, TextAlign textAlign, Color color, Color shadow = CLEAR, float lineSpacingMultiplier = 1.0f)
     {
         float lineHeight = (this->font->ascent - this->font->descent + this->font->lineGap) * this->font->scale * lineSpacingMultiplier;
 
-        y += (this->lines.size() - 1) * lineHeight;
-
+        float yPos = y + (this->lines.size() - 1) * lineHeight;
         for (std::pair<std::vector<int>, float> line : this->lines) {
-            Text::draw_line(canvas, x, y, line.first, this->font, color, shadow);
-            y -= lineHeight;
+
+            float xPos, lineLength = line.second;
+
+            printf("%i, %f\n", line.first.size(), lineLength);
+
+            switch (textAlign) {
+                case RIGHT:
+                    xPos = x + (this->width - lineLength);
+                    break;
+
+                case MIDDLE:
+                    xPos = x + (this->width - lineLength) * .5f;
+                    break;
+
+                default: // LEFT
+                    xPos = x;
+                    break;
+            }
+
+            Text::draw_line(canvas, xPos, yPos, line.first, this->font, color, shadow, this->tabSize);
+            yPos -= lineHeight;
         }
+        printf("\n");
+
     }
 
 private:
@@ -132,7 +163,6 @@ private:
     float getTextWidth(const std::vector<int> &text)
     {
         float textWidth = 0;
-
         for (int i = 0; i < text.size(); i++) {
             textWidth +=
                 (i ? stbtt_GetCodepointKernAdvance(&this->font->info, text[i - 1], text[i]) : 0) +

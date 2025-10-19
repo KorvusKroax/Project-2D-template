@@ -69,7 +69,8 @@ int main()
 
     TextField textField(
         128, 128, &font,
-        " Lorém\tipsüm,\n\t\tdolór  sit\n\n ámet consectetúradipisicingelit.    Similique, asperiores amet."
+        " Lorém\nipsüm,\ndolór\tsit\n\n ámet consectetúradipisicingelit.    Similique, asperiores amet.",
+        3
     );
 
     while (!glfwWindowShouldClose(openGL.window)) {
@@ -96,10 +97,11 @@ int main()
         int xPos = canvas.width >> 2;
         int yPos = canvas.height >> 2;
         Rectangle::draw(&canvas, xPos, yPos, textField.width, textField.height, EGA_RED);
-        textField.draw(&canvas, xPos, yPos, EGA_WHITE, EGA_DARK_GRAY, 1.2f);
+        Line::draw(&canvas, xPos + textField.width * .5f, yPos, xPos + textField.width * .5f, yPos + textField.height, EGA_BLUE);
+        textField.draw(&canvas, xPos, yPos, MIDDLE, EGA_WHITE, CLEAR, 1.2f);
 
 
-        // textField.update("Time:\n\t" + std::to_string(glfwGetTime()), 3);
+        // textField.update("Time:\n\t" + std::to_string(glfwGetTime()));
 
 
 

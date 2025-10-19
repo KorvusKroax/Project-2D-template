@@ -9,12 +9,12 @@
 
 struct Text
 {
-    static float draw_char(Canvas *canvas, float x, int y, const char *ch, Font *font, Color color, Color shadow = CLEAR)
+    static float draw_char(Canvas *canvas, float x, float y, const char *ch, Font *font, Color color, Color shadow = CLEAR, unsigned int tabSize = 4)
     {
-        return draw_char(canvas, x, y, font->utf8ToCodepoint(ch), font, color, shadow);
+        return draw_char(canvas, x, y, font->utf8ToCodepoint(ch), font, color, shadow, tabSize);
     }
 
-    static float draw_char(Canvas *canvas, float x, int y, int codepoint, Font *font, Color color, Color shadow = CLEAR)
+    static float draw_char(Canvas *canvas, float x, float y, int codepoint, Font *font, Color color, Color shadow = CLEAR, unsigned int tabSize = 4)
     {
         if (codepoint == '\t') {
             Glyph *glyph = font->getGlyph(' ');
@@ -34,7 +34,7 @@ struct Text
                     }
 
                     int px = (int)std::lround(x + glyph->x0 + i);
-                    int py = (y  - glyph->y0) - j;
+                    int py = (int)std::lround((y  - glyph->y0) - j);
                     canvas->setPixel(px, py, color);
 
                     if (shadow.a > 0) {
@@ -50,36 +50,32 @@ struct Text
         return glyph->advanceWidth * font->scale;
     }
 
-    static void draw_line(Canvas *canvas, float x, int y, const std::string text, Font *font, Color color, Color shadow = CLEAR)
+    static void draw_line(Canvas *canvas, float x, float y, const std::string text, Font *font, Color color, Color shadow = CLEAR, unsigned int tabSize = 4)
     {
-        draw_line(canvas, x, y, font->utf8ToCodepoints(text), font, color, shadow);
+        draw_line(canvas, x, y, font->utf8ToCodepoints(text), font, color, shadow, tabSize);
     }
 
-    static void draw_line(Canvas *canvas, float x, int y, const std::vector<int> codepoints, Font *font, Color color, Color shadow = CLEAR)
+    static void draw_line(Canvas *canvas, float x, float y, const std::vector<int> codepoints, Font *font, Color color, Color shadow = CLEAR, unsigned int tabSize = 4)
     {
         for (int i = 0; i < codepoints.size(); i++) {
-            x += draw_char(canvas, x, y, codepoints[i], font, color, shadow);
+            x += draw_char(canvas, x, y, codepoints[i], font, color, shadow, tabSize);
             if (i + 1 < codepoints.size()) {
                 x += stbtt_GetCodepointKernAdvance(&font->info, codepoints[i], codepoints[i + 1]) * font->scale;
             }
         }
     }
 
-    static void draw_multiline(Canvas *canvas, float x, int y, const std::string text, Font *font, Color color, Color shadow = CLEAR, float lineSpacingMultiplier = 1.0f)
+    static void draw_multiline(Canvas *canvas, float x, float y, const std::string text, Font *font, Color color, Color shadow = CLEAR, unsigned int tabSize = 4, float lineSpacingMultiplier = 1.0f)
     {
         float lineHeight = (font->ascent - font->descent + font->lineGap) * font->scale * lineSpacingMultiplier;
 
         int start = 0;
-        int yPos = y;
+        float yPos = y;
         while (start < text.size()) {
             int end = text.find('\n', start);
-            draw_line(canvas, x, yPos, text.substr(start, end - start), font, color, shadow);
+            draw_line(canvas, x, yPos, text.substr(start, end - start), font, color, shadow, tabSize);
             yPos -= lineHeight;
             start = (end == std::string::npos) ? text.size() : end + 1;
         }
     }
-
-    // static void draw_multiline(Canvas *canvas, float x, int y, const std::vector<int> codepoints, Font *font, Color color, Color shadow = CLEAR, float lineSpacingMultiplier = 1.0f)
-    // {
-    // }
 };
