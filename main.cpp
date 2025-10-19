@@ -32,7 +32,7 @@ int main()
 
     points.clear();
 
-    Canvas image("resources/img/161.png");
+    // Canvas image("resources/img/161.png");
 
 
     // FULL
@@ -75,7 +75,7 @@ int main()
     while (!glfwWindowShouldClose(openGL.window)) {
         canvas.clear();
 
-        canvas.setPixels(50, 20, &image);
+        // canvas.setPixels(50, 20, &image);
 
         Line::draw(&canvas, canvas.width >> 1, 0, canvas.width >> 1, canvas.height - 1, Color(64,64,64), 0x33333333);
         Line::draw(&canvas, 0, canvas.height >> 1, canvas.width - 1, canvas.height >> 1, Color(64,64,64), 0x33333333);
@@ -96,7 +96,7 @@ int main()
         int xPos = canvas.width >> 2;
         int yPos = canvas.height >> 2;
         Rectangle::draw(&canvas, xPos, yPos, textField.width, textField.height, EGA_RED);
-        textField.draw(&canvas, xPos, yPos, EGA_WHITE, EGA_DARK_GREY, 1.2f);
+        textField.draw(&canvas, xPos, yPos, EGA_WHITE, EGA_DARK_GRAY, 1.2f);
 
 
         // textField.update("Time:\n\t" + std::to_string(glfwGetTime()), 3);
