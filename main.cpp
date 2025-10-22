@@ -5,6 +5,7 @@
 #include "line.h"
 #include "circle.h"
 #include "rectangle.h"
+#include "fill.h"
 #include "text/font.h"
 #include "text/text.h"
 #include "text/text_field.h"
@@ -22,6 +23,8 @@ int px = 8;
 
 int main()
 {
+    printf("hello");
+
     glfwSetKeyCallback(openGL.window,
         [](GLFWwindow* window, int key, int scancode, int action, int mod) {
             if (key == GLFW_KEY_ESCAPE) glfwSetWindowShouldClose(window, true);
@@ -58,8 +61,8 @@ int main()
     // PixelOperator.ttf: 16px
     // PixelOperator8.ttf: 8px (mono)
 
-    // C64_Pro_Mono-STYLE: 8px
-    // C64_Pro-STYLE: 8px
+    // C64_Pro_Mono-STYLE.ttf: 8px
+    // C64_Pro-STYLE.ttf: 8px
     // Berkelium64.ttf: 10px
     // Berkelium1541.ttf: 6px
 
@@ -67,42 +70,53 @@ int main()
 
     Font font("resources/font/PetMe64.ttf", 8);
 
-    TextField textField(
-        128, 128, &font,
-        " Lorém ipsúm!\ndölór\tsit\n  ámet ConsectetürAdipisicingelit.    Similique, asperiöres amet.",
-        3
-    );
+    TextField::RenderOptions opts = {
+        &font,
+        EGA_WHITE, CLEAR,
+        3,
+        1.5f,
+
+        128, 128,
+        LEFT_CENTER,
+        "\tLorem\n\nipsum, dolor sit amet.\nConsectetur adipisicing elit.\nSimilique, asperiores amet.",
+    };
+
+    TextField textField(opts);
 
     while (!glfwWindowShouldClose(openGL.window)) {
         canvas.clear();
 
         // canvas.setPixels(50, 20, &image);
 
-        Line::draw(&canvas, canvas.width >> 1, 0, canvas.width >> 1, canvas.height - 1, Color(64,64,64), 0x33333333);
-        Line::draw(&canvas, 0, canvas.height >> 1, canvas.width - 1, canvas.height >> 1, Color(64,64,64), 0x33333333);
-        Line::draw(&canvas, canvas.width >> 2, 0, canvas.width >> 2, canvas.height - 1, Color(32,32,32), 0x30303030);
-        Line::draw(&canvas, 0, canvas.height >> 2, canvas.width - 1, canvas.height >> 2, Color(32,32,32), 0x30303030);
-        Line::draw(&canvas, (canvas.width >> 1) + (canvas.width >> 2), 0, (canvas.width >> 1) + (canvas.width >> 2), canvas.height - 1, Color(32,32,32), 0x30303030);
-        Line::draw(&canvas, 0, (canvas.height >> 1) + (canvas.height >> 2), canvas.width - 1, (canvas.height >> 1) + (canvas.height >> 2), Color(32,32,32), 0x30303030);
+        // Line::draw(&canvas, canvas.width >> 1, 0, canvas.width >> 1, canvas.height - 1, Color(64,64,64), 0x33333333);
+        // Line::draw(&canvas, 0, canvas.height >> 1, canvas.width - 1, canvas.height >> 1, Color(64,64,64), 0x33333333);
+        // Line::draw(&canvas, canvas.width >> 2, 0, canvas.width >> 2, canvas.height - 1, Color(32,32,32), 0x30303030);
+        // Line::draw(&canvas, 0, canvas.height >> 2, canvas.width - 1, canvas.height >> 2, Color(32,32,32), 0x30303030);
+        // Line::draw(&canvas, (canvas.width >> 1) + (canvas.width >> 2), 0, (canvas.width >> 1) + (canvas.width >> 2), canvas.height - 1, Color(32,32,32), 0x30303030);
+        // Line::draw(&canvas, 0, (canvas.height >> 1) + (canvas.height >> 2), canvas.width - 1, (canvas.height >> 1) + (canvas.height >> 2), Color(32,32,32), 0x30303030);
 
 
 
 
 
-        // Rectangle::draw_filled(&canvas, 5, (canvas.height >> 2), 200, 100, C64_VICE_GREEN);
-        // Text::draw_char(&canvas, 20, (canvas.height >> 1), "é", &font, C64_VICE_WHITE, CLEAR);
-        // Text::draw_line(&canvas, 20, (canvas.height >> 1), "Helló, világ!", &font, C64_VICE_WHITE, CLEAR);
-        // Text::draw_multiline(&canvas, 20, (canvas.height >> 1), "Helló, világ!\nhelló megint...", &font, C64_VICE_WHITE, CLEAR, 1.5f);
+        // Rectangle::draw_filled(&canvas, 5, (canvas.height >> 2), 200, 100, C64_LIGHT_BLUE);
+        // Text::draw_char(&canvas, 40, (canvas.height >> 1) + 20, "é", {&font});
+        // Text::draw_line(&canvas, 30, (canvas.height >> 1), "Helló, világ!", {&font, C64_WHITE, Color(0, 0, 0, 63)});
+        // Text::draw_multiline(&canvas, 20, (canvas.height >> 1) - 20, "Helló, világ!\nhelló megint...", {&font, C64_WHITE, C64_RED, 3, 1.5f});
+
+
 
         int xPos = canvas.width >> 2;
         int yPos = canvas.height >> 2;
-        Rectangle::draw(&canvas, xPos, yPos, textField.width, textField.height, EGA_RED);
-        Line::draw(&canvas, xPos, yPos + textField.height * .5f, xPos + textField.width - 1, yPos + textField.height * .5f, EGA_GREEN);
-        Line::draw(&canvas, xPos + textField.width * .5f, yPos, xPos + textField.width * .5f, yPos + textField.height - 1, EGA_BLUE);
-        textField.draw(&canvas, xPos, yPos, CENTER_CENTER, EGA_WHITE, CLEAR);
+        Rectangle::draw(&canvas, xPos, yPos, textField.opts.width, textField.opts.height, EGA_RED);
+        Line::draw(&canvas, xPos, yPos + textField.opts.height * .5f, xPos + textField.opts.width - 1, yPos + textField.opts.height * .5f, EGA_GREEN);
+        Line::draw(&canvas, xPos + textField.opts.width * .5f, yPos, xPos + textField.opts.width * .5f, yPos + textField.opts.height - 1, EGA_BLUE);
+        textField.draw(&canvas, xPos, yPos, &opts);
 
 
-        // textField.update("Time:\n\t" + std::to_string(glfwGetTime()));
+
+        // Circle::draw(&canvas, canvas.width >> 1, canvas.height >> 1, 50, C64_YELLOW);
+        // Fill::span(&canvas, canvas.width >> 1, canvas.height >> 1, C64_ORANGE);
 
 
 
@@ -120,6 +134,11 @@ int main()
         // drag mouse
         if (glfwGetMouseButton(openGL.window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS) {
             points.push_back({mx, my});
+
+            opts.text = "Time:\n\t" + std::to_string(glfwGetTime());
+            opts.textColor = EGA_CYAN;
+        } else {
+            opts.textColor = EGA_YELLOW;
         }
 
 

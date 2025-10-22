@@ -7,7 +7,6 @@
 #include <map>
 #include <string>
 #include <fstream>
-#include <iostream> // cerr
 
 struct Glyph
 {
@@ -37,7 +36,7 @@ struct Font
     {
         std::ifstream file(filename, std::ios::binary);
         if (!file) {
-            std::cerr << "Failed to load font!\n";
+            printf("ERROR: Font::Font() -- Failed to load font, file not found\n");
             return;
         }
 
@@ -47,7 +46,7 @@ struct Font
         );
 
         if (!stbtt_InitFont(&this->info, this->buffer.data(), stbtt_GetFontOffsetForIndex(this->buffer.data(), 0))) {
-            std::cerr << "Failed to load font!\n";
+            printf("ERROR: Font::Font() -- Failed to init font\n");
         }
 
         this->scale = stbtt_ScaleForPixelHeight(&this->info, pixelHeight);
@@ -55,7 +54,7 @@ struct Font
         stbtt_GetFontVMetrics(&this->info, &this->ascent, &this->descent, &this->lineGap);
     }
 
-    static int utf8ToCodepoint(const char *utf8char, int *bytesUsed = nullptr)
+    static int utf8ToCodepoint(const char* utf8char, int* bytesUsed = nullptr)
     {
         const unsigned char ch = (unsigned char)utf8char[0];
         int codepoint = 0;
@@ -87,7 +86,7 @@ struct Font
         return codepoint;
     }
 
-    static std::vector<int> utf8ToCodepoints(const std::string str)
+    static std::vector<int> utf8ToCodepoints(const std::string &str)
     {
         std::vector<int> result;
         int i = 0;
@@ -105,7 +104,7 @@ struct Font
         return result;
     }
 
-    Glyph *getGlyph(int codepoint)
+    Glyph* getGlyph(int codepoint)
     {
         std::map<int, Glyph>::iterator iterator = this->glyphCache.find(codepoint);
         if (iterator != this->glyphCache.end()) return &iterator->second;

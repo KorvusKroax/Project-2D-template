@@ -23,29 +23,105 @@ enum TextAlign
 
 struct TextField
 {
-    int width, height;
-    unsigned int tabSize;
-    Font *font;
+    struct RenderOptions : public Text::RenderOptions {
+        int width, height;
+        TextAlign textAlign;
+        std::string text;
 
-    TextField(int width, int height, Font *font, std::string text, unsigned int tabSize = 4):
-        width(width), height(height), font(font), tabSize(tabSize)
+        RenderOptions(Font* font = nullptr, Color textColor = WHITE, Color shadowColor = CLEAR, unsigned int tabSize = 4, float lineSpacing = 1.0f, int width = 100, int height = 100, TextAlign textAlign = LEFT_BOTTOM, std::string text = " ")
+            : Text::RenderOptions(font, textColor, shadowColor, tabSize, lineSpacing), width(width), height(height), textAlign(textAlign), text(text)
+        {}
+
+        bool operator != (const RenderOptions& other) const {
+            return
+                this->text != other.text ||
+                this->font != other.font ||
+                this->tabSize != other.tabSize ||
+                this->width != other.width ||
+                this->lineSpacing != other.lineSpacing;
+        }
+    };
+
+    RenderOptions opts;
+    std::vector<std::pair<std::vector<int>, float>> lines;
+
+    explicit TextField(const RenderOptions &initialOpts)
     {
-        update(text);
+        this->opts = initialOpts;
+        buildLines();
     }
 
-    void update(std::string text)
+    bool draw(Canvas* canvas, int x, int y, RenderOptions* newOpts = nullptr)
     {
+        if (newOpts) {
+            if (this->opts != *newOpts)
+                if (!buildLines()) return false;
+            this->opts = *newOpts;
+        }
+
+        float lineHeight = (this->opts.font->ascent - this->opts.font->descent + this->opts.font->lineGap) * this->opts.font->scale * this->opts.lineSpacing;
+        float xPos, yPos;
+
+        switch (this->opts.textAlign) {
+            case RIGHT_TOP:
+            case CENTER_TOP:
+            case LEFT_TOP:
+                yPos = y + this->opts.height - lineHeight;
+                break;
+            case RIGHT_CENTER:
+            case CENTER_CENTER:
+            case LEFT_CENTER:
+                // yPos = y + ((this->opts.height * .5f) - (this->lines.size() * lineHeight * .5f)) + ((this->lines.size() - 1) * lineHeight);
+                yPos = y + ((this->opts.height - lineHeight) + ((this->lines.size() - 1) * lineHeight)) * .5f;
+                break;
+            default: // BOTTOM
+                yPos = y + (this->lines.size() - 1) * lineHeight;
+                break;
+        }
+
+        for (std::pair<std::vector<int>, float> line : this->lines) {
+            switch (this->opts.textAlign) {
+                case RIGHT_TOP:
+                case RIGHT_CENTER:
+                case RIGHT_BOTTOM:
+                    xPos = x + (this->opts.width - line.second);
+                    break;
+                case CENTER_TOP:
+                case CENTER_CENTER:
+                case CENTER_BOTTOM:
+                    xPos = x + (this->opts.width - line.second) * .5f;
+                    break;
+                default: // LEFT
+                    xPos = x;
+                    break;
+            }
+
+            Text::draw_line(canvas, xPos, yPos, line.first, this->opts);
+            yPos -= lineHeight;
+        }
+
+        return true;
+    }
+
+private:
+    bool buildLines()
+    {
+        if (!this->opts.font) {
+            printf("ERROR: TextField::buildLines() -- Missing font!\n");
+            return false;
+        }
+
         lines.clear();
 
         // replace tabs to spaces
-        std::string spaces(this->tabSize, ' ');
+        std::string spaces(this->opts.tabSize, ' ');
         int pos = 0;
-        while ((pos = text.find('\t', pos)) != std::string::npos) {
-            text.replace(pos, 1, spaces);
-            pos += this->tabSize;
+        while ((pos = this->opts.text.find('\t', pos)) != std::string::npos) {
+            this->opts.text.replace(pos, 1, spaces);
+            pos += this->opts.tabSize;
         }
 
-        std::vector<std::pair<int, std::vector<int>>> rows = explodeByCodepoint(this->font->utf8ToCodepoints(text), '\n');
+        std::vector<std::pair<int, std::vector<int>>> rows = explodeByCodepoint(this->opts.font->utf8ToCodepoints(this->opts.text), '\n');
         for (std::pair<int, std::vector<int>> row : rows) {
 
             std::vector<int> currentLine;
@@ -61,7 +137,7 @@ struct TextField
                 float wordWidth = getTextWidth(word.second);
 
                 // break long words
-                if (wordWidth > this->width) {
+                if (wordWidth > this->opts.width) {
                     if (currentLineWidth > 0) {
                         lines.push_back(std::make_pair(currentLine, currentLineWidth));
                         currentLine.clear();
@@ -79,19 +155,19 @@ struct TextField
                 // calculate spaces width (even multiple spaces)
                 float spaceWidth = 0;
                 if (word.first > 0) {
-                    spaceWidth = currentLineWidth ? stbtt_GetCodepointKernAdvance(&this->font->info, currentLine.back(), ' ') : 0;
+                    spaceWidth = currentLineWidth ? stbtt_GetCodepointKernAdvance(&this->opts.font->info, currentLine.back(), ' ') : 0;
                     for (int i = 0; i < word.first - 1; i++) { // word.first: separator count (means spaces)
                         spaceWidth +=
-                            this->font->getGlyph(' ')->advanceWidth +
-                            stbtt_GetCodepointKernAdvance(&this->font->info, ' ', ' ');
+                            this->opts.font->getGlyph(' ')->advanceWidth +
+                            stbtt_GetCodepointKernAdvance(&this->opts.font->info, ' ', ' ');
                     }
                     spaceWidth +=
-                        this->font->getGlyph(' ')->advanceWidth +
-                        stbtt_GetCodepointKernAdvance(&this->font->info, ' ', word.second.front());
-                    spaceWidth *= this->font->scale;
+                        this->opts.font->getGlyph(' ')->advanceWidth +
+                        stbtt_GetCodepointKernAdvance(&this->opts.font->info, ' ', word.second.front());
+                    spaceWidth *= this->opts.font->scale;
                 }
 
-                if (currentLineWidth + spaceWidth + wordWidth <= this->width) {
+                if (currentLineWidth + spaceWidth + wordWidth <= this->opts.width) {
                     // add spaces and the current word to the line
                     currentLine.insert(currentLine.end(), word.first, ' ');
                     currentLine.insert(currentLine.end(), word.second.begin(), word.second.end());
@@ -107,57 +183,9 @@ struct TextField
 
             lines.push_back(std::make_pair(currentLine, currentLineWidth));
         }
+
+        return true;
     }
-
-    void draw(Canvas *canvas, int x, int y, TextAlign textAlign, Color color, Color shadow = CLEAR, float lineSpacingMultiplier = 1.0f)
-    {
-        float lineHeight = (this->font->ascent - this->font->descent + this->font->lineGap) * this->font->scale * lineSpacingMultiplier;
-        float xPos, yPos;
-
-        switch (textAlign) {
-            case RIGHT_TOP:
-            case CENTER_TOP:
-            case LEFT_TOP:
-                yPos = y + this->height - lineHeight;
-                break;
-            case RIGHT_CENTER:
-            case CENTER_CENTER:
-            case LEFT_CENTER:
-                yPos = y + ((this->height - lineHeight) + ((this->lines.size() - 1) * lineHeight)) * .5f;
-                break;
-            case RIGHT_BOTTOM:
-            case CENTER_BOTTOM:
-            default: // LEFT_BOTTOM
-                yPos = y + (this->lines.size() - 1) * lineHeight;
-                break;
-        }
-
-        for (std::pair<std::vector<int>, float> line : this->lines) {
-            switch (textAlign) {
-                case RIGHT_TOP:
-                case RIGHT_CENTER:
-                case RIGHT_BOTTOM:
-                    xPos = x + (this->width - line.second);
-                    break;
-                case CENTER_TOP:
-                case CENTER_CENTER:
-                case CENTER_BOTTOM:
-                    xPos = x + (this->width - line.second) * .5f;
-                    break;
-                default: // LEFT_TOP, LEFT_CENTER, LEFT_BOTTOM
-                    xPos = x;
-                    break;
-            }
-
-            Text::draw_line(canvas, xPos, yPos, line.first, this->font, color, shadow, this->tabSize);
-            yPos -= lineHeight;
-        }
-        printf("\n");
-
-    }
-
-private:
-    std::vector<std::pair<std::vector<int>, float>> lines;
 
     std::vector<std::pair<int, std::vector<int>>> explodeByCodepoint(const std::vector<int> &text, int separator)
     {
@@ -186,11 +214,11 @@ private:
         float textWidth = 0;
         for (int i = 0; i < text.size(); i++) {
             textWidth +=
-                (i ? stbtt_GetCodepointKernAdvance(&this->font->info, text[i - 1], text[i]) : 0) +
-                this->font->getGlyph(text[i])->advanceWidth;
+                (i ? stbtt_GetCodepointKernAdvance(&this->opts.font->info, text[i - 1], text[i]) : 0) +
+                this->opts.font->getGlyph(text[i])->advanceWidth;
         }
 
-        return textWidth * this->font->scale;
+        return textWidth * this->opts.font->scale;
     }
 
     std::vector<std::pair<std::vector<int>, float>> explodeByFieldWidth(const std::vector<int> &text)
@@ -201,10 +229,10 @@ private:
         float lineWidth = 0;
         for (int i = 0; i < text.size(); i++) {
 
-            int kern = i ? stbtt_GetCodepointKernAdvance(&this->font->info, text[i - 1], text[i]) * this->font->scale : 0;
-            float charWidth = this->font->getGlyph(text[i])->advanceWidth * this->font->scale;
+            int kern = i ? stbtt_GetCodepointKernAdvance(&this->opts.font->info, text[i - 1], text[i]) * this->opts.font->scale : 0;
+            float charWidth = this->opts.font->getGlyph(text[i])->advanceWidth * this->opts.font->scale;
 
-            if (lineWidth + kern + charWidth > this->width) {
+            if (lineWidth + kern + charWidth > this->opts.width) {
                 result.push_back(std::make_pair(line, lineWidth));
                 line.assign(1, text[i]);
                 lineWidth = charWidth;

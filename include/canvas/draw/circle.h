@@ -5,7 +5,7 @@
 
 struct Circle
 {
-    static bool draw(Canvas *canvas, int cx, int cy, int r, Color color)
+    static bool draw(Canvas* canvas, int cx, int cy, int r, Color color)
     {
         r--;
         if (r < 0 || cx + r < 0 || cx - r >= canvas->width || cy + r < 0 || cy - r >= canvas->height) return false;
@@ -30,7 +30,7 @@ struct Circle
         return true;
     }
 
-    static bool draw_midpoint(Canvas *canvas, int cx, int cy, int r, Color color)
+    static bool draw_midpoint(Canvas* canvas, int cx, int cy, int r, Color color)
     {
         r--;
         if (r < 0 || cx + r < 0 || cx - r >= canvas->width || cy + r < 0 || cy - r >= canvas->height) return false;
@@ -59,7 +59,7 @@ struct Circle
         return true;
     }
 
-    static bool draw_filled(Canvas *canvas, int cx, int cy, int r, Color color)
+    static bool draw_filled(Canvas* canvas, int cx, int cy, int r, Color color)
     {
         r--;
         if (r < 0 || cx + r < 0 || cx - r >= canvas->width || cy + r < 0 || cy - r >= canvas->height) return false;

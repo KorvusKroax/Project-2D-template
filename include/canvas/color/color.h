@@ -19,13 +19,13 @@ struct Color
         return Color(v, v, v, this->a);
     }
 
-    Color blend(const Color &fg) const
+    Color blend(const Color &foreground) const // this = background
     {
         return Color(
-            (unsigned char)(int(fg.r * fg.a + this->r * (255 - fg.a)) >> 8),
-            (unsigned char)(int(fg.g * fg.a + this->g * (255 - fg.a)) >> 8),
-            (unsigned char)(int(fg.b * fg.a + this->b * (255 - fg.a)) >> 8),
-            fg.a + this->a * (255 - fg.a)
+            (unsigned char)(int(foreground.r * foreground.a + this->r * (255 - foreground.a)) >> 8),
+            (unsigned char)(int(foreground.g * foreground.a + this->g * (255 - foreground.a)) >> 8),
+            (unsigned char)(int(foreground.b * foreground.a + this->b * (255 - foreground.a)) >> 8),
+            foreground.a + this->a * (255 - foreground.a)
         );
     }
 

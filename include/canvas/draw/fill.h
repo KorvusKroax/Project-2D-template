@@ -7,7 +7,7 @@
 
 struct Fill
 {
-    static bool flood(Canvas *canvas, int x, int y, Color color)
+    static bool flood(Canvas* canvas, int x, int y, Color color)
     {
         if (x < 0 || x >= canvas->width || y < 0 || y >= canvas->height) return false;
 
@@ -26,6 +26,7 @@ struct Fill
                 }
             }
             if (next.empty()) break;
+
             std::pair<int, int> last = next.back();
             x = last.first;
             y = last.second;
@@ -34,28 +35,22 @@ struct Fill
         return true;
     }
 
-    // deprecated ('vector' not used)
-    static bool span(Canvas *canvas, int x, int y, Color color)
+    static bool span(Canvas* canvas, int x, int y, Color color)
     {
         if (x < 0 || x >= canvas->width || y < 0 || y >= canvas->height) return false;
 
         Color targetColor, currPixel;
         if (!canvas->getPixel(x, y, &targetColor) || targetColor == color) return false;
 
-        int *next = new int[canvas->width * canvas->height * 2];
-        int index = 0;
+        struct Quad {int a, b, c, d;};
+        std::vector<Quad> next;
 
-        next[index] = x;
-        next[index + 1] = x;
-        next[index + 2] = y;
-        next[index + 3] = 1;
-        index += 4;
+        next.push_back({x, x, y, 1});
 
         int x1 = x;
         int x2 = x;
             y  = y - 1;
         int dy = -1;
-
         while (true) {
             x = x1;
             if (canvas->getPixel(x, y, &currPixel) && currPixel == targetColor) {
@@ -63,13 +58,7 @@ struct Fill
                     canvas->setPixel(x - 1, y, color);
                     x--;
                 }
-                if (x < x1) {
-                    next[index] = x;
-                    next[index + 1] = x1 - 1;
-                    next[index + 2] = y - dy;
-                    next[index + 3] = -dy;
-                    index += 4;
-                }
+                if (x < x1) next.push_back({x, x1 - 1, y - dy, -dy});
             }
 
             while (x1 <= x2) {
@@ -77,33 +66,22 @@ struct Fill
                     canvas->setPixel(x1, y, color);
                     x1++;
                 }
-                if (x1 > x) {
-                    next[index] = x;
-                    next[index + 1] = x1 - 1;
-                    next[index + 2] = y + dy;
-                    next[index + 3] = dy;
-                    index += 4;
-                }
-                if (x1 - 1 > x2) {
-                    next[index] = x2 + 1;
-                    next[index + 1] = x1 - 1;
-                    next[index + 2] = y - dy;
-                    next[index + 3] = -dy;
-                    index += 4;
-                }
+                if (x1 > x) next.push_back({x, x1 - 1, y + dy, dy});
+                if (x1 - 1 > x2) next.push_back({x2 + 1, x1 - 1, y - dy, -dy});
                 x1++;
                 while (x1 < x2 && canvas->getPixel(x1, y, &currPixel) && currPixel != targetColor) x1++;
                 x = x1;
             }
-            if (index == 0) break;
-            index -= 4;
-            x1 = next[index];
-            x2 = next[index + 1];
-            y  = next[index + 2];
-            dy = next[index + 3];
-        }
 
-        delete[] next;
+            if (next.empty()) break;
+
+            Quad quad = next.back();
+            x1 = quad.a;
+            x2 = quad.b;
+            y = quad.c;
+            dy = quad.d;
+            next.pop_back();
+        }
 
         return true;
     }

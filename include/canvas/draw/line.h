@@ -7,7 +7,7 @@
 
 struct Line
 {
-    static void draw(Canvas *canvas, int x1, int y1, int x2, int y2, Color color, int pattern = 0xffffffff)
+    static void draw(Canvas* canvas, int x1, int y1, int x2, int y2, Color color, int pattern = 0xffffffff)
     {
         int dx = abs(x2 - x1);
         int dy = abs(y2 - y1);
@@ -43,7 +43,7 @@ struct Line
         if ((pattern >> ((p++) % 32)) & 1) canvas->setPixel(x2, y2, color);
     }
 
-    static void draw_AA(Canvas *canvas, int x1, int y1, int x2, int y2, Color color)
+    static void draw_AA(Canvas* canvas, int x1, int y1, int x2, int y2, Color color)
     {
         int dx = abs(x2 - x1);
         int dy = abs(y2 - y1);
@@ -84,7 +84,7 @@ struct Line
 
 // misc --------------------------------------------------------------------------------------------
 
-    static void setPerpendicular(float *x1, float *y1, float *x2, float *y2)
+    static void setPerpendicular(float* x1, float* y1, float* x2, float* y2)
     {
         float dx = *x2 - *x1;
         float dy = *y2 - *y1;
@@ -98,7 +98,7 @@ struct Line
         *y2 = center_y + dx;
     }
 
-    static bool getNormalizedDirection(float x1, float y1, float x2, float y2, float *dir_x, float *dir_y)
+    static bool getNormalizedDirection(float x1, float y1, float x2, float y2, float* dir_x, float* dir_y)
     {
         float dx = x2 - x1;
         float dy = y2 - y1;
@@ -110,7 +110,7 @@ struct Line
         return true;
     }
 
-    static bool intersection_line(float x1, float y1, float x2, float y2, float x3, float y3, float x4, float y4, float *ix, float *iy)
+    static bool intersection_line(float x1, float y1, float x2, float y2, float x3, float y3, float x4, float y4, float* ix, float* iy)
     {
         float den = (x1 - x2) * (y3 - y4) - (y1 - y2) * (x3 - x4);
         if (den == 0) return false;
@@ -122,7 +122,7 @@ struct Line
         return true;
     }
 
-    static bool intersection_segment(float x1, float y1, float x2, float y2, float x3, float y3, float x4, float y4, float *ix, float *iy)
+    static bool intersection_segment(float x1, float y1, float x2, float y2, float x3, float y3, float x4, float y4, float* ix, float* iy)
     {
         float den = (x1 - x2) * (y3 - y4) - (y1 - y2) * (x3 - x4);
         if (den == 0) return false;
@@ -138,7 +138,7 @@ struct Line
         return true;
     }
 
-    static bool intersection_ray(float x1, float y1, float x1_dir, float y1_dir, float x2, float y2, float x2_dir, float y2_dir, float *ix, float *iy)
+    static bool intersection_ray(float x1, float y1, float x1_dir, float y1_dir, float x2, float y2, float x2_dir, float y2_dir, float* ix, float* iy)
     {
         float den = x1_dir * y2_dir - y1_dir * x2_dir;
         if (den == 0) return false;
@@ -154,7 +154,7 @@ struct Line
         return true;
     }
 
-    static void boundIntersection_ray(float start_x, float start_y, float dir_x, float dir_y, float min_x, float min_y, float max_x, float max_y, float *ix, float *iy)
+    static void boundIntersection_ray(float start_x, float start_y, float dir_x, float dir_y, float min_x, float min_y, float max_x, float max_y, float* ix, float* iy)
     {
         float tMin = INFINITY;
 
@@ -185,7 +185,7 @@ struct Line
         }
     }
 
-    static bool boundClip_segment(float *x1, float *y1, float *x2, float *y2, float xmin, float ymin, float xmax, float ymax)
+    static bool boundClip_segment(float* x1, float* y1, float* x2, float* y2, float xmin, float ymin, float xmax, float ymax)
     {
         float p[4], q[4];
         p[0] = -(x2 - x1); q[0] = *x1 - xmin;

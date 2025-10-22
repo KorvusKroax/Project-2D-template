@@ -6,7 +6,7 @@
 
 struct BezierCurve
 {
-    static void draw_quadratic(Canvas *canvas, int x1, int y1, int xc, int yc, int x2, int y2, float resolution, Color color)
+    static void draw_quadratic(Canvas* canvas, int x1, int y1, int xc, int yc, int x2, int y2, float resolution, Color color)
     {
         float xA, xB, xp, x = x1;
         float yA, yB, yp, y = y1;
@@ -28,7 +28,7 @@ struct BezierCurve
         Line::draw(canvas, (int)x, (int)y, (int)x2, (int)y2, color);
     }
 
-    static void draw_cubic(Canvas *canvas, int x1, int y1, int x1c, int y1c, int x2c, int y2c, int x2, int y2, float resolution, Color color)
+    static void draw_cubic(Canvas* canvas, int x1, int y1, int x1c, int y1c, int x2c, int y2c, int x2, int y2, float resolution, Color color)
     {
         float xA, yA, xB, yB, xC, yC;
         float xAB, yAB, xBC, yBC;
