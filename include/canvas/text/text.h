@@ -13,10 +13,10 @@ struct Text
         Font* font;
         Color textColor, shadowColor;
         unsigned int tabSize; // space count
-        float lineSpacing; // scalar
+        float lineHeightScale; // scalar
 
-        RenderOptions(Font* font, Color textColor = WHITE, Color shadowColor = CLEAR, unsigned int tabSize = 4, float lineSpacing = 1.0f)
-            : font(font), textColor(textColor), shadowColor(shadowColor), tabSize(tabSize), lineSpacing(lineSpacing)
+        RenderOptions(Font* font, Color textColor = WHITE, Color shadowColor = CLEAR, unsigned int tabSize = 4, float lineHeightScale = 1.0f)
+            : font(font), textColor(textColor), shadowColor(shadowColor), tabSize(tabSize), lineHeightScale(lineHeightScale)
         {}
     };
 
@@ -78,7 +78,7 @@ struct Text
 
     static void draw_multiline(Canvas* canvas, float x, float y, const std::string &text, const RenderOptions &opts)
     {
-        float lineHeight = (opts.font->ascent - opts.font->descent + opts.font->lineGap) * opts.font->scale * opts.lineSpacing;
+        float lineHeight = (opts.font->ascent - opts.font->descent + opts.font->lineGap) * opts.font->scale * opts.lineHeightScale;
 
         int start = 0;
         float yPos = y;

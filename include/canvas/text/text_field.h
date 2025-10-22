@@ -28,8 +28,8 @@ struct TextField
         TextAlign textAlign;
         std::string text;
 
-        RenderOptions(Font* font = nullptr, Color textColor = WHITE, Color shadowColor = CLEAR, unsigned int tabSize = 4, float lineSpacing = 1.0f, int width = 100, int height = 100, TextAlign textAlign = LEFT_BOTTOM, std::string text = " ")
-            : Text::RenderOptions(font, textColor, shadowColor, tabSize, lineSpacing), width(width), height(height), textAlign(textAlign), text(text)
+        RenderOptions(Font* font = nullptr, Color textColor = WHITE, Color shadowColor = CLEAR, unsigned int tabSize = 4, float lineHeightScale = 1.0f, int width = 100, int height = 100, TextAlign textAlign = LEFT_BOTTOM, std::string text = " ")
+            : Text::RenderOptions(font, textColor, shadowColor, tabSize, lineHeightScale), width(width), height(height), textAlign(textAlign), text(text)
         {}
 
         bool operator != (const RenderOptions& other) const {
@@ -38,7 +38,7 @@ struct TextField
                 this->font != other.font ||
                 this->tabSize != other.tabSize ||
                 this->width != other.width ||
-                this->lineSpacing != other.lineSpacing;
+                this->lineHeightScale != other.lineHeightScale;
         }
     };
 
@@ -59,20 +59,22 @@ struct TextField
             this->opts = *newOpts;
         }
 
-        float lineHeight = (this->opts.font->ascent - this->opts.font->descent + this->opts.font->lineGap) * this->opts.font->scale * this->opts.lineSpacing;
+        float baseLineHeight = (this->opts.font->ascent - this->opts.font->descent + this->opts.font->lineGap) * this->opts.font->scale;
+        float lineHeight = baseLineHeight * this->opts.lineHeightScale;
+        float lineSpacing = lineHeight - baseLineHeight;
+
         float xPos, yPos;
 
         switch (this->opts.textAlign) {
             case RIGHT_TOP:
             case CENTER_TOP:
             case LEFT_TOP:
-                yPos = y + this->opts.height - lineHeight;
+                yPos = y + this->opts.height - lineHeight + lineSpacing;
                 break;
             case RIGHT_CENTER:
             case CENTER_CENTER:
             case LEFT_CENTER:
-                // yPos = y + ((this->opts.height * .5f) - (this->lines.size() * lineHeight * .5f)) + ((this->lines.size() - 1) * lineHeight);
-                yPos = y + ((this->opts.height - lineHeight) + ((this->lines.size() - 1) * lineHeight)) * .5f;
+                yPos = y + (this->opts.height + ((this->lines.size() - 2) * lineHeight) + lineSpacing) * .5f;
                 break;
             default: // BOTTOM
                 yPos = y + (this->lines.size() - 1) * lineHeight;
