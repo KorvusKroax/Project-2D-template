@@ -49,8 +49,8 @@ int main()
     Button::Options opts = {
         .x = 50,
         .y = 50,
-        .width = 100,
-        .height = 25,
+        .width = 80,
+        .height = 32,
 
         .text ="HELLO",
         .font = &font,
@@ -69,23 +69,12 @@ int main()
 
 
 
-        button.update(&openGL);
+        button.draw(&openGL, &opts);
 
-        switch (button.status) {
-            case Button::HOVER:
-                opts.bgColor = EGA_LIGHT_RED;
-                break;
-            case Button::CLICKED:
-                opts.bgColor = EGA_LIGHT_BLUE;
-                break;
-            default: // NOPE
-                opts.bgColor = CLEAR;
-                break;
+        if (button.status == Button::CLICKED) {
+            printf("%i click!\n", px);
+            px++;
         }
-
-        button.draw(&canvas, &opts);
-
-
 
 
 
