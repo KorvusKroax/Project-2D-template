@@ -37,21 +37,22 @@ struct OpenGL
     const char* title;
     float bgColor_r, bgColor_g, bgColor_b, bgColor_a;
 
-    OpenGL(Options options):
-        canvas(options.canvas), pixelSize(options.pixelSize), title(options.title), bgColor_r(options.bgColor_r), bgColor_g(options.bgColor_g), bgColor_b(options.bgColor_b), bgColor_a(options.bgColor_a)
+    explicit OpenGL(Options opts):
+        canvas(opts.canvas), pixelSize(opts.pixelSize), title(opts.title),
+        bgColor_r(opts.bgColor_r), bgColor_g(opts.bgColor_g), bgColor_b(opts.bgColor_b), bgColor_a(opts.bgColor_a)
     {
         glfwInit();
         glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
         glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
         glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
-        glfwWindowHint(GLFW_DECORATED, (options.windowMode != WINDOWED_BORDERLESS ? GLFW_TRUE : GLFW_FALSE));
+        glfwWindowHint(GLFW_DECORATED, (opts.windowMode != WINDOWED_BORDERLESS ? GLFW_TRUE : GLFW_FALSE));
         glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);//(windowMode == WINDOWED_RESIZABLE ? GLFW_TRUE : GLFW_FALSE));
 
         this->primaryMonitor =  glfwGetPrimaryMonitor();
         this->videoMode = glfwGetVideoMode(this->primaryMonitor);
 
-        switch (options.windowMode) {
+        switch (opts.windowMode) {
             case FULLSCREEN_SCREEN:
                 createFullScreen_quadToScreen();
                 break;

@@ -43,9 +43,12 @@ struct TextField
     Options opts;
     std::vector<std::pair<std::vector<int>, float>> lines;
 
-    explicit TextField(const Options &initialOpts)
+    TextField()
+    {}
+
+    explicit TextField(const Options &initialOpts):
+        opts(initialOpts)
     {
-        this->opts = initialOpts;
         buildLines();
     }
 
@@ -72,7 +75,7 @@ struct TextField
             case RIGHT_CENTER:
             case CENTER_CENTER:
             case LEFT_CENTER:
-                yPos = y + (this->opts.height + ((this->lines.size() - 2) * lineHeight) + lineSpacing) * .5f;
+                yPos = y + (this->opts.height - lineHeight + ((this->lines.size() - 1) * lineHeight) + lineSpacing) * .5f;
                 break;
             default: // BOTTOM
                 yPos = y + (this->lines.size() - 1) * lineHeight;

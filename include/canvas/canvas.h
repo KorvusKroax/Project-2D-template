@@ -10,12 +10,14 @@ struct Canvas
     int width, height;
     std::vector<unsigned char> pixelBuffer; // RGBA
 
-    Canvas() { }
+    explicit Canvas()
+    {}
 
-    Canvas(int w, int h):
-        width(w), height(h), pixelBuffer(w * h * 4, 0) { }
+    explicit Canvas(int w, int h):
+        width(w), height(h), pixelBuffer(w * h * 4, 0)
+    {}
 
-    Canvas(const char* fileName)
+    explicit Canvas(const char* fileName)
     {
         loadImage_PNG(fileName);
     }
