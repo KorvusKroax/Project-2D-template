@@ -7,6 +7,7 @@
 #include "text/font.h"
 #include "text/text.h"
 #include "text/text_field.h"
+#include "button.h"
 
 #include <vector>
 
@@ -39,91 +40,50 @@ int main()
 
     points.clear();
 
-    // FULL
-    // graph-35-pix.regular.ttf: 8px (mono)
-    // 7-12-serif.regular.ttf: 12px (mono)
-    // blockblueprint.medium.ttf: 15px
-    // bitpotion.ext.ttf: 14px
-    // pixel-millennium.regular.ttf: 8px (very small)
 
-    // PARTIAL
-    // pc-senior.regular.ttf: 8px (mono)
-    // basis33.ttf: 16px (mono)
-    // Perfect DOS VGA 437 Win.ttf: 16px (mono)
-    // space-invaders-full-version.otf: 8px (mono)
-    // advanced-pixel-7.regular.ttf: 20px
-    // high-pixel-7.regular.ttf: 10px
-    // thin-pixe-l7.regular.ttf: 20px
-    // dedicool.regular.ttf: 8px
-    // double-pixel-7.regular.ttf: 20px
-    // Mojang-Regular.ttf: 8px
-    // Mojang-Bold.ttf: 8px
-    // post-pixel-7.regular.ttf: 20px
-    // PixelOperator.ttf: 16px
-    // PixelOperator8.ttf: 8px (mono)
-
-    // C64_Pro_Mono-STYLE.ttf: 8px
-    // C64_Pro-STYLE.ttf: 8px
-    // Berkelium64.ttf: 10px
-    // Berkelium1541.ttf: 6px
 
 
 
     Font font("resources/font/PetMe64.ttf", 8);
 
-    TextField::Options opts = {
-        .width =128,
-        .height =128,
-        .textAlign =LEFT_CENTER,
-        .text ="\tLorem\n\nipsum, dolor sit amet.\nConsectetur adipisicing elit.\nSimilique, asperiores amet.",
-        .textOptions = {
-            .font = &font,
-            .textColor = EGA_WHITE,
-            .shadowColor = CLEAR,
-            .tabSize = 3,
-            .lineHeightScale = 1.5f
-        }
+    Button::Options opts = {
+        .x = 50,
+        .y = 50,
+        .width = 100,
+        .height = 25,
+
+        .text ="HELLO",
+        .font = &font,
     };
 
-    TextField textField(opts);
+    Button button(opts);
+
+
+
+
 
     while (!glfwWindowShouldClose(openGL.window)) {
         canvas.clear();
 
-        // Line::draw(&canvas, canvas.width >> 1, 0, canvas.width >> 1, canvas.height - 1, Color(64,64,64), 0x33333333);
-        // Line::draw(&canvas, 0, canvas.height >> 1, canvas.width - 1, canvas.height >> 1, Color(64,64,64), 0x33333333);
-        // Line::draw(&canvas, canvas.width >> 2, 0, canvas.width >> 2, canvas.height - 1, Color(32,32,32), 0x30303030);
-        // Line::draw(&canvas, 0, canvas.height >> 2, canvas.width - 1, canvas.height >> 2, Color(32,32,32), 0x30303030);
-        // Line::draw(&canvas, (canvas.width >> 1) + (canvas.width >> 2), 0, (canvas.width >> 1) + (canvas.width >> 2), canvas.height - 1, Color(32,32,32), 0x30303030);
-        // Line::draw(&canvas, 0, (canvas.height >> 1) + (canvas.height >> 2), canvas.width - 1, (canvas.height >> 1) + (canvas.height >> 2), Color(32,32,32), 0x30303030);
 
 
 
 
+        button.update(&openGL);
 
-        // Rectangle::draw_filled(&canvas, 5, (canvas.height >> 2), 200, 100, C64_LIGHT_BLUE);
-        // Text::draw_char(&canvas, 40, (canvas.height >> 1) + 20, "é", {.font = &font});
-        // Text::draw_line(&canvas, 30, (canvas.height >> 1), "Helló, világ!", {
-        //     .font = &font,
-        //     .textColor = C64_WHITE,
-        //     .shadowColor = Color(0, 0, 0, 63)
-        // });
-        // Text::draw_multiline(&canvas, 20, (canvas.height >> 1) - 20, "Helló, világ!\nhelló megint...", {
-        //     .font = &font,
-        //     .textColor = C64_WHITE,
-        //     .shadowColor = C64_RED,
-        //     // .tabSize = 3,
-        //     .lineHeightScale = 1.5f
-        // });
+        switch (button.status) {
+            case Button::HOVER:
+                opts.bgColor = EGA_LIGHT_RED;
+                break;
+            case Button::CLICKED:
+                opts.bgColor = EGA_LIGHT_BLUE;
+                break;
+            default: // NOPE
+                opts.bgColor = CLEAR;
+                break;
+        }
 
-
-
-        int xPos = canvas.width >> 2;
-        int yPos = canvas.height >> 2;
-        Rectangle::draw(&canvas, xPos, yPos, textField.opts.width, textField.opts.height, EGA_RED);
-        Line::draw(&canvas, xPos, yPos + textField.opts.height * .5f, xPos + textField.opts.width - 1, yPos + textField.opts.height * .5f, EGA_GREEN);
-        Line::draw(&canvas, xPos + textField.opts.width * .5f, yPos, xPos + textField.opts.width * .5f, yPos + textField.opts.height - 1, EGA_BLUE);
-        textField.draw(&canvas, xPos, yPos, &opts);
+        button.draw(&canvas, &opts);
 
 
 
@@ -145,11 +105,6 @@ int main()
         // drag mouse
         if (glfwGetMouseButton(openGL.window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS) {
             points.push_back({mx, my});
-
-            opts.text = "Time:\n\t" + std::to_string(glfwGetTime());
-            opts.textOptions.textColor = EGA_CYAN;
-        } else {
-            opts.textOptions.textColor = EGA_YELLOW;
         }
 
 
