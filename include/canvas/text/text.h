@@ -9,7 +9,7 @@
 
 struct Text
 {
-    struct RenderOptions {
+    struct Options {
         Font* font = nullptr;
         Color textColor = WHITE;
         Color shadowColor = CLEAR;
@@ -17,12 +17,12 @@ struct Text
         float lineHeightScale = 1.0f; // scalar
     };
 
-    static float draw_char(Canvas* canvas, float x, float y, const char* ch, const RenderOptions &opts)
+    static float draw_char(Canvas* canvas, float x, float y, const char* ch, const Options &opts)
     {
         return draw_char(canvas, x, y, opts.font->utf8ToCodepoint(ch), opts);
     }
 
-    static float draw_char(Canvas* canvas, float x, float y, int codepoint, const RenderOptions &opts)
+    static float draw_char(Canvas* canvas, float x, float y, int codepoint, const Options &opts)
     {
         if (codepoint == '\t') {
             Glyph* glyph = opts.font->getGlyph(' ');
@@ -58,12 +58,12 @@ struct Text
         return glyph->advanceWidth * opts.font->scale;
     }
 
-    static void draw_line(Canvas* canvas, float x, float y, const std::string &text, const RenderOptions &opts)
+    static void draw_line(Canvas* canvas, float x, float y, const std::string &text, const Options &opts)
     {
         draw_line(canvas, x, y, opts.font->utf8ToCodepoints(text), opts);
     }
 
-    static void draw_line(Canvas* canvas, float x, float y, const std::vector<int> &codepoints, const RenderOptions &opts)
+    static void draw_line(Canvas* canvas, float x, float y, const std::vector<int> &codepoints, const Options &opts)
     {
         for (int i = 0; i < codepoints.size(); i++) {
             x += draw_char(canvas, x, y, codepoints[i], opts);
@@ -73,7 +73,7 @@ struct Text
         }
     }
 
-    static void draw_multiline(Canvas* canvas, float x, float y, const std::string &text, const RenderOptions &opts)
+    static void draw_multiline(Canvas* canvas, float x, float y, const std::string &text, const Options &opts)
     {
         float lineHeight = (opts.font->ascent - opts.font->descent + opts.font->lineGap) * opts.font->scale * opts.lineHeightScale;
 

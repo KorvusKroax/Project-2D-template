@@ -17,6 +17,17 @@ enum WindowMode
 
 struct OpenGL
 {
+    struct Options {
+        Canvas* canvas = nullptr;
+        unsigned int pixelSize = 1;
+        WindowMode windowMode = WINDOWED;
+        const char* title = "OpenGL 2D canvas - scrollable";
+        float bgColor_r = .1f;
+        float bgColor_g = .2f;
+        float bgColor_b = .2f;
+        float bgColor_a = 1.0f;
+    };
+
     Canvas* canvas;
     unsigned int pixelSize;
     int xPixelOffset, yPixelOffset;
@@ -24,23 +35,23 @@ struct OpenGL
     GLFWwindow* window;
     int windowWidth, windowHeight;
     const char* title;
-    float voidColor_r, voidColor_g, voidColor_b, voidColor_a;
+    float bgColor_r, bgColor_g, bgColor_b, bgColor_a;
 
-    OpenGL(Canvas* canvas, unsigned int pixelSize = 1, WindowMode windowMode = WINDOWED, const char* title = "OpenGL 2D canvas - scrollable", float voidColor_r = .1f, float voidColor_g = .2f, float voidColor_b = .2f, float voidColor_a = 1.0f):
-        canvas(canvas), pixelSize(pixelSize), title(title), voidColor_r(voidColor_r), voidColor_g(voidColor_g), voidColor_b(voidColor_b), voidColor_a(voidColor_a)
+    OpenGL(Options options):
+        canvas(options.canvas), pixelSize(options.pixelSize), title(options.title), bgColor_r(options.bgColor_r), bgColor_g(options.bgColor_g), bgColor_b(options.bgColor_b), bgColor_a(options.bgColor_a)
     {
         glfwInit();
         glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
         glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
         glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
-        glfwWindowHint(GLFW_DECORATED, (windowMode != WINDOWED_BORDERLESS ? GLFW_TRUE : GLFW_FALSE));
+        glfwWindowHint(GLFW_DECORATED, (options.windowMode != WINDOWED_BORDERLESS ? GLFW_TRUE : GLFW_FALSE));
         glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);//(windowMode == WINDOWED_RESIZABLE ? GLFW_TRUE : GLFW_FALSE));
 
         this->primaryMonitor =  glfwGetPrimaryMonitor();
         this->videoMode = glfwGetVideoMode(this->primaryMonitor);
 
-        switch (windowMode) {
+        switch (options.windowMode) {
             case FULLSCREEN_SCREEN:
                 createFullScreen_quadToScreen();
                 break;
@@ -108,7 +119,7 @@ struct OpenGL
         glBindTexture(GL_TEXTURE_2D, this->texColorBuffer);
         glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, this->canvas->width, this->canvas->height, GL_RGBA, GL_UNSIGNED_BYTE, this->canvas->pixelBuffer.data());
 
-        glClearColor(this->voidColor_r, this->voidColor_g, this->voidColor_b, this->voidColor_a);
+        glClearColor(this->bgColor_r, this->bgColor_g, this->bgColor_b, this->bgColor_a);
         glClear(GL_COLOR_BUFFER_BIT);
         glBindVertexArray(this->VAO);
         glDrawArrays(GL_TRIANGLES, 0, 6);

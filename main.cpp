@@ -15,7 +15,11 @@ const unsigned int HEIGHT = 200;
 const unsigned int PIXEL_SIZE = 4;
 
 Canvas canvas(WIDTH, HEIGHT);
-OpenGL openGL(&canvas, PIXEL_SIZE);//, FULLSCREEN_RESOLUTION);
+OpenGL openGL({
+    .canvas = &canvas,
+    .pixelSize = PIXEL_SIZE,
+    // .windowMode = FULLSCREEN_RESOLUTION
+});
 
 std::vector<std::pair<int, int>> points;
 
@@ -67,23 +71,12 @@ int main()
 
     Font font("resources/font/PetMe64.ttf", 8);
 
-    // TextField::RenderOptions opts = {
-    //     &font,
-    //     EGA_WHITE, CLEAR,
-    //     3,
-    //     1.5f,
-
-    //     128, 128,
-    //     LEFT_CENTER,
-    //     "\tLorem\n\nipsum, dolor sit amet.\nConsectetur adipisicing elit.\nSimilique, asperiores amet.",
-    // };
-
-    TextField::RenderOptions opts = {
+    TextField::Options opts = {
         .width =128,
         .height =128,
         .textAlign =LEFT_CENTER,
         .text ="\tLorem\n\nipsum, dolor sit amet.\nConsectetur adipisicing elit.\nSimilique, asperiores amet.",
-        .textBase = {
+        .textOptions = {
             .font = &font,
             .textColor = EGA_WHITE,
             .shadowColor = CLEAR,
@@ -109,9 +102,19 @@ int main()
 
 
         // Rectangle::draw_filled(&canvas, 5, (canvas.height >> 2), 200, 100, C64_LIGHT_BLUE);
-        // Text::draw_char(&canvas, 40, (canvas.height >> 1) + 20, "é", {&font});
-        // Text::draw_line(&canvas, 30, (canvas.height >> 1), "Helló, világ!", {&font, C64_WHITE, Color(0, 0, 0, 63)});
-        // Text::draw_multiline(&canvas, 20, (canvas.height >> 1) - 20, "Helló, világ!\nhelló megint...", {&font, C64_WHITE, C64_RED, 3, 1.5f});
+        // Text::draw_char(&canvas, 40, (canvas.height >> 1) + 20, "é", {.font = &font});
+        // Text::draw_line(&canvas, 30, (canvas.height >> 1), "Helló, világ!", {
+        //     .font = &font,
+        //     .textColor = C64_WHITE,
+        //     .shadowColor = Color(0, 0, 0, 63)
+        // });
+        // Text::draw_multiline(&canvas, 20, (canvas.height >> 1) - 20, "Helló, világ!\nhelló megint...", {
+        //     .font = &font,
+        //     .textColor = C64_WHITE,
+        //     .shadowColor = C64_RED,
+        //     // .tabSize = 3,
+        //     .lineHeightScale = 1.5f
+        // });
 
 
 
@@ -144,9 +147,9 @@ int main()
             points.push_back({mx, my});
 
             opts.text = "Time:\n\t" + std::to_string(glfwGetTime());
-            opts.textBase.textColor = EGA_CYAN;
+            opts.textOptions.textColor = EGA_CYAN;
         } else {
-            opts.textBase.textColor = EGA_YELLOW;
+            opts.textOptions.textColor = EGA_YELLOW;
         }
 
 
