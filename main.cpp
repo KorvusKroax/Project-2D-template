@@ -1,14 +1,14 @@
-#include <vector>
-
 #include "canvas.h"
 #include "open_gl.h"
-#include "line.h"
-#include "circle.h"
-#include "rectangle.h"
-#include "fill.h"
+
+#include "draw/line.h"
+#include "draw/circle.h"
+#include "draw/rectangle.h"
 #include "text/font.h"
 #include "text/text.h"
 #include "text/text_field.h"
+
+#include <vector>
 
 const unsigned int WIDTH = 320;
 const unsigned int HEIGHT = 200;
@@ -23,8 +23,6 @@ int px = 8;
 
 int main()
 {
-    printf("hello");
-
     glfwSetKeyCallback(openGL.window,
         [](GLFWwindow* window, int key, int scancode, int action, int mod) {
             if (key == GLFW_KEY_ESCAPE) glfwSetWindowShouldClose(window, true);
@@ -33,10 +31,9 @@ int main()
         }
     );
 
-    points.clear();
-
     // Canvas image("resources/img/161.png");
 
+    points.clear();
 
     // FULL
     // graph-35-pix.regular.ttf: 8px (mono)
@@ -70,23 +67,35 @@ int main()
 
     Font font("resources/font/PetMe64.ttf", 8);
 
-    TextField::RenderOptions opts = {
-        &font,
-        EGA_WHITE, CLEAR,
-        3,
-        1.5f,
+    // TextField::RenderOptions opts = {
+    //     &font,
+    //     EGA_WHITE, CLEAR,
+    //     3,
+    //     1.5f,
 
-        128, 128,
-        LEFT_CENTER,
-        "\tLorem\n\nipsum, dolor sit amet.\nConsectetur adipisicing elit.\nSimilique, asperiores amet.",
+    //     128, 128,
+    //     LEFT_CENTER,
+    //     "\tLorem\n\nipsum, dolor sit amet.\nConsectetur adipisicing elit.\nSimilique, asperiores amet.",
+    // };
+
+    TextField::RenderOptions opts = {
+        .width =128,
+        .height =128,
+        .textAlign =LEFT_CENTER,
+        .text ="\tLorem\n\nipsum, dolor sit amet.\nConsectetur adipisicing elit.\nSimilique, asperiores amet.",
+        .textBase = {
+            .font = &font,
+            .textColor = EGA_WHITE,
+            .shadowColor = CLEAR,
+            .tabSize = 3,
+            .lineHeightScale = 1.5f
+        }
     };
 
     TextField textField(opts);
 
     while (!glfwWindowShouldClose(openGL.window)) {
         canvas.clear();
-
-        // canvas.setPixels(50, 20, &image);
 
         // Line::draw(&canvas, canvas.width >> 1, 0, canvas.width >> 1, canvas.height - 1, Color(64,64,64), 0x33333333);
         // Line::draw(&canvas, 0, canvas.height >> 1, canvas.width - 1, canvas.height >> 1, Color(64,64,64), 0x33333333);
@@ -115,10 +124,9 @@ int main()
 
 
 
-        // Circle::draw(&canvas, canvas.width >> 1, canvas.height >> 1, 50, C64_YELLOW);
-        // Fill::span(&canvas, canvas.width >> 1, canvas.height >> 1, C64_ORANGE);
 
 
+        // canvas.setPixels(50, 20, &image);
 
         // draw points
         for (std::pair<int, int> p : points) {
@@ -128,7 +136,7 @@ int main()
         // mouse
         int mx, my;
         openGL.getMousePosition(&mx, &my);
-        Circle::draw(&canvas, mx, my, 5, Color(0, 255, 255, 63));
+        Circle::draw(&canvas, mx, my, 5, Color(0, 255, 255, 127));
         canvas.setPixel(mx, my, Color(255, 255, 255, 63));
 
         // drag mouse
@@ -136,9 +144,9 @@ int main()
             points.push_back({mx, my});
 
             opts.text = "Time:\n\t" + std::to_string(glfwGetTime());
-            opts.textColor = EGA_CYAN;
+            opts.textBase.textColor = EGA_CYAN;
         } else {
-            opts.textColor = EGA_YELLOW;
+            opts.textBase.textColor = EGA_YELLOW;
         }
 
 

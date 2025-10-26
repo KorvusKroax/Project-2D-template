@@ -1,8 +1,8 @@
 #pragma once
 
 #include "canvas.h"
+#include "color/color.h"
 #include "font.h"
-#include "color.h"
 
 #include <string>
 #include <vector>
@@ -10,14 +10,11 @@
 struct Text
 {
     struct RenderOptions {
-        Font* font;
-        Color textColor, shadowColor;
-        unsigned int tabSize; // space count
-        float lineHeightScale; // scalar
-
-        RenderOptions(Font* font, Color textColor = WHITE, Color shadowColor = CLEAR, unsigned int tabSize = 4, float lineHeightScale = 1.0f)
-            : font(font), textColor(textColor), shadowColor(shadowColor), tabSize(tabSize), lineHeightScale(lineHeightScale)
-        {}
+        Font* font = nullptr;
+        Color textColor = WHITE;
+        Color shadowColor = CLEAR;
+        unsigned int tabSize = 4; // space count
+        float lineHeightScale = 1.0f; // scalar
     };
 
     static float draw_char(Canvas* canvas, float x, float y, const char* ch, const RenderOptions &opts)

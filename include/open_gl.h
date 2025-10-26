@@ -1,7 +1,7 @@
 #pragma once
 
-#include "glad/glad.h"
-#include "GLFW/glfw3.h"
+#include "open_gl/glad/glad.h"
+#include "open_gl/GLFW/glfw3.h"
 #include "canvas.h"
 
 #include <algorithm> // clamp

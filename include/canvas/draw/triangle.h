@@ -1,9 +1,10 @@
 #pragma once
 
-#include <algorithm> // min, max
 #include "canvas.h"
-#include "color.h"
+#include "color/color.h"
 #include "line.h"
+
+#include <algorithm> // min, max
 
 struct Triangle
 {

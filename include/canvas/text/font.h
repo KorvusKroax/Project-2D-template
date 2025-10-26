@@ -32,7 +32,7 @@ struct Font
     int ascent, descent, lineGap;
     std::map<int, Glyph> glyphCache;
 
-    Font(const std::string &filename, int pixelHeight)
+    Font(const std::string &filename, int pixelHeight = 16)
     {
         std::ifstream file(filename, std::ios::binary);
         if (!file) {

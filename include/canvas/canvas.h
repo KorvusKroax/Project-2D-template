@@ -1,7 +1,7 @@
 #pragma once
 
-#include "color.h"
-#include "lodepng.h"
+#include "color/color.h"
+#include "lodepng/lodepng.h"
 
 #include <cstring> // memset
 

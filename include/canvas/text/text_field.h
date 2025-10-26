@@ -1,9 +1,9 @@
 #pragma once
 
 #include "canvas.h"
+#include "color/color.h"
 #include "font.h"
-#include "color.h"
-#include "text/text.h"
+#include "text.h"
 
 #include <string>
 #include <vector>
@@ -23,22 +23,20 @@ enum TextAlign
 
 struct TextField
 {
-    struct RenderOptions : public Text::RenderOptions {
-        int width, height;
-        TextAlign textAlign;
-        std::string text;
-
-        RenderOptions(Font* font = nullptr, Color textColor = WHITE, Color shadowColor = CLEAR, unsigned int tabSize = 4, float lineHeightScale = 1.0f, int width = 100, int height = 100, TextAlign textAlign = LEFT_BOTTOM, std::string text = " ")
-            : Text::RenderOptions(font, textColor, shadowColor, tabSize, lineHeightScale), width(width), height(height), textAlign(textAlign), text(text)
-        {}
+    struct RenderOptions {
+        int width = 100;
+        int height = 100;
+        TextAlign textAlign = LEFT_BOTTOM;
+        std::string text = "";
+        Text::RenderOptions textBase;
 
         bool operator != (const RenderOptions& other) const {
             return
-                this->text != other.text ||
-                this->font != other.font ||
-                this->tabSize != other.tabSize ||
                 this->width != other.width ||
-                this->lineHeightScale != other.lineHeightScale;
+                this->text != other.text ||
+                this->textBase.font != other.textBase.font ||
+                this->textBase.tabSize != other.textBase.tabSize ||
+                this->textBase.lineHeightScale != other.textBase.lineHeightScale;
         }
     };
 
@@ -59,8 +57,8 @@ struct TextField
             this->opts = *newOpts;
         }
 
-        float baseLineHeight = (this->opts.font->ascent - this->opts.font->descent + this->opts.font->lineGap) * this->opts.font->scale;
-        float lineHeight = baseLineHeight * this->opts.lineHeightScale;
+        float baseLineHeight = (this->opts.textBase.font->ascent - this->opts.textBase.font->descent + this->opts.textBase.font->lineGap) * this->opts.textBase.font->scale;
+        float lineHeight = baseLineHeight * this->opts.textBase.lineHeightScale;
         float lineSpacing = lineHeight - baseLineHeight;
 
         float xPos, yPos;
@@ -98,7 +96,7 @@ struct TextField
                     break;
             }
 
-            Text::draw_line(canvas, xPos, yPos, line.first, this->opts);
+            Text::draw_line(canvas, xPos, yPos, line.first, this->opts.textBase);
             yPos -= lineHeight;
         }
 
@@ -108,7 +106,7 @@ struct TextField
 private:
     bool buildLines()
     {
-        if (!this->opts.font) {
+        if (!this->opts.textBase.font) {
             printf("ERROR: TextField::buildLines() -- Missing font!\n");
             return false;
         }
@@ -116,14 +114,14 @@ private:
         lines.clear();
 
         // replace tabs to spaces
-        std::string spaces(this->opts.tabSize, ' ');
+        std::string spaces(this->opts.textBase.tabSize, ' ');
         int pos = 0;
         while ((pos = this->opts.text.find('\t', pos)) != std::string::npos) {
             this->opts.text.replace(pos, 1, spaces);
-            pos += this->opts.tabSize;
+            pos += this->opts.textBase.tabSize;
         }
 
-        std::vector<std::pair<int, std::vector<int>>> rows = explodeByCodepoint(this->opts.font->utf8ToCodepoints(this->opts.text), '\n');
+        std::vector<std::pair<int, std::vector<int>>> rows = explodeByCodepoint(this->opts.textBase.font->utf8ToCodepoints(this->opts.text), '\n');
         for (std::pair<int, std::vector<int>> row : rows) {
 
             std::vector<int> currentLine;
@@ -157,16 +155,16 @@ private:
                 // calculate spaces width (even multiple spaces)
                 float spaceWidth = 0;
                 if (word.first > 0) {
-                    spaceWidth = currentLineWidth ? stbtt_GetCodepointKernAdvance(&this->opts.font->info, currentLine.back(), ' ') : 0;
+                    spaceWidth = currentLineWidth ? stbtt_GetCodepointKernAdvance(&this->opts.textBase.font->info, currentLine.back(), ' ') : 0;
                     for (int i = 0; i < word.first - 1; i++) { // word.first: separator count (means spaces)
                         spaceWidth +=
-                            this->opts.font->getGlyph(' ')->advanceWidth +
-                            stbtt_GetCodepointKernAdvance(&this->opts.font->info, ' ', ' ');
+                            this->opts.textBase.font->getGlyph(' ')->advanceWidth +
+                            stbtt_GetCodepointKernAdvance(&this->opts.textBase.font->info, ' ', ' ');
                     }
                     spaceWidth +=
-                        this->opts.font->getGlyph(' ')->advanceWidth +
-                        stbtt_GetCodepointKernAdvance(&this->opts.font->info, ' ', word.second.front());
-                    spaceWidth *= this->opts.font->scale;
+                        this->opts.textBase.font->getGlyph(' ')->advanceWidth +
+                        stbtt_GetCodepointKernAdvance(&this->opts.textBase.font->info, ' ', word.second.front());
+                    spaceWidth *= this->opts.textBase.font->scale;
                 }
 
                 if (currentLineWidth + spaceWidth + wordWidth <= this->opts.width) {
@@ -216,11 +214,11 @@ private:
         float textWidth = 0;
         for (int i = 0; i < text.size(); i++) {
             textWidth +=
-                (i ? stbtt_GetCodepointKernAdvance(&this->opts.font->info, text[i - 1], text[i]) : 0) +
-                this->opts.font->getGlyph(text[i])->advanceWidth;
+                (i ? stbtt_GetCodepointKernAdvance(&this->opts.textBase.font->info, text[i - 1], text[i]) : 0) +
+                this->opts.textBase.font->getGlyph(text[i])->advanceWidth;
         }
 
-        return textWidth * this->opts.font->scale;
+        return textWidth * this->opts.textBase.font->scale;
     }
 
     std::vector<std::pair<std::vector<int>, float>> explodeByFieldWidth(const std::vector<int> &text)
@@ -231,8 +229,8 @@ private:
         float lineWidth = 0;
         for (int i = 0; i < text.size(); i++) {
 
-            int kern = i ? stbtt_GetCodepointKernAdvance(&this->opts.font->info, text[i - 1], text[i]) * this->opts.font->scale : 0;
-            float charWidth = this->opts.font->getGlyph(text[i])->advanceWidth * this->opts.font->scale;
+            int kern = i ? stbtt_GetCodepointKernAdvance(&this->opts.textBase.font->info, text[i - 1], text[i]) * this->opts.textBase.font->scale : 0;
+            float charWidth = this->opts.textBase.font->getGlyph(text[i])->advanceWidth * this->opts.textBase.font->scale;
 
             if (lineWidth + kern + charWidth > this->opts.width) {
                 result.push_back(std::make_pair(line, lineWidth));
