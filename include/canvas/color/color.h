@@ -8,10 +8,12 @@ struct Color
 {
     unsigned char r, g, b, a;
 
-    Color() { }
+    Color()
+    {}
 
-    Color(unsigned char r, unsigned char g, unsigned char b, unsigned char a = 255):
-        r(r), g(g), b(b), a(a) { }
+    Color(unsigned char r, unsigned char g, unsigned char b, unsigned char a = 255)
+        : r(r), g(g), b(b), a(a)
+    {}
 
     Color grayscale()
     {
@@ -19,7 +21,7 @@ struct Color
         return Color(v, v, v, this->a);
     }
 
-    Color blend(const Color &foreground) const // this = background
+    Color blend(const Color& foreground) const // this = background
     {
         return Color(
             (unsigned char)(int(foreground.r * foreground.a + this->r * (255 - foreground.a)) >> 8),
@@ -29,12 +31,12 @@ struct Color
         );
     }
 
-    bool operator == (const Color &other) const
+    bool operator == (const Color& other) const
     {
         return this->r == other.r && this->g == other.g && this->b == other.b && this->a == other.a;
     }
 
-    bool operator != (const Color &other) const
+    bool operator != (const Color& other) const
     {
         return !(*this == other);
     }

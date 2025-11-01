@@ -1,0 +1,218 @@
+#include "line.h"
+
+#include <cmath> // abs, sqrt
+
+void Line::draw(Canvas* canvas, int x1, int y1, int x2, int y2, Color color, int pattern)
+{
+    int dx = std::abs(x2 - x1);
+    int dy = std::abs(y2 - y1);
+    int sx = x1 < x2 ? 1 : -1;
+    int sy = y1 < y2 ? 1 : -1;
+
+    int p = 0;
+    if (dx > dy) {
+        int y = y1;
+        int d = dy * 2 - dx;
+        for (int x = x1; x != x2; x += sx) {
+            p = (p + 1) % 32;
+            if ((pattern >> ((p++) % 32)) & 1) canvas->setPixel(x, y, color);
+            if (d > 0) {
+                y += sy;
+                d -= dx * 2;
+            }
+            d += dy * 2;
+        }
+    } else {
+        int x = x1;
+        int d = dx * 2 - dy;
+        for (int y = y1; y != y2; y += sy) {
+            p = (p + 1) % 32;
+            if ((pattern >> ((p++) % 32)) & 1) canvas->setPixel(x, y, color);
+            if (d > 0) {
+                x += sx;
+                d -= dy * 2;
+            }
+            d += dx * 2;
+        }
+    }
+    if ((pattern >> ((p++) % 32)) & 1) canvas->setPixel(x2, y2, color);
+}
+
+void Line::draw_AA(Canvas* canvas, int x1, int y1, int x2, int y2, Color color)
+{
+    int dx = std::abs(x2 - x1);
+    int dy = std::abs(y2 - y1);
+    int sx = x1 < x2 ? 1 : -1;
+    int sy = y1 < y2 ? 1 : -1;
+    int err = dx - dy, ee, xx;
+    int ed = dx + dy == 0 ? 1 : std::sqrt((float)dx * dx + dy * dy);
+
+    int alpha = color.a;
+
+    while (true) {
+        color.a = (unsigned char)(int(alpha - alpha * std::abs(err - dx + dy) / ed));
+        canvas->setPixel(x1, y1, color);
+        ee = err;
+        xx = x1;
+        if (ee * 2 >= -dx) {
+            if (x1 == x2) break;
+            if (ee + dy < ed) {
+                color.a = (unsigned char)(int(alpha - alpha * (ee + dy) / ed));
+                canvas->setPixel(x1, y1 + sy, color);
+            }
+            err -= dy;
+            x1 += sx;
+        }
+        if (ee * 2 <= dy) {
+            if (y1 == y2) break;
+            if (dx - ee < ed) {
+                color.a = (unsigned char)(int(alpha - alpha * (dx - ee) / ed));
+                canvas->setPixel(xx + sx, y1, color);
+            }
+            err += dx;
+            y1 += sy;
+        }
+    }
+}
+
+
+
+// misc --------------------------------------------------------------------------------------------
+
+void Line::setPerpendicular(float* x1, float* y1, float* x2, float* y2)
+{
+    float dx = *x2 - *x1;
+    float dy = *y2 - *y1;
+
+    float center_x = (*x1 + *x2) * .5f;
+    float center_y = (*y1 + *y2) * .5f;
+
+    *x1 = center_x + dy;
+    *y1 = center_y - dx;
+    *x2 = center_x - dy;
+    *y2 = center_y + dx;
+}
+
+bool Line::getNormalizedDirection(float x1, float y1, float x2, float y2, float* dir_x, float* dir_y)
+{
+    float dx = x2 - x1;
+    float dy = y2 - y1;
+    float length = std::sqrt(dx * dx + dy * dy);
+    if (length == 0) return false;
+
+    *dir_x = dx / length;
+    *dir_y = dy / length;
+    return true;
+}
+
+bool Line::intersection_line(float x1, float y1, float x2, float y2, float x3, float y3, float x4, float y4, float* ix, float* iy)
+{
+    float den = (x1 - x2) * (y3 - y4) - (y1 - y2) * (x3 - x4);
+    if (den == 0) return false;
+
+    float t = ((x1 - x3) * (y3 - y4) - (y1 - y3) * (x3 - x4)) / den;
+
+    *ix = x1 + (x2 - x1) * t;
+    *iy = y1 + (y2 - y1) * t;
+    return true;
+}
+
+bool Line::intersection_segment(float x1, float y1, float x2, float y2, float x3, float y3, float x4, float y4, float* ix, float* iy)
+{
+    float den = (x1 - x2) * (y3 - y4) - (y1 - y2) * (x3 - x4);
+    if (den == 0) return false;
+
+    float t = ((x1 - x3) * (y3 - y4) - (y1 - y3) * (x3 - x4)) / den;
+    if (0 > t || t > 1) return false;
+
+    float u = ((x1 - x2) * (y1 - y3) - (y1 - y2) * (x1 - x3)) / -den;
+    if (0 > u || u > 1) return false;
+
+    *ix = x1 + (x2 - x1) * t;
+    *iy = y1 + (y2 - y1) * t;
+    return true;
+}
+
+bool Line::intersection_ray(float x1, float y1, float x1_dir, float y1_dir, float x2, float y2, float x2_dir, float y2_dir, float* ix, float* iy)
+{
+    float den = x1_dir * y2_dir - y1_dir * x2_dir;
+    if (den == 0) return false;
+
+    float t = ((x2 - x1) * y2_dir - (y2 - y1) * x2_dir) / den;
+    if (0 > t) return false;
+
+    float u = (x1_dir * (y2 - y1) - y1_dir * (x2 - x1)) / -den;
+    if (0 > u) return false;
+
+    *ix = x1 + x1_dir * t;
+    *iy = y1 + y1_dir * t;
+    return true;
+}
+
+void Line::boundIntersection_ray(float start_x, float start_y, float dir_x, float dir_y, float min_x, float min_y, float max_x, float max_y, float* ix, float* iy)
+{
+    float tMin = INFINITY;
+
+    if (dir_x != 0) {
+        float x = (dir_x < 0 ? min_x : max_x);
+        float t = (x - start_x) / dir_x;
+        if (t > 0) {
+            float y = start_y + t * dir_y;
+            if (y >= min_y && y < max_y) {
+                tMin = t;
+                *ix = x;
+                *iy = y;
+            }
+        }
+    }
+
+    if (dir_y != 0) {
+        float y = (dir_y < 0 ? min_y : max_y);
+        float t = (y - start_y) / dir_y;
+        if (t > 0 && t < tMin) {
+            float x = start_x + t * dir_x;
+            if (x >= min_x && x < max_x) {
+                tMin = t;
+                *ix = x;
+                *iy = y;
+            }
+        }
+    }
+}
+
+bool Line::boundClip_segment(float* x1, float* y1, float* x2, float* y2, float xmin, float ymin, float xmax, float ymax)
+{
+    float p[4], q[4];
+    p[0] = -(x2 - x1); q[0] = *x1 - xmin;
+    p[1] =  (x2 - x1); q[1] = xmax - *x1;
+    p[2] = -(y2 - y1); q[2] = *y1 - ymin;
+    p[3] =  (y2 - y1); q[3] = ymax - *y1;
+
+    float u1 = 0.0f;
+    float u2 = 1.0f;
+    for (int i = 0; i < 4; i++) {
+        if (p[i] == 0) {
+            if (q[i] < 0) return false; // Line is parallel and outside
+        } else {
+            float t = q[i] / p[i];
+            if (p[i] < 0) {
+                if (t > u2) return false;
+                if (t > u1) u1 = t;
+            } else {
+                if (t < u1) return false;
+                if (t < u2) u2 = t;
+            }
+        }
+    }
+
+    float nx1 = *x1 + u1 * (*x2 - *x1);
+    float ny1 = *y1 + u1 * (*y2 - *y1);
+    float nx2 = *x1 + u2 * (*x2 - *x1);
+    float ny2 = *y1 + u2 * (*y2 - *y1);
+
+    *x1 = nx1;
+    *y1 = ny1;
+    *x2 = nx2;
+    *y2 = ny2;
+    return true;
+}
