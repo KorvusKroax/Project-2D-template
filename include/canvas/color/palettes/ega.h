@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../color.h"
+#include "color/color.h"
 
 #define EGA_BLACK           Color(0, 0, 0)          // #000000
 #define EGA_BLUE            Color(0, 0, 170)        // #0000AA

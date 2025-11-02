@@ -2,9 +2,9 @@
 #include "canvas.h"
 #include "open_gl.h"
 #include "font.h"
-#include "text.h"
 #include "ui/button.h"
 #include "ui/toggle.h"
+
 #include <iostream>
 
 Canvas canvas(320, 200);
@@ -41,6 +41,8 @@ int main()
 
 
 
+
+
     Font font("resources/font/PetMe64.ttf", 8);
 
     Text::Options opts = {
@@ -51,7 +53,7 @@ int main()
         // .lineHeightScale = 1.0f
     };
 
-    std::shared_ptr<Button> btn = std::make_shared<Button>(10, 10, 50, 20, "HELLO", opts);
+    std::shared_ptr<Button> btn = std::make_shared<Button>(10, 10, 80, 20, "Button", opts);
     btn->onClickCallback = [wp = std::weak_ptr<Button>(btn)]() {
         if (std::shared_ptr<Button> b = wp.lock()) {
             std::cout << count++ << ": Button clicked!" << std::endl;
@@ -59,13 +61,15 @@ int main()
     };
     ui.add(btn);
 
-    std::shared_ptr<Toggle> tgl = std::make_shared<Toggle>(10, 50, 5, 5, "HELLO", opts);
+    std::shared_ptr<Toggle> tgl = std::make_shared<Toggle>(10, 50, 8, 8, "Toggle", opts);
     tgl->onClickCallback = [wp = std::weak_ptr<Toggle>(tgl)]() {
         if (std::shared_ptr<Toggle> t = wp.lock()) {
             std::cout << count++ << ": Toggle clicked!" << std::endl;
         }
     };
     ui.add(tgl);
+
+
 
 
 

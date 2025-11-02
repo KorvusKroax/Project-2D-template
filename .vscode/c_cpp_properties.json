@@ -10,7 +10,6 @@
             "includePath": [
                 "${workspaceFolder}/include",
                 "${workspaceFolder}/include/canvas",
-                "${workspaceFolder}/include/canvas/draw",
                 "${workspaceFolder}/dependencies",
                 "${workspaceFolder}/dependencies/open_gl",
                 "${workspaceFolder}/dependencies/open_gl/GLFW",
@@ -21,9 +20,6 @@
                 "path": [
                     "${workspaceFolder}/include",
                     "${workspaceFolder}/dependencies",
-                    "${workspaceFolder}/dependencies/open_gl",
-                    "${workspaceFolder}/dependencies/open_gl/GLFW",
-                    "${workspaceFolder}/dependencies/open_gl/KHR",
                     "${workspaceFolder}/src"
                 ],
                 "limitSymbolsToIncludedHeaders": true

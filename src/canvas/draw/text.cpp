@@ -1,4 +1,4 @@
-#include "text.h"
+#include "draw/text.h"
 
 #include "glyph.h"
 
@@ -117,4 +117,22 @@ std::vector<int> Text::utf8ToCodepoints(const std::string& str)
     }
 
     return result;
+}
+
+// it can't handle tabs and line breaks
+float Text::calcLineWidth(const std::vector<int>& codepoints, const Options& opts)
+{
+    float textWidth = 0;
+    for (int i = 0; i < codepoints.size(); i++) {
+        textWidth +=
+            (i ? stbtt_GetCodepointKernAdvance(&opts.font->info, codepoints[i - 1], codepoints[i]) : 0) +
+            opts.font->getGlyph(codepoints[i])->advanceWidth;
+    }
+
+    return textWidth * opts.font->scale;
+}
+
+float Text::calcLineHeight(const Options& opts)
+{
+    return opts.font->calcFontHeight() * opts.lineHeightScale;
 }

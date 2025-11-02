@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../color.h"
+#include "color/color.h"
 
 #define C64_BLACK           Color(0, 0, 0)          // #000000
 #define C64_WHITE           Color(255, 255, 255)    // #FFFFFF

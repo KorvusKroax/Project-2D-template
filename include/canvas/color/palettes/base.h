@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../color.h"
+#include "color/color.h"
 
 #define CLEAR           Color(0x00, 0x00, 0x00, 0x00)
 

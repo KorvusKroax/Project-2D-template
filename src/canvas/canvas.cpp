@@ -5,18 +5,6 @@
 #include <vector>
 #include <cstring> // memset
 
-Canvas::Canvas()
-{}
-
-Canvas::Canvas(int width, int height):
-    width(width), height(height), pixelBuffer(width * height * 4, 0)
-{}
-
-Canvas::Canvas(const char* fileName)
-{
-    loadImage_PNG(fileName);
-}
-
 void Canvas::resize(int newWidth, int newHeight, unsigned char fill)
 {
     this->width = newWidth;

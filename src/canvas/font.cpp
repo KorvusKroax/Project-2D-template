@@ -45,3 +45,8 @@ Glyph* Font::getGlyph(int codepoint)
 
     return &this->glyphCache[codepoint];
 }
+
+float Font::calcFontHeight()
+{
+    return (this->ascent - this->descent + this->lineGap) * this->scale;
+}

@@ -1,4 +1,4 @@
-#include "rectangle.h"
+#include "draw/rectangle.h"
 
 bool Rectangle::draw(Canvas* canvas, int x, int y, int width, int height, Color color, int pattern)
 {

@@ -1,8 +1,8 @@
 #pragma once
 
-#include "palettes/base.h"
-#include "palettes/ega.h"
-#include "palettes/c64.h"
+#include "color/palettes/base.h"
+#include "color/palettes/ega.h"
+#include "color/palettes/c64.h"
 
 struct Color
 {

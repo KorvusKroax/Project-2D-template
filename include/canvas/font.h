@@ -10,14 +10,15 @@
 
 class Font
 {
-    public:
-        stbtt_fontinfo info;
-        std::vector<unsigned char> buffer;
-        float scale;
-        int ascent, descent, lineGap;
-        std::map<int, Glyph> glyphCache;
+public:
+    stbtt_fontinfo info;
+    std::vector<unsigned char> buffer;
+    float scale;
+    int ascent, descent, lineGap;
+    std::map<int, Glyph> glyphCache;
 
-        Font(const std::string& filename, int pixelHeight = 16);
+    Font(const std::string& filename, int pixelHeight = 16);
 
-        Glyph* getGlyph(int codepoint);
+    Glyph* getGlyph(int codepoint);
+    float calcFontHeight();
 };

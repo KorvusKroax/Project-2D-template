@@ -1,6 +1,6 @@
-#include "bezier_curve.h"
+#include "draw/bezier_curve.h"
 
-#include "line.h"
+#include "draw/line.h"
 
 void BezierCurve::draw_quadratic(Canvas* canvas, int x1, int y1, int xc, int yc, int x2, int y2, float resolution, Color color)
 {

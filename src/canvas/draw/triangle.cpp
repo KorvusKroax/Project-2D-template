@@ -1,6 +1,6 @@
-#include "triangle.h"
+#include "draw/triangle.h"
 
-#include "line.h"
+#include "draw/line.h"
 
 #include <algorithm> // min, max
 

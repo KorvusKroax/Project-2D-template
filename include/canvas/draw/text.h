@@ -24,5 +24,6 @@ public:
     static int utf8ToCodepoint(const char* utf8char, int* bytesUsed = nullptr);
     static std::vector<int> utf8ToCodepoints(const std::string& str);
 
-    static float calcLineHeight(const Options& opts) { return (opts.font->ascent - opts.font->descent + opts.font->lineGap) * opts.font->scale * opts.lineHeightScale;}
+    static float calcLineWidth(const std::vector<int>& codepoints, const Options& opts);
+    static float calcLineHeight(const Options& opts);
 };
