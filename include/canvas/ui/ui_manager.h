@@ -15,4 +15,6 @@ public:
     void draw(Canvas* canvas);
     void updateHover(float mx, float my);
     void handleClick(float mx, float my);
+    // void handleDrag(float mx, float my);
+    void handleRelease(float mx, float my);
 };

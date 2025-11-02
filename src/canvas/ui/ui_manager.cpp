@@ -21,6 +21,7 @@ void UIManager::updateHover(float mx, float my)
 {
     for (std::shared_ptr<Widget>& widget : this->widgets) {
         widget->updateHover(mx, my);
+        if (widget->clicked && widget->hovered) widget->onDrag();
     }
 }
 
@@ -28,5 +29,19 @@ void UIManager::handleClick(float mx, float my)
 {
     for (std::shared_ptr<Widget>& widget : this->widgets) {
         if (widget->hovered) widget->onClick();
+    }
+}
+
+// void UIManager::handleDrag(float mx, float my)
+// {
+//     for (std::shared_ptr<Widget>& widget : this->widgets) {
+//         if (widget->hovered) widget->onDrag();
+//     }
+// }
+
+void UIManager::handleRelease(float mx, float my)
+{
+    for (std::shared_ptr<Widget>& widget : this->widgets) {
+        if (widget->hovered) widget->onRelease();
     }
 }

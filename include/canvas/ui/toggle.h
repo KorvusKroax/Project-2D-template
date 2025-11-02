@@ -18,6 +18,5 @@ public:
     Toggle(float x, float y, float width, float height, const std::string& label, const Text::Options& opts);
 
     void draw(Canvas* canvas) override;
-    void updateHover(float mx, float my) override;
     void onClick() override;
 };

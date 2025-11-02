@@ -18,5 +18,4 @@ public:
     {}
 
     void draw(Canvas* canvas) override;
-    void updateHover(float mx, float my) override;
 };

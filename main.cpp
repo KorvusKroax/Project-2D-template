@@ -11,7 +11,8 @@ Canvas canvas(320, 200);
 OpenGL openGL(&canvas, 4);
 
 UIManager ui;
-int mouseX, mouseY;
+double mouseX, mouseY;
+double lastMouseX, lastMouseY;
 int count = 0;
 
 int main()
@@ -24,10 +25,13 @@ int main()
 
     glfwSetCursorPosCallback(openGL.window,
         [](GLFWwindow*, double xpos, double ypos) {
-            openGL.screenToCanvas(&xpos, &ypos);
             mouseX = xpos;
             mouseY = ypos;
+            openGL.screenToCanvas(&mouseX, &mouseY);
             ui.updateHover(mouseX, mouseY);
+            // ui.handleDrag(mouseX, mouseY);
+            lastMouseX = mouseX;
+            lastMouseY = mouseY;
         }
     );
 
@@ -35,6 +39,9 @@ int main()
         [](GLFWwindow*, int button, int action, int) {
             if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_PRESS) {
                 ui.handleClick(mouseX, mouseY);
+            }
+            if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_RELEASE) {
+                ui.handleRelease(mouseX, mouseY);
             }
         }
     );
@@ -53,16 +60,34 @@ int main()
         // .lineHeightScale = 1.0f
     };
 
+
+
     std::shared_ptr<Button> btn = std::make_shared<Button>(10, 10, 80, 20, "Button", opts);
-    btn->onClickCallback = [wp = std::weak_ptr<Button>(btn)]() {
+    btn->onClick_callback = [wp = std::weak_ptr<Button>(btn)]() {
         if (std::shared_ptr<Button> b = wp.lock()) {
             std::cout << count++ << ": Button clicked!" << std::endl;
         }
     };
+    btn->onDrag_callback = [wp = std::weak_ptr<Button>(btn)]() {
+        if (std::shared_ptr<Button> b = wp.lock()) {
+            std::cout << count++ << ": Button drag!" << std::endl;
+            float offX = mouseX - lastMouseX;
+            float offY = mouseY - lastMouseY;
+            b->x += offX;
+            b->y += offY;
+        }
+    };
+    btn->onRelease_callback = [wp = std::weak_ptr<Button>(btn)]() {
+        if (std::shared_ptr<Button> b = wp.lock()) {
+            std::cout << count++ << ": Button released!" << std::endl;
+        }
+    };
     ui.add(btn);
 
+
+
     std::shared_ptr<Toggle> tgl = std::make_shared<Toggle>(10, 50, 8, 8, "Toggle", opts);
-    tgl->onClickCallback = [wp = std::weak_ptr<Toggle>(tgl)]() {
+    tgl->onClick_callback = [wp = std::weak_ptr<Toggle>(tgl)]() {
         if (std::shared_ptr<Toggle> t = wp.lock()) {
             std::cout << count++ << ": Toggle clicked!" << std::endl;
         }
