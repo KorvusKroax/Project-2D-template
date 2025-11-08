@@ -62,7 +62,7 @@ int main()
     Text::Options opts = {
         .font = &font,
         // .shadow_color = Color(0, 0, 0, 100),
-        // .shadow_direction = std::make_pair(1, -2),
+        // .shadow_direction = std::pair{1, -2},
         .outline_color = C64_BLACK,
         .outline_size = 1
     };
@@ -91,7 +91,6 @@ int main()
             std::cout << count++ << ": Button released!" << std::endl;
         }
     };
-    ui.add(btn);
 
 
 
@@ -104,8 +103,9 @@ int main()
             std::cout << count++ << ": Toggle clicked!" << std::endl;
         }
     };
-    ui.add(tgl);
 
+    ui.add(tgl);
+    ui.add(btn);
 
 
 
