@@ -66,7 +66,7 @@ bool Canvas::getPixel(int x, int y, Color* color)
 {
     if (x < 0 || x >= this->width || y < 0 || y >= this->height) return false;
 
-    int index = (x + y * width) * 4;
+    int index = (x + y * this->width) * 4;
     *color = Color(
         this->pixelBuffer[index + 0],
         this->pixelBuffer[index + 1],
@@ -93,6 +93,56 @@ bool Canvas::setPixels(int x, int y, const Canvas* canvas)
         const int destIndex = (destStartX + (destStartY + i) * this->width) * 4;
         const int srcIndex  = (srcOffsetX + (srcOffsetY + i) * canvas->width) * 4;
         std::memcpy(&this->pixelBuffer[destIndex], &canvas->pixelBuffer[srcIndex], (destEndX - destStartX) * 4);
+    }
+
+    return true;
+}
+
+bool Canvas::setPixels_blend(int x, int y, const Canvas* canvas)
+{
+    int destStartX = std::max(0, x);
+    int destStartY = std::max(0, y);
+    int destEndX = std::min(this->width, x + canvas->width);
+    int destEndY = std::min(this->height, y + canvas->height);
+
+    if (destStartX >= destEndX || destStartY >= destEndY) return false;
+
+    int srcOffsetX = destStartX - x;
+    int srcOffsetY = destStartY - y;
+
+    for (int i = 0; i < destEndY - destStartY; i++) {
+        const int destIndex = (destStartX + (destStartY + i) * this->width) * 4;
+        const int srcIndex  = (srcOffsetX + (srcOffsetY + i) * canvas->width) * 4;
+        for (int j = 0; j < destEndX - destStartX; j++) {
+            const int srcPixelIndex  = srcIndex + j * 4;
+            if (canvas->pixelBuffer[srcPixelIndex + 3] == 0) continue;
+
+            const int destPixelIndex = destIndex + j * 4;
+            if (canvas->pixelBuffer[srcPixelIndex + 3] == 255) {
+                this->pixelBuffer[destPixelIndex + 0] = canvas->pixelBuffer[srcPixelIndex + 0];
+                this->pixelBuffer[destPixelIndex + 1] = canvas->pixelBuffer[srcPixelIndex + 1];
+                this->pixelBuffer[destPixelIndex + 2] = canvas->pixelBuffer[srcPixelIndex + 2];
+                this->pixelBuffer[destPixelIndex + 3] = canvas->pixelBuffer[srcPixelIndex + 3];
+                continue;
+            }
+
+            const Color fg = Color(
+                canvas->pixelBuffer[srcPixelIndex + 0],
+                canvas->pixelBuffer[srcPixelIndex + 1],
+                canvas->pixelBuffer[srcPixelIndex + 2],
+                canvas->pixelBuffer[srcPixelIndex + 3]
+            );
+            const Color bg = Color(
+                this->pixelBuffer[destPixelIndex + 0],
+                this->pixelBuffer[destPixelIndex + 1],
+                this->pixelBuffer[destPixelIndex + 2],
+                this->pixelBuffer[destPixelIndex + 3]
+            );
+            this->pixelBuffer[destPixelIndex + 0] = (unsigned char)(int(fg.r * fg.a + bg.r * (255 - fg.a)) >> 8);
+            this->pixelBuffer[destPixelIndex + 1] = (unsigned char)(int(fg.g * fg.a + bg.g * (255 - fg.a)) >> 8);
+            this->pixelBuffer[destPixelIndex + 2] = (unsigned char)(int(fg.b * fg.a + bg.b * (255 - fg.a)) >> 8);
+            this->pixelBuffer[destPixelIndex + 3] = (unsigned char)(int(fg.a * 255 + bg.a * (255 - fg.a)) >> 8);
+        }
     }
 
     return true;

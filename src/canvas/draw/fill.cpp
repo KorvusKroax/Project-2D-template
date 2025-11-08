@@ -1,6 +1,7 @@
 #include "draw/fill.h"
 
 #include <vector>
+#include <utility>  // std::pair
 
 bool Fill::flood(Canvas* canvas, int x, int y, Color color)
 {

@@ -2,7 +2,7 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "g++.exe - Build and debug app",
+            "name": "C/C++: g++.exe build and debug app",
             "type": "cppdbg",
             "request": "launch",
             "program": "${workspaceFolder}\\main.exe",

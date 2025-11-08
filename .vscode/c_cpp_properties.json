@@ -10,11 +10,7 @@
             "includePath": [
                 "${workspaceFolder}/include",
                 "${workspaceFolder}/include/canvas",
-                "${workspaceFolder}/dependencies",
-                "${workspaceFolder}/dependencies/open_gl",
-                "${workspaceFolder}/dependencies/open_gl/GLFW",
-                "${workspaceFolder}/dependencies/open_gl/KHR",
-                "${workspaceFolder}/src"
+                "${workspaceFolder}/dependencies"
             ],
             "browse": {
                 "path": [

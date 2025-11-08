@@ -129,8 +129,8 @@ void OpenGL::getMousePosition(int* x, int* y)
 
 void OpenGL::screenToCanvas(double* x, double* y)
 {
-    *x = (                         *x + this->xPixelOffset + this->xMouseOffset) / this->pixelSize;
-    *y = (this->windowHeight - 1 - *y + this->yPixelOffset - this->yMouseOffset) / this->pixelSize;
+    *x = (                         *x + this->xPixelOffset + this->xMouseOffset) / (float)this->pixelSize;
+    *y = (this->windowHeight - 1 - *y + this->yPixelOffset - this->yMouseOffset) / (float)this->pixelSize;
 }
 
 void OpenGL::createWindow(const char* title)

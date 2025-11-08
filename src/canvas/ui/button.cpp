@@ -4,12 +4,16 @@
 
 void Button::draw(Canvas* canvas)
 {
-    this->color = this->clicked && this->hovered ? EGA_RED : (this->hovered ? EGA_LIGHT_GRAY : EGA_DARK_GRAY);
+    this->color = this->clicked && this->hovered ? RED : (this->hovered ? LIGHT_GRAY : DARK_GRAY);
 
-    Rectangle::draw_filled(canvas, this->x, this->y, this->width, this->height, this->color);
+    if (this->image) {
+        canvas->setPixels_blend(this->x, this->y, this->image);
+    } else {
+        Rectangle::draw_filled(canvas, this->x, this->y, this->width, this->height, this->color);
+    }
 
     this->textField.x = this->x;
     this->textField.y = this->y;
-
+    this->textField.textAlign = CENTER_CENTER;
     this->textField.draw(canvas);
 }

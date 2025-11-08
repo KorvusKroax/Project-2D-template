@@ -1,9 +1,8 @@
 #include "draw/text.h"
 
-#include "glyph.h"
+#include "ui/glyph.h"
 
 #include <vector>
-#include <cmath> // lround
 
 void Text::draw(Canvas* canvas, float x, float y, const std::string& text, const Options& opts)
 {
@@ -41,29 +40,24 @@ void Text::draw_char(Canvas* canvas, float x, float y, int codepoint, const Text
 
     Glyph* glyph = opts.font->getGlyph(codepoint);
 
-    Color textColor = opts.textColor;
+    Color textColor = opts.color;
     if (glyph->width > 0 && glyph->height > 0) {
         for (int j = 0; j < glyph->height; j++) {
-            bool setted = false;
             for (int i = 0; i < glyph->width; i++) {
                 textColor.a = glyph->bitmap[j * glyph->width + i];
-                if (textColor.a == 0) {
-                    setted = false;
-                    continue;
-                }
+                if (textColor.a == 0) continue;
 
-                int px = (int)std::lround(x + glyph->x0 + i);
-                int py = (int)std::lround((y  - glyph->y0) - j);
+                int px = (int)x + glyph->x0 + i;
+                int py = (int)y - glyph->y0 - j;
                 canvas->setPixel(px, py, textColor);
-
-                if (opts.shadowColor.a > 0) {
-                    canvas->setPixel(px + 1, py - 1, opts.shadowColor);
-                    if (!setted) canvas->setPixel(px, py - 1, opts.shadowColor);
-                    setted = true;
-                }
             }
         }
     }
+
+    if (opts.shadow_color.a > 0)
+        addShadow(canvas, x + glyph->x0, y - glyph->y0, glyph->width, glyph->height, opts);
+    else if (opts.outline_color.a > 0)
+        addOutline(canvas, x + glyph->x0, y - glyph->y0, glyph->width, glyph->height, opts);
 
     if (advanceWidth) *advanceWidth = glyph->advanceWidth * opts.font->scale;
     return;
@@ -119,7 +113,7 @@ std::vector<int> Text::utf8ToCodepoints(const std::string& str)
     return result;
 }
 
-// it can't handle tabs and line breaks
+// it can't handle tabs and line breaks !!!
 float Text::calcLineWidth(const std::vector<int>& codepoints, const Options& opts)
 {
     float textWidth = 0;
@@ -135,4 +129,44 @@ float Text::calcLineWidth(const std::vector<int>& codepoints, const Options& opt
 float Text::calcLineHeight(const Options& opts)
 {
     return opts.font->calcFontHeight() * opts.lineHeightScale;
+}
+
+void Text::addShadow(Canvas* canvas, float x, float y, float width, float height, const Options& opts)
+{
+    Color pixelColor;
+    for (int j = 0; j < height; j++) {
+        for (int i = 0; i < width; i++) {
+
+            int px = (int)x + i;
+            int py = (int)y - j;
+            if (!canvas->getPixel(px, py, &pixelColor) || pixelColor != opts.color) continue;
+
+            px += opts.shadow_direction.first;
+            py += opts.shadow_direction.second;
+            if (!canvas->getPixel(px, py, &pixelColor) || pixelColor == opts.color) continue;
+
+            canvas->setPixel(px, py, opts.shadow_color);
+        }
+    }
+}
+
+void Text::addOutline(Canvas* canvas, float x, float y, float width, float height, const Options& opts)
+{
+    Color pixelColor;
+    for (int j = 0; j < height; j++) {
+        for (int i = 0; i < width; i++) {
+
+            int px = (int)x + i;
+            int py = (int)y - j;
+            if (!canvas->getPixel(px, py, &pixelColor) || pixelColor != opts.color) continue;
+
+            for (int l = -opts.outline_size; l <= opts.outline_size; l++) {
+                for (int k = -opts.outline_size; k <= opts.outline_size; k++) {
+                    if (k == 0 && l == 0) continue;
+                    if (!canvas->getPixel(px + k, py + l, &pixelColor) || pixelColor == opts.color) continue;
+                    canvas->setPixel(px + k, py + l, opts.outline_color);
+                }
+            }
+        }
+    }
 }

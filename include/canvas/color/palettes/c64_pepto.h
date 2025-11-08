@@ -14,7 +14,7 @@
 #define C64_BROWN           Color(87, 66, 0)        // #574200
 #define C64_LIGHT_RED       Color(184, 105, 98)     // #B86962
 #define C64_DARK_GRAY       Color(80, 80, 80)       // #505050
-#define C64_MEDIUM_GRAY     Color(120, 120, 120)    // #787878
+#define C64_GRAY            Color(120, 120, 120)    // #787878
 #define C64_LIGHT_GREEN     Color(148, 224, 137)    // #94E089
 #define C64_LIGHT_BLUE      Color(120, 105, 196)    // #7869C4
 #define C64_LIGHT_GRAY      Color(159, 159, 159)    // #9F9F9F

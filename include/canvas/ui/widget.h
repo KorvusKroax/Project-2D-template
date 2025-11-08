@@ -1,6 +1,7 @@
 #pragma once
 
 #include "canvas.h"
+#include "color/palettes/ega.h"
 
 #include <functional> // function
 

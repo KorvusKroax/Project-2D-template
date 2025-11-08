@@ -7,7 +7,7 @@
 
 #include <string>
 #include <vector>
-#include <utility>  // for std::pair
+#include <utility>  // std::pair
 
 enum TextAlign
 {

@@ -2,24 +2,27 @@
 
 #include "draw/rectangle.h"
 
-#include <cmath> // lround
-
-Toggle::Toggle(float x, float y, float width, float height, const std::string& label, const Text::Options& opts)
-    : Widget(x, y, width, height), textField(TextField(x, y, Text::calcLineWidth(Text::utf8ToCodepoints(label), opts), height, label, opts))
-{}
-
 void Toggle::draw(Canvas* canvas)
 {
-    this->color = this->clicked && this->hovered ? EGA_RED : (this->hovered ? EGA_LIGHT_GRAY : EGA_DARK_GRAY);
+    this->color = this->clicked && this->hovered ? RED : (this->hovered ? LIGHT_GRAY : DARK_GRAY);
 
-    Rectangle::draw(canvas, this->x, this->y, this->width, this->height, this->color);
+    if (this->image) {
+        canvas->setPixels_blend(this->x, this->y, this->image);
+    } else {
+        Rectangle::draw(canvas, this->x, this->y, this->width, this->height, this->color);
+    }
+
     if (this->checked) {
-        Rectangle::draw_filled(canvas, this->x + 2, this->y + 2, this->width - 4, this->height - 4, this->color);
+        if (this->checkImage) {
+            canvas->setPixels_blend(this->x, this->y, this->checkImage);
+        } else {
+            Rectangle::draw_filled(canvas, this->x + 2, this->y + 2, this->width - 4, this->height - 4, this->color);
+        }
     }
 
     this->textField.x = this->x + this->width + 2;
-    this->textField.y = this->y + (int)std::lround((this->height - Text::calcLineHeight(this->textField.opts)) * .5f);
-
+    this->textField.y = this->y;
+    this->textField.textAlign = LEFT_CENTER;
     this->textField.draw(canvas);
 }
 

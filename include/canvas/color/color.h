@@ -1,8 +1,6 @@
 #pragma once
 
 #include "color/palettes/base.h"
-#include "color/palettes/ega.h"
-#include "color/palettes/c64.h"
 
 struct Color
 {
@@ -21,19 +19,19 @@ struct Color
         return Color(v, v, v, this->a);
     }
 
-    Color blend(const Color& foreground) const // this = background
+    Color blend(const Color& other) const
     {
         return Color(
-            (unsigned char)(int(foreground.r * foreground.a + this->r * (255 - foreground.a)) >> 8),
-            (unsigned char)(int(foreground.g * foreground.a + this->g * (255 - foreground.a)) >> 8),
-            (unsigned char)(int(foreground.b * foreground.a + this->b * (255 - foreground.a)) >> 8),
-            foreground.a + this->a * (255 - foreground.a)
+            (unsigned char)(int(other.r * other.a + this->r * (255 - other.a)) >> 8),
+            (unsigned char)(int(other.g * other.a + this->g * (255 - other.a)) >> 8),
+            (unsigned char)(int(other.b * other.a + this->b * (255 - other.a)) >> 8),
+            (unsigned char)(int(other.a * 255 + this->a * (255 - other.a)) >> 8)
         );
     }
 
     bool operator == (const Color& other) const
     {
-        return this->r == other.r && this->g == other.g && this->b == other.b && this->a == other.a;
+        return this->r == other.r && this->g == other.g && this->b == other.b;// && this->a == other.a;
     }
 
     bool operator != (const Color& other) const

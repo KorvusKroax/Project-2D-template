@@ -29,6 +29,7 @@ public:
     bool setPixel(int x, int y, Color color);
     bool getPixel(int x, int y, Color* color);
     bool setPixels(int x, int y, const Canvas* canvas);
+    bool setPixels_blend(int x, int y, const Canvas* canvas);
     bool getPixels(int x, int y, int width, int height, Canvas* canvas);
     bool loadImage_PNG(const char* fileName);
 };
