@@ -20,12 +20,13 @@ public:
         std::pair<int, int> shadow_direction{1, -1};
 
         Color outline_color = CLEAR;
-        int outline_size = 1;
+        int outline_width = 0;
     };
 
     static void draw(Canvas* canvas, float x, float y, const std::string& text, const Options& opts);
     static void draw_line(Canvas* canvas, float x, float y, const std::vector<int>& codepoints, const Options& opts);
     static void draw_char(Canvas* canvas, float x, float y, int codepoint, const Options& opts, float* advanceWidth = nullptr);
+    static void addGlyph(Canvas* canvas, float x, float y, Glyph* glyph, const Options& opts);
     static void addShadow(Canvas* canvas, float x, float y, Glyph* glyph, const Options& opts);
     static void addOutline(Canvas* canvas, float x, float y, Glyph* glyph, const Options& opts);
 

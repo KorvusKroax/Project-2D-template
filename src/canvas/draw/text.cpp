@@ -39,80 +39,99 @@ void Text::draw_char(Canvas* canvas, float x, float y, int codepoint, const Text
     }
 
     Glyph* glyph = opts.font->getGlyph(codepoint);
-
-    Color textColor = opts.color;
-    if (glyph->width > 0 && glyph->height > 0) {
-        for (int j = 0; j < glyph->height; j++) {
-            for (int i = 0; i < glyph->width; i++) {
-                textColor.a = glyph->bitmap[i + j * glyph->width];
-                if (textColor.a == 0) continue;
-
-                int px = (int)x + glyph->x0 + i;
-                int py = (int)y - glyph->y0 - j;
-                canvas->setPixel(px, py, textColor);
-            }
-        }
+    if (glyph->width && glyph->height) {
+        if (opts.shadow_color.a) addShadow(canvas, x, y, glyph, opts);
+        if (opts.color.a) addGlyph(canvas, x, y, glyph, opts);
+        if (opts.outline_color.a) addOutline(canvas, x, y, glyph, opts);
     }
-
-    if (opts.shadow_color.a > 0)
-        addShadow(canvas, x, y, glyph, opts);
-    else if (opts.outline_color.a > 0)
-        addOutline(canvas, x, y, glyph, opts);
 
     if (advanceWidth) *advanceWidth = glyph->advanceWidth * opts.font->scale;
     return;
 }
 
-void Text::addShadow(Canvas* canvas, float x, float y, Glyph* glyph, const Options& opts)
+void Text::addGlyph(Canvas* canvas, float x, float y, Glyph* glyph, const Options& opts)
 {
-    unsigned char alpha;
-    Color pixelColor;
+    Color pixelColor = opts.color;
+
     for (int j = 0; j < glyph->height; j++) {
         for (int i = 0; i < glyph->width; i++) {
-            alpha = glyph->bitmap[i + j * glyph->width];
-            if (alpha == 0) continue;
+
+            pixelColor.a = (unsigned char)(opts.color.a * ((float)glyph->bitmap[i + j * glyph->width] / 255));
+            if (pixelColor.a == 0) continue;
+
+            int px = (int)x + glyph->x0 + i;
+            int py = (int)y - glyph->y0 - j;
+            canvas->setPixel(px, py, pixelColor);
+        }
+    }
+}
+
+void Text::addShadow(Canvas* canvas, float x, float y, Glyph* glyph, const Options& opts)
+{
+    Color pixelColor = opts.shadow_color;
+    float alpha = opts.shadow_color.a;// * ((float)opts.color.a / 255);
+
+    for (int j = 0; j < glyph->height; j++) {
+        for (int i = 0; i < glyph->width; i++) {
+
+            pixelColor.a = (unsigned char)(alpha * ((float)glyph->bitmap[i + j * glyph->width] / 255));
+            if (pixelColor.a == 0) continue;
 
             int ii = i + opts.shadow_direction.first;
-            int jj = j + opts.shadow_direction.second;
-            if (ii >= 0 && ii < glyph->width && jj >= 0 && jj < glyph->height &&
-                glyph->bitmap[ii + jj * glyph->width] > 0)
-                    continue;
+            int jj = j - opts.shadow_direction.second;
+            // if (ii >= 0 && ii < glyph->width && jj >= 0 && jj < glyph->height &&
+            //     glyph->bitmap[ii + jj * glyph->width] > 0)
+            //         continue;
 
             int px = (int)x + glyph->x0 + ii;
             int py = (int)y - glyph->y0 - jj;
-
-            canvas->setPixel(px, py, opts.shadow_color);
-
-            // pixelColor = opts.shadow_color;
-            // pixelColor.a *= (float)alpha / 255.0f;
-            // canvas->setPixel(px, py, pixelColor);
+            canvas->setPixel(px, py, pixelColor);
         }
     }
 }
 
 void Text::addOutline(Canvas* canvas, float x, float y, Glyph* glyph, const Options& opts)
 {
-    unsigned char alpha;
-    Color pixelColor;
+    if (opts.outline_width) {
+        for (int j = 0; j < glyph->height; j++) {
+            for (int i = 0; i < glyph->width; i++) {
+                if (glyph->bitmap[i + j * glyph->width] == 0) continue;
+
+                int px = (int)x + glyph->x0 + i;
+                int py = (int)y - glyph->y0 - j;
+                for (int l = -opts.outline_width; l <= opts.outline_width; l++) {
+                    for (int k = -opts.outline_width; k <= opts.outline_width; k++) {
+                        if (k == 0 && l == 0) continue;
+
+                        int ii = i + k;
+                        int jj = j - l;
+                        if (ii >= 0 && ii < glyph->width && jj >= 0 && jj < glyph->height &&
+                            glyph->bitmap[ii + jj * glyph->width] > 0)
+                                continue;
+
+                        canvas->setPixel(px + k, py + l, opts.outline_color);
+                    }
+                }
+            }
+        }
+        return;
+    }
+
+    static const char outline[4][2] = {{0, 1}, {1, 0}, {0, -1}, {-1, 0}};
     for (int j = 0; j < glyph->height; j++) {
         for (int i = 0; i < glyph->width; i++) {
-            alpha = glyph->bitmap[i + j * glyph->width];
-            if (alpha == 0) continue;
+            if (glyph->bitmap[i + j * glyph->width] == 0) continue;
 
             int px = (int)x + glyph->x0 + i;
             int py = (int)y - glyph->y0 - j;
-            for (int l = -opts.outline_size; l <= opts.outline_size; l++) {
-                for (int k = -opts.outline_size; k <= opts.outline_size; k++) {
-                    if (k == 0 && l == 0) continue;
+            for (const auto& [k, l] : outline) {
+                int ii = i + k;
+                int jj = j - l;
+                if (ii >= 0 && ii < glyph->width && jj >= 0 && jj < glyph->height &&
+                    glyph->bitmap[ii + jj * glyph->width] > 0)
+                        continue;
 
-                    int ii = i + k;
-                    int jj = j - l;
-                    if (ii >= 0 && ii < glyph->width && jj >= 0 && jj < glyph->height &&
-                        glyph->bitmap[ii + jj * glyph->width] > 0)
-                            continue;
-
-                    canvas->setPixel(px + k, py + l, opts.outline_color);
-                }
+                canvas->setPixel(px + k, py + l, opts.outline_color);
             }
         }
     }

@@ -61,10 +61,11 @@ int main()
 
     Text::Options opts = {
         .font = &font,
+        .color = C64_WHITE,
         // .shadow_color = Color(0, 0, 0, 100),
         // .shadow_direction = std::pair{1, -2},
         .outline_color = C64_BLACK,
-        .outline_size = 1
+        // .outline_width = 1
     };
 
 
